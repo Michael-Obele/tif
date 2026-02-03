@@ -1,84 +1,169 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import { Hammer, Menu, X } from '@lucide/svelte';
+	import { Hammer, Menu, ArrowRight, ExternalLink, Github, Zap } from '@lucide/svelte';
 	import { Button } from '$lib/components/ui/button';
+	import { Badge } from '$lib/components/ui/badge';
+	import { Separator } from '$lib/components/ui/separator';
 	import * as Sheet from '$lib/components/ui/sheet';
 
 	let isOpen = $state(false);
+	let scrolled = $state(false);
 
-	const links = [
+	// Track scroll for enhanced navbar styling
+	$effect(() => {
+		const handleScroll = () => {
+			scrolled = window.scrollY > 10;
+		};
+		window.addEventListener('scroll', handleScroll);
+		return () => window.removeEventListener('scroll', handleScroll);
+	});
+
+	const links: Array<{
+		href: string;
+		label: string;
+		external?: boolean;
+		badge?: string;
+		icon?: typeof Github;
+	}> = [
 		{ href: '/', label: 'Home' },
-		{ href: '/pricing', label: 'Pricing' },
-		{ href: 'https://github.com/Michael-Obele/tif', label: 'GitHub', external: true }
+		{ href: '/pricing', label: 'Pricing', badge: 'Free' },
+		{ href: 'https://github.com/Michael-Obele/tif', label: 'GitHub', external: true, icon: Github }
 	];
 
 	function closeMenu() {
 		isOpen = false;
 	}
+
+	function isActive(href: string): boolean {
+		if (href === '/') return page.url.pathname === '/';
+		return page.url.pathname.startsWith(href);
+	}
 </script>
 
 <nav
-	class="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60"
+	class="navbar-glass sticky top-0 z-50 w-full border-b transition-all duration-300 {scrolled
+		? 'border-border/60 shadow-lg shadow-primary/5'
+		: 'border-border/40'}"
 >
-	<div class="container mx-auto flex h-14 max-w-screen-2xl items-center px-4">
-		<a href="/" class="mr-6 flex items-center space-x-2">
-			<Hammer class="h-6 w-6" />
-			<span class="hidden font-bold sm:inline-block">Tech Invoice Forge</span>
+	<div class="container mx-auto flex h-16 max-w-screen-2xl items-center justify-between px-4">
+		<!-- Logo Section -->
+		<a
+			href="/"
+			class="group flex items-center gap-2.5 transition-opacity hover:opacity-80"
+			aria-label="Tech Invoice Forge Home"
+		>
+			<div class="icon-spin-hover relative">
+				<Hammer class="h-6 w-6 text-primary" />
+				<div
+					class="absolute -inset-1 -z-10 rounded-full bg-primary/10 opacity-0 blur transition-opacity group-hover:opacity-100"
+				></div>
+			</div>
+			<span class="hidden text-lg font-semibold tracking-tight sm:inline-block">
+				Tech Invoice Forge
+			</span>
 		</a>
-		<div class="mr-4 hidden md:flex">
-			<nav class="flex items-center gap-6 text-sm font-medium">
+
+		<!-- Desktop Navigation -->
+		<div class="hidden items-center gap-1 md:flex">
+			<Separator orientation="vertical" class="mx-4 h-6" />
+
+			<nav class="flex items-center gap-1" aria-label="Main navigation">
 				{#each links as link}
 					<a
 						href={link.href}
-						class={page.url.pathname === link.href
-							? 'text-foreground'
-							: 'text-foreground/60 transition-colors hover:text-foreground/80'}
+						class="link-underline flex items-center gap-1.5 rounded-md px-3 py-2 text-sm font-medium transition-colors {isActive(
+							link.href
+						)
+							? 'link-active text-foreground'
+							: 'text-muted-foreground hover:text-foreground'}"
 						target={link.external ? '_blank' : undefined}
-						rel={link.external ? 'noreferrer' : undefined}
+						rel={link.external ? 'noopener noreferrer' : undefined}
 					>
+						{#if link.icon}
+							<svelte:component this={link.icon} class="h-4 w-4" />
+						{/if}
 						{link.label}
+						{#if link.badge}
+							<Badge variant="secondary" class="ml-1 px-1.5 py-0 text-[10px]">
+								{link.badge}
+							</Badge>
+						{/if}
+						{#if link.external}
+							<ExternalLink class="h-3 w-3 opacity-50" />
+						{/if}
 					</a>
 				{/each}
 			</nav>
 		</div>
-		<div class="flex flex-1 items-center justify-between space-x-2 md:justify-end">
-			<div class="w-full flex-1 md:w-auto md:flex-none">
-				<!-- Add Search or other items here if needed -->
-			</div>
-			<div class="flex items-center gap-2">
-				<Button variant="outline" href="/app" class="hidden md:inline-flex">Launch App</Button>
 
-				<!-- Mobile Menu -->
-				<div class="md:hidden">
-					<Sheet.Root bind:open={isOpen}>
-						<Sheet.Trigger>
-							{#snippet child({ props })}
-								<Button variant="ghost" size="icon" {...props} aria-label="Toggle Menu">
-									<Menu class="h-5 w-5" />
-								</Button>
-							{/snippet}
-						</Sheet.Trigger>
-						<Sheet.Content side="right">
-							<Sheet.Header>
-								<Sheet.Title class="text-left font-bold">Tech Invoice Forge</Sheet.Title>
-								<Sheet.Description class="sr-only">Main Navigation</Sheet.Description>
-							</Sheet.Header>
-							<div class="flex flex-col space-y-4 py-4">
-								{#each links as link}
-									<a
-										href={link.href}
-										class="text-sm font-medium text-foreground/70 hover:text-foreground"
-										data-sveltekit-preload-data="hover"
-										onclick={closeMenu}
-									>
+		<!-- Actions Section -->
+		<div class="flex items-center gap-3">
+			<!-- Desktop CTA -->
+			<Button href="/app" class="group hidden gap-2 md:inline-flex">
+				<Zap class="h-4 w-4" />
+				<span>Launch App</span>
+				<ArrowRight class="btn-arrow h-4 w-4" />
+			</Button>
+
+			<!-- Mobile Menu Trigger -->
+			<div class="md:hidden">
+				<Sheet.Root bind:open={isOpen}>
+					<Sheet.Trigger>
+						{#snippet child({ props })}
+							<Button variant="ghost" size="icon" {...props} aria-label="Open navigation menu">
+								<Menu class="h-5 w-5" />
+							</Button>
+						{/snippet}
+					</Sheet.Trigger>
+					<Sheet.Content side="right" class="w-[280px] sm:w-[320px]">
+						<Sheet.Header class="text-left">
+							<Sheet.Title class="flex items-center gap-2">
+								<Hammer class="h-5 w-5 text-primary" />
+								<span>Tech Invoice Forge</span>
+							</Sheet.Title>
+							<Sheet.Description class="sr-only">Main navigation menu</Sheet.Description>
+						</Sheet.Header>
+
+						<div class="mt-6 flex flex-col gap-1">
+							{#each links as link}
+								<a
+									href={link.href}
+									class="flex items-center justify-between rounded-lg px-3 py-3 text-sm font-medium transition-colors {isActive(
+										link.href
+									)
+										? 'bg-primary/10 text-primary'
+										: 'text-muted-foreground hover:bg-muted hover:text-foreground'}"
+									target={link.external ? '_blank' : undefined}
+									rel={link.external ? 'noopener noreferrer' : undefined}
+									onclick={closeMenu}
+								>
+									<span class="flex items-center gap-2">
+										{#if link.icon}
+											<svelte:component this={link.icon} class="h-4 w-4" />
+										{/if}
 										{link.label}
-									</a>
-								{/each}
-								<Button href="/app" class="w-full" onclick={closeMenu}>Launch App</Button>
-							</div>
-						</Sheet.Content>
-					</Sheet.Root>
-				</div>
+										{#if link.badge}
+											<Badge variant="secondary" class="px-1.5 py-0 text-[10px]">
+												{link.badge}
+											</Badge>
+										{/if}
+									</span>
+									{#if link.external}
+										<ExternalLink class="h-3.5 w-3.5 opacity-50" />
+									{/if}
+								</a>
+							{/each}
+
+							<Separator class="my-4" />
+
+							<Button href="/app" class="group w-full gap-2" onclick={closeMenu}>
+								<Zap class="h-4 w-4" />
+								<span>Launch App</span>
+								<ArrowRight class="btn-arrow h-4 w-4" />
+							</Button>
+						</div>
+					</Sheet.Content>
+				</Sheet.Root>
 			</div>
 		</div>
 	</div>
