@@ -5,6 +5,7 @@
 	import { Badge } from '$lib/components/ui/badge';
 	import { Separator } from '$lib/components/ui/separator';
 	import * as Sheet from '$lib/components/ui/sheet';
+	import ModeToggle from './mode-toggle.svelte';
 
 	let isOpen = $state(false);
 	let scrolled = $state(false);
@@ -80,7 +81,7 @@
 						rel={link.external ? 'noopener noreferrer' : undefined}
 					>
 						{#if link.icon}
-							<svelte:component this={link.icon} class="h-4 w-4" />
+							<link.icon class="h-4 w-4" />
 						{/if}
 						{link.label}
 						{#if link.badge}
@@ -98,6 +99,7 @@
 
 		<!-- Actions Section -->
 		<div class="flex items-center gap-3">
+			<ModeToggle />
 			<!-- Desktop CTA -->
 			<Button href="/app" class="group hidden gap-2 md:inline-flex">
 				<Zap class="h-4 w-4" />
@@ -139,7 +141,7 @@
 								>
 									<span class="flex items-center gap-2">
 										{#if link.icon}
-											<svelte:component this={link.icon} class="h-4 w-4" />
+											<link.icon class="h-4 w-4" />
 										{/if}
 										{link.label}
 										{#if link.badge}

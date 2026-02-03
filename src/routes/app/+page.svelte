@@ -4,16 +4,11 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Download, Eye, Loader2 } from '@lucide/svelte';
 	import * as Sheet from '$lib/components/ui/sheet';
-	import { invoiceStore, setupAutoSave } from '$lib/stores/invoice.svelte';
+	import { invoiceStore } from '$lib/stores/invoice.svelte';
 	import { generateInvoicePdf } from '$lib/utils/pdf-generator';
 	import { browser } from '$app/environment';
 
 	let isGenerating = $state(false);
-
-	// Setup auto-save effect
-	if (browser) {
-		setupAutoSave();
-	}
 
 	async function handleDownloadPdf() {
 		if (isGenerating) return;

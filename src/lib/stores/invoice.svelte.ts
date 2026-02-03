@@ -2,6 +2,7 @@ import { defaultInvoice, defaultLineItem } from '$lib/defaults';
 import type { Invoice, LineItem } from '$lib/types';
 import { db } from '$lib/db/db';
 import { browser } from '$app/environment';
+import { SvelteDate } from 'svelte/reactivity';
 
 // Debounce helper
 function debounce<T extends (...args: unknown[]) => void>(fn: T, delay: number): T {
@@ -16,6 +17,7 @@ export class InvoiceStore {
 	invoice = $state<Invoice>({ ...defaultInvoice });
 	isSaving = $state(false);
 	lastSaved = $state<Date | null>(null);
+	isInitialized = $state(false);
 
 	subtotal = $derived(
 		this.invoice.lineItems.reduce((sum, item) => sum + item.quantity * item.rate, 0)
@@ -36,7 +38,17 @@ export class InvoiceStore {
 		// Load from IndexedDB on initialization (browser only)
 		if (browser) {
 			console.log('[InvoiceStore] Initializing - loading from IndexedDB...');
-			this.loadFromDb();
+			this.loadFromDb()
+				.then(() => {
+					this.isInitialized = true;
+					console.log('[InvoiceStore] Initialization complete');
+				})
+				.catch((error) => {
+					console.error('[InvoiceStore] Error during initialization:', error);
+					this.isInitialized = true;
+				});
+		} else {
+			this.isInitialized = true;
 		}
 	}
 
@@ -86,9 +98,10 @@ export class InvoiceStore {
 			console.log('[InvoiceStore] Saving invoice to IndexedDB...', this.invoice);
 
 			// Prepare invoice for storage
+			// Use $state.snapshot() to convert proxy to plain object for IndexedDB serialization
 			const invoiceToSave: Invoice = {
-				...this.invoice,
-				updatedAt: new Date()
+				...$state.snapshot(this.invoice),
+				updatedAt: new SvelteDate()
 			};
 
 			// Use put to insert or update
@@ -96,10 +109,12 @@ export class InvoiceStore {
 			const draftInvoice = { ...invoiceToSave, id: 1 };
 			await db.invoices.put(draftInvoice);
 
-			this.lastSaved = new Date();
+			this.lastSaved = new SvelteDate();
 			console.log('[InvoiceStore] Invoice saved successfully at', this.lastSaved);
 		} catch (error) {
 			console.error('[InvoiceStore] Error saving invoice:', error);
+			// Could add user-facing error notification here
+			this.lastSaved = null;
 		} finally {
 			this.isSaving = false;
 		}
@@ -125,10 +140,10 @@ export class InvoiceStore {
 					...defaultInvoice,
 					...savedInvoice,
 					// Ensure dates are Date objects
-					issueDate: new Date(savedInvoice.issueDate),
-					dueDate: savedInvoice.dueDate ? new Date(savedInvoice.dueDate) : undefined,
-					createdAt: new Date(savedInvoice.createdAt),
-					updatedAt: new Date(savedInvoice.updatedAt),
+					issueDate: new SvelteDate(savedInvoice.issueDate),
+					dueDate: savedInvoice.dueDate ? new SvelteDate(savedInvoice.dueDate) : undefined,
+					createdAt: new SvelteDate(savedInvoice.createdAt),
+					updatedAt: new SvelteDate(savedInvoice.updatedAt),
 					// Ensure nested objects exist
 					senderData: {
 						...defaultInvoice.senderData!,
@@ -143,9 +158,20 @@ export class InvoiceStore {
 				console.log('[InvoiceStore] Invoice loaded successfully');
 			} else {
 				console.log('[InvoiceStore] No saved invoice found, using defaults');
+				this.invoice = {
+					...defaultInvoice,
+					createdAt: new SvelteDate(),
+					updatedAt: new SvelteDate()
+				};
 			}
 		} catch (error) {
 			console.error('[InvoiceStore] Error loading invoice:', error);
+			// Fall back to defaults on load error
+			this.invoice = {
+				...defaultInvoice,
+				createdAt: new SvelteDate(),
+				updatedAt: new SvelteDate()
+			};
 		}
 	}
 
@@ -164,8 +190,8 @@ export class InvoiceStore {
 
 		this.invoice = {
 			...defaultInvoice,
-			createdAt: new Date(),
-			updatedAt: new Date()
+			createdAt: new SvelteDate(),
+			updatedAt: new SvelteDate()
 		};
 		this.lastSaved = null;
 	}
@@ -179,15 +205,3 @@ export class InvoiceStore {
 }
 
 export const invoiceStore = new InvoiceStore();
-
-// Auto-save effect - watches for changes and triggers save
-// This needs to be in a component that uses $effect, so we export a helper
-export function setupAutoSave() {
-	$effect(() => {
-		// Access all reactive properties to track them
-		const _ = JSON.stringify(invoiceStore.invoice);
-
-		// Trigger debounced save
-		invoiceStore.triggerSave();
-	});
-}
