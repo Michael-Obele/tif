@@ -2,7 +2,6 @@ import { defaultInvoice, defaultLineItem } from '$lib/defaults';
 import type { Invoice, LineItem } from '$lib/types';
 import { db } from '$lib/db/db';
 import { browser } from '$app/environment';
-import { SvelteDate } from 'svelte/reactivity';
 
 // Debounce helper
 function debounce<T extends (...args: unknown[]) => void>(fn: T, delay: number): T {
@@ -13,11 +12,102 @@ function debounce<T extends (...args: unknown[]) => void>(fn: T, delay: number):
 	}) as T;
 }
 
+/**
+ * Convert an invoice to a serializable format for IndexedDB
+ * Strips out non-serializable fields and ensures all dates are plain Date objects
+ */
+function serializeInvoiceForStorage(invoice: Invoice): Invoice {
+	const snapshot = $state.snapshot(invoice);
+
+	return {
+		// Basic fields
+		id: typeof snapshot.id === 'number' ? snapshot.id : undefined,
+		number: snapshot.number,
+		type: snapshot.type,
+		status: snapshot.status,
+		isDraft: (snapshot.isDraft ? 1 : 0) as any, // Store as number for IDB compatibility
+		senderId: snapshot.senderId,
+		clientId: snapshot.clientId,
+
+		// Ensure all dates are plain Date objects
+		issueDate:
+			snapshot.issueDate instanceof Date
+				? snapshot.issueDate
+				: new Date(snapshot.issueDate || Date.now()),
+		dueDate: snapshot.dueDate
+			? snapshot.dueDate instanceof Date
+				? snapshot.dueDate
+				: new Date(snapshot.dueDate)
+			: undefined,
+		paidDate: snapshot.paidDate
+			? snapshot.paidDate instanceof Date
+				? snapshot.paidDate
+				: new Date(snapshot.paidDate)
+			: undefined,
+		createdAt:
+			snapshot.createdAt instanceof Date
+				? snapshot.createdAt
+				: new Date(snapshot.createdAt || Date.now()),
+		updatedAt: new Date(), // Always use current date for updates
+
+		// Nested objects - clean serialization
+		senderData: snapshot.senderData
+			? {
+				businessName: snapshot.senderData.businessName || '',
+				address: snapshot.senderData.address || '',
+				email: snapshot.senderData.email || '',
+				phone: snapshot.senderData.phone,
+				taxId: snapshot.senderData.taxId,
+				isDefault: snapshot.senderData.isDefault || false,
+				createdAt:
+					snapshot.senderData.createdAt instanceof Date
+						? snapshot.senderData.createdAt
+						: new Date(snapshot.senderData.createdAt || Date.now()),
+				updatedAt:
+					snapshot.senderData.updatedAt instanceof Date
+						? snapshot.senderData.updatedAt
+						: new Date(snapshot.senderData.updatedAt || Date.now())
+				// Note: logo is intentionally excluded (Blob type not serializable)
+			}
+			: undefined,
+
+		clientSnapshot: snapshot.clientSnapshot
+			? {
+				name: snapshot.clientSnapshot.name || '',
+				company: snapshot.clientSnapshot.company,
+				address: snapshot.clientSnapshot.address || '',
+				email: snapshot.clientSnapshot.email || '',
+				phone: snapshot.clientSnapshot.phone,
+				notes: snapshot.clientSnapshot.notes,
+				createdAt:
+					snapshot.clientSnapshot.createdAt instanceof Date
+						? snapshot.clientSnapshot.createdAt
+						: new Date(snapshot.clientSnapshot.createdAt || Date.now()),
+				updatedAt:
+					snapshot.clientSnapshot.updatedAt instanceof Date
+						? snapshot.clientSnapshot.updatedAt
+						: new Date(snapshot.clientSnapshot.updatedAt || Date.now())
+			}
+			: undefined,
+
+		// Other fields
+		paymentMethod: snapshot.paymentMethod,
+		transactionRef: snapshot.transactionRef,
+		currency: snapshot.currency || 'USD',
+		lineItems: snapshot.lineItems || [],
+		discount: snapshot.discount || { type: 'fixed', value: 0 },
+		notes: snapshot.notes,
+		terms: snapshot.terms,
+		template: snapshot.template || 'modern'
+	};
+}
+
 export class InvoiceStore {
 	invoice = $state<Invoice>({ ...defaultInvoice });
 	isSaving = $state(false);
 	lastSaved = $state<Date | null>(null);
 	isInitialized = $state(false);
+	invoiceHistory = $state<Invoice[]>([]);
 
 	subtotal = $derived(
 		this.invoice.lineItems.reduce((sum, item) => sum + item.quantity * item.rate, 0)
@@ -32,13 +122,13 @@ export class InvoiceStore {
 	total = $derived(this.subtotal + this.taxTotal - this.discountAmount);
 
 	// Debounced save function
-	private debouncedSave = debounce(() => this.saveToDb(), 1000);
+	private debouncedSave = debounce(() => this.saveDraftToDb(), 500);
 
 	constructor() {
 		// Load from IndexedDB on initialization (browser only)
 		if (browser) {
 			console.log('[InvoiceStore] Initializing - loading from IndexedDB...');
-			this.loadFromDb()
+			this.loadDraftFromDb()
 				.then(() => {
 					this.isInitialized = true;
 					console.log('[InvoiceStore] Initialization complete');
@@ -79,7 +169,7 @@ export class InvoiceStore {
 	}
 
 	/**
-	 * Trigger a debounced save to IndexedDB
+	 * Trigger a debounced save of the current draft
 	 */
 	triggerSave() {
 		if (browser) {
@@ -88,32 +178,45 @@ export class InvoiceStore {
 	}
 
 	/**
-	 * Save current invoice to IndexedDB
+	 * Save current draft to IndexedDB (auto-save on every change)
 	 */
-	async saveToDb() {
+	async saveDraftToDb() {
 		if (!browser) return;
 
 		try {
 			this.isSaving = true;
-			console.log('[InvoiceStore] Saving invoice to IndexedDB...', this.invoice);
+			console.log('[InvoiceStore] Auto-saving draft to IndexedDB...');
 
-			// Prepare invoice for storage
-			// Use $state.snapshot() to convert proxy to plain object for IndexedDB serialization
-			const invoiceToSave: Invoice = {
-				...$state.snapshot(this.invoice),
-				updatedAt: new SvelteDate()
-			};
+			// Serialize the invoice properly for storage
+			const invoiceToSave = serializeInvoiceForStorage(this.invoice);
+			invoiceToSave.isDraft = 1 as any; // Explicitly set as 1 (true)
 
-			// Use put to insert or update
-			// For draft invoices, we'll use a fixed ID (1) to always overwrite
-			const draftInvoice = { ...invoiceToSave, id: 1 };
-			await db.invoices.put(draftInvoice);
+			// Use put() instead of add() to handle both creating and updating.
+			// This avoids ConstraintError if the ID already exists and is safer than delete-then-add.
+			const id = await db.invoices.put(invoiceToSave);
 
-			this.lastSaved = new SvelteDate();
-			console.log('[InvoiceStore] Invoice saved successfully at', this.lastSaved);
+			// If it was a new draft (no ID), update the state with the generated ID
+			if (!this.invoice.id && id) {
+				this.invoice.id = Number(id);
+			}
+
+			// Clean up any *other* drafts (enforce single draft policy)
+			// We do this after saving to ensure we have a valid saved draft first
+			await (db.invoices as any)
+				.where('isDraft')
+				.equals(1) // Check for 1 (true)
+				.filter((i: any) => i.id !== id)
+				.delete();
+
+			this.lastSaved = new Date();
+			console.log('[InvoiceStore] Draft auto-saved successfully, ID:', id);
 		} catch (error) {
-			console.error('[InvoiceStore] Error saving invoice:', error);
-			// Could add user-facing error notification here
+			console.error('[InvoiceStore] Error saving draft:', error);
+			// Try to log more details if it's a structural error
+			if (error && (error as any).name) {
+				console.error('[InvoiceStore] Error Name:', (error as any).name);
+				console.error('[InvoiceStore] Error Message:', (error as any).message);
+			}
 			this.lastSaved = null;
 		} finally {
 			this.isSaving = false;
@@ -121,86 +224,210 @@ export class InvoiceStore {
 	}
 
 	/**
-	 * Load invoice from IndexedDB
+	 * Save current invoice to history (marks as sent/saved, creates new draft)
 	 */
-	async loadFromDb() {
+	async saveInvoiceAndCreateNew() {
 		if (!browser) return;
 
 		try {
-			console.log('[InvoiceStore] Loading invoice from IndexedDB...');
+			this.isSaving = true;
+			console.log('[InvoiceStore] Saving invoice and creating new draft...');
 
-			// Try to load the draft invoice (ID: 1)
-			const savedInvoice = await db.invoices.get(1);
+			// Serialize and save the current invoice
+			const invoiceToSave = serializeInvoiceForStorage(this.invoice);
+			invoiceToSave.isDraft = 0 as any; // 0 for false
+			invoiceToSave.status = 'sent';
 
-			if (savedInvoice) {
-				console.log('[InvoiceStore] Found saved invoice:', savedInvoice);
+			// Save to history
+			const savedId = await db.invoices.add(invoiceToSave);
+			console.log('[InvoiceStore] Invoice saved with ID:', savedId);
+
+			// Create fresh draft
+			this.invoice = {
+				...defaultInvoice,
+				isDraft: true,
+				createdAt: new Date(),
+				updatedAt: new Date()
+			};
+
+			this.lastSaved = new Date();
+			console.log('[InvoiceStore] New draft created');
+		} catch (error) {
+			console.error('[InvoiceStore] Error saving invoice:', error);
+			this.lastSaved = null;
+		} finally {
+			this.isSaving = false;
+		}
+	}
+
+	/**
+	 * Load current draft from IndexedDB
+	 */
+	async loadDraftFromDb() {
+		if (!browser) return;
+
+		try {
+			console.log('[InvoiceStore] Loading draft from IndexedDB...');
+
+			// Get the current draft (check for 1)
+			const savedDraft = await (db.invoices as any).where('isDraft').equals(1).first();
+
+			if (savedDraft) {
+				console.log('[InvoiceStore] Found saved draft:', savedDraft);
 
 				// Merge with defaults to ensure all fields exist
 				this.invoice = {
 					...defaultInvoice,
-					...savedInvoice,
-					// Ensure dates are Date objects
-					issueDate: new SvelteDate(savedInvoice.issueDate),
-					dueDate: savedInvoice.dueDate ? new SvelteDate(savedInvoice.dueDate) : undefined,
-					createdAt: new SvelteDate(savedInvoice.createdAt),
-					updatedAt: new SvelteDate(savedInvoice.updatedAt),
+					...savedDraft,
+					isDraft: true, // Convert back to boolean
+					// Ensure dates are Date objects (not SvelteDate)
+					issueDate:
+						savedDraft.issueDate instanceof Date
+							? savedDraft.issueDate
+							: new Date(savedDraft.issueDate),
+					dueDate: savedDraft.dueDate
+						? savedDraft.dueDate instanceof Date
+							? savedDraft.dueDate
+							: new Date(savedDraft.dueDate)
+						: undefined,
+					paidDate: savedDraft.paidDate
+						? savedDraft.paidDate instanceof Date
+							? savedDraft.paidDate
+							: new Date(savedDraft.paidDate)
+						: undefined,
+					createdAt:
+						savedDraft.createdAt instanceof Date
+							? savedDraft.createdAt
+							: new Date(savedDraft.createdAt),
+					updatedAt:
+						savedDraft.updatedAt instanceof Date
+							? savedDraft.updatedAt
+							: new Date(savedDraft.updatedAt),
 					// Ensure nested objects exist
 					senderData: {
 						...defaultInvoice.senderData!,
-						...savedInvoice.senderData
+						...savedDraft.senderData
 					},
 					clientSnapshot: {
 						...defaultInvoice.clientSnapshot!,
-						...savedInvoice.clientSnapshot
+						...savedDraft.clientSnapshot
 					}
 				};
 
-				console.log('[InvoiceStore] Invoice loaded successfully');
+				console.log('[InvoiceStore] Draft loaded successfully');
 			} else {
-				console.log('[InvoiceStore] No saved invoice found, using defaults');
+				console.log('[InvoiceStore] No draft found, using defaults');
 				this.invoice = {
 					...defaultInvoice,
-					createdAt: new SvelteDate(),
-					updatedAt: new SvelteDate()
+					isDraft: true,
+					createdAt: new Date(),
+					updatedAt: new Date()
 				};
 			}
 		} catch (error) {
-			console.error('[InvoiceStore] Error loading invoice:', error);
+			console.error('[InvoiceStore] Error loading draft:', error);
 			// Fall back to defaults on load error
 			this.invoice = {
 				...defaultInvoice,
-				createdAt: new SvelteDate(),
-				updatedAt: new SvelteDate()
+				isDraft: true,
+				createdAt: new Date(),
+				updatedAt: new Date()
 			};
 		}
 	}
 
 	/**
-	 * Clear current invoice and start fresh
+	 * Get invoice history (all non-draft invoices sorted by date descending)
 	 */
-	async clearInvoice() {
+	async getHistory(): Promise<Invoice[]> {
+		if (!browser) return [];
+
+		try {
+			const history = await (db.invoices as any)
+				.where('isDraft')
+				.equals(0) // 0 for false
+				.reverse()
+				.sortBy('createdAt');
+
+			this.invoiceHistory = history;
+			console.log('[InvoiceStore] Loaded history:', history.length, 'invoices');
+			return history;
+		} catch (error) {
+			console.error('[InvoiceStore] Error loading history:', error);
+			return [];
+		}
+	}
+
+	/**
+	 * Load a specific invoice from history
+	 */
+	async loadInvoiceFromHistory(id: number) {
+		if (!browser) return false;
+
+		try {
+			const invoice = await db.invoices.get(id);
+			if (invoice) {
+				// Convert to draft and load as current
+				this.invoice = {
+					...invoice,
+					isDraft: true,
+					updatedAt: new Date()
+				};
+				console.log('[InvoiceStore] Loaded invoice from history:', id);
+				return true;
+			}
+			return false;
+		} catch (error) {
+			console.error('[InvoiceStore] Error loading invoice:', error);
+			return false;
+		}
+	}
+
+	/**
+	 * Delete an invoice from history
+	 */
+	async deleteInvoice(id: number): Promise<boolean> {
+		if (!browser) return false;
+
+		try {
+			await db.invoices.delete(id);
+			console.log('[InvoiceStore] Deleted invoice:', id);
+			// Refresh history
+			await this.getHistory();
+			return true;
+		} catch (error) {
+			console.error('[InvoiceStore] Error deleting invoice:', error);
+			return false;
+		}
+	}
+
+	/**
+	 * Clear current draft and start fresh
+	 */
+	async clearDraft() {
 		if (browser) {
 			try {
-				await db.invoices.delete(1);
-				console.log('[InvoiceStore] Draft deleted from IndexedDB');
+				await (db.invoices as any).where('isDraft').equals(1).delete();
+				console.log('[InvoiceStore] Draft cleared from IndexedDB');
 			} catch (error) {
-				console.error('[InvoiceStore] Error deleting draft:', error);
+				console.error('[InvoiceStore] Error clearing draft:', error);
 			}
 		}
 
 		this.invoice = {
 			...defaultInvoice,
-			createdAt: new SvelteDate(),
-			updatedAt: new SvelteDate()
+			isDraft: true,
+			createdAt: new Date(),
+			updatedAt: new Date()
 		};
 		this.lastSaved = null;
 	}
 
 	/**
-	 * Force immediate save (for use before page unload, etc.)
+	 * Force immediate save of draft
 	 */
-	async forceSave() {
-		await this.saveToDb();
+	async forceSaveDraft() {
+		await this.saveDraftToDb();
 	}
 }
 

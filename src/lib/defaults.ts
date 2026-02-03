@@ -31,6 +31,7 @@ export const defaultInvoice: Invoice = {
 	number: 'INV-001',
 	type: 'invoice',
 	status: 'draft',
+	isDraft: true,
 	senderId: null,
 	clientId: null,
 	senderData: {
@@ -54,4 +55,3 @@ export const defaultInvoice: Invoice = {
 	notes: '',
 	terms: 'Payment due within 30 days.'
 };
-

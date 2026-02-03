@@ -67,6 +67,7 @@ export interface Invoice {
 	number: string;
 	type: 'invoice' | 'receipt';
 	status: InvoiceStatus;
+	isDraft: boolean; // Track if this is the current working draft
 
 	senderId: number | null;
 	clientId: number | null;
