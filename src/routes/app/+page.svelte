@@ -2,8 +2,45 @@
 	import EditorForm from '$lib/components/editor/EditorForm.svelte';
 	import PdfPreviewPanel from '$lib/components/editor/PdfPreviewPanel.svelte';
 	import { Button } from '$lib/components/ui/button';
-	import { Download, Eye } from '@lucide/svelte';
+	import { Download, Eye, Loader2 } from '@lucide/svelte';
 	import * as Sheet from '$lib/components/ui/sheet';
+	import { invoiceStore, setupAutoSave } from '$lib/stores/invoice.svelte';
+	import { generateInvoicePdf } from '$lib/utils/pdf-generator';
+	import { browser } from '$app/environment';
+
+	let isGenerating = $state(false);
+
+	// Setup auto-save effect
+	if (browser) {
+		setupAutoSave();
+	}
+
+	async function handleDownloadPdf() {
+		if (isGenerating) return;
+
+		try {
+			isGenerating = true;
+			console.log('[App] Generating PDF...');
+
+			// Get current totals from store
+			const totals = {
+				subtotal: invoiceStore.subtotal,
+				taxTotal: invoiceStore.taxTotal,
+				discountAmount: invoiceStore.discountAmount,
+				total: invoiceStore.total
+			};
+
+			// Generate and download PDF
+			generateInvoicePdf(invoiceStore.invoice, totals);
+
+			console.log('[App] PDF generation complete');
+		} catch (error) {
+			console.error('[App] Error generating PDF:', error);
+			alert('Failed to generate PDF. Please try again.');
+		} finally {
+			isGenerating = false;
+		}
+	}
 </script>
 
 <div class="relative flex h-[calc(100vh-3.5rem)] flex-col bg-background md:flex-row">
@@ -15,11 +52,28 @@
 	<!-- Right Panel: Preview (Desktop) -->
 	<div class="hidden flex-col bg-muted/10 md:flex md:w-1/2 lg:w-7/12">
 		<div class="flex items-center justify-between border-b bg-background px-6 py-2">
-			<span class="text-sm font-medium">Preview</span>
 			<div class="flex items-center gap-2">
-				<Button variant="outline" size="sm">
-					<Download class="mr-2 h-4 w-4" />
-					Download PDF
+				<span class="text-sm font-medium">Preview</span>
+				{#if invoiceStore.isSaving}
+					<span class="flex items-center gap-1 text-xs text-muted-foreground">
+						<Loader2 class="h-3 w-3 animate-spin" />
+						Saving...
+					</span>
+				{:else if invoiceStore.lastSaved}
+					<span class="text-xs text-muted-foreground">
+						Saved {invoiceStore.lastSaved.toLocaleTimeString()}
+					</span>
+				{/if}
+			</div>
+			<div class="flex items-center gap-2">
+				<Button variant="outline" size="sm" onclick={handleDownloadPdf} disabled={isGenerating}>
+					{#if isGenerating}
+						<Loader2 class="mr-2 h-4 w-4 animate-spin" />
+						Generating...
+					{:else}
+						<Download class="mr-2 h-4 w-4" />
+						Download PDF
+					{/if}
 				</Button>
 			</div>
 		</div>
@@ -50,8 +104,14 @@
 			</Sheet.Content>
 		</Sheet.Root>
 
-		<Button class="flex-1">
-			<Download class="mr-2 h-4 w-4" /> Download
+		<Button class="flex-1" onclick={handleDownloadPdf} disabled={isGenerating}>
+			{#if isGenerating}
+				<Loader2 class="mr-2 h-4 w-4 animate-spin" />
+				Generating...
+			{:else}
+				<Download class="mr-2 h-4 w-4" />
+				Download
+			{/if}
 		</Button>
 	</div>
 </div>

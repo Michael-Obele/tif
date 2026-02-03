@@ -1,89 +1,132 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button';
 	import * as Card from '$lib/components/ui/card';
-	import { Check } from '@lucide/svelte';
+	import { Check, Sparkles, Cloud, ArrowRight } from '@lucide/svelte';
 	import { Badge } from '$lib/components/ui/badge';
+
+	const localFeatures = [
+		'Unlimited invoices',
+		'Unlimited clients',
+		'PDF export',
+		'IndexedDB storage (private)',
+		'Works offline',
+		'4 professional templates',
+		'30+ currencies',
+		'JSON backup/restore'
+	];
+
+	const cloudFeatures = [
+		'Everything in Local',
+		'Cloud backup',
+		'Cross-device sync',
+		'Team collaboration',
+		'Email invoices',
+		'Payment links'
+	];
 </script>
 
-<div class="container mx-auto flex flex-col gap-12 px-4 py-24 md:py-32">
-	<div class="mx-auto max-w-232 text-center">
-		<h1 class="text-4xl font-extrabold tracking-tight sm:text-5xl">Simple, Transparent Pricing</h1>
-		<p class="mt-4 text-xl text-muted-foreground">
-			Tech Invoice Forge is, and always will be, free for local use.
+<div class="flex flex-col">
+	<!-- Header -->
+	<section class="container mx-auto px-4 py-16 text-center md:py-24">
+		<Badge
+			variant="secondary"
+			class="mb-6 rounded-full border border-primary/20 bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary"
+		>
+			<Sparkles class="mr-2 h-4 w-4" />
+			No Hidden Fees
+		</Badge>
+		<h1 class="text-4xl font-extrabold tracking-tight sm:text-5xl">Simple, Honest Pricing</h1>
+		<p class="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
+			Tech Invoice Forge is free for local use. Always has been, always will be.
 		</p>
-	</div>
+	</section>
 
-	<div class="mx-auto grid max-w-5xl gap-8 md:grid-cols-2 lg:gap-12">
-		<!-- Free Tier -->
-		<Card.Root class="flex flex-col">
-			<Card.Header>
-				<Card.Title class="text-2xl">Local</Card.Title>
-				<Card.Description>Perfect for freelancers and individual contractors.</Card.Description>
-			</Card.Header>
-			<Card.Content class="grid flex-1 place-items-start gap-6">
-				<div class="text-5xl font-bold">
-					$0<span class="text-lg font-normal text-muted-foreground">/mo</span>
+	<!-- Pricing Cards -->
+	<section class="container mx-auto px-4 pb-20">
+		<div class="mx-auto grid max-w-4xl gap-8 lg:grid-cols-2">
+			<!-- Local Tier: Primary -->
+			<Card.Root class="relative flex flex-col border-2 border-primary bg-card shadow-lg">
+				<div class="absolute -top-3 left-1/2 -translate-x-1/2">
+					<Badge class="bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground">
+						Recommended
+					</Badge>
 				</div>
-				<ul class="space-y-2 text-sm text-muted-foreground">
-					<li class="flex items-center gap-2">
-						<Check class="h-4 w-4 text-primary" /> Unlimited Invoices
-					</li>
-					<li class="flex items-center gap-2">
-						<Check class="h-4 w-4 text-primary" /> Unlimited Clients
-					</li>
-					<li class="flex items-center gap-2">
-						<Check class="h-4 w-4 text-primary" /> PDF Export
-					</li>
-					<li class="flex items-center gap-2">
-						<Check class="h-4 w-4 text-primary" /> IndexedDB Storage (Private)
-					</li>
-					<li class="flex items-center gap-2">
-						<Check class="h-4 w-4 text-primary" /> No Internet Required
-					</li>
-				</ul>
-			</Card.Content>
-			<Card.Footer>
-				<Button class="w-full" href="/app">Get Started</Button>
-			</Card.Footer>
-		</Card.Root>
+				<Card.Header class="pt-8 pb-4">
+					<Card.Title class="text-2xl">Local</Card.Title>
+					<Card.Description>Perfect for freelancers and contractors.</Card.Description>
+				</Card.Header>
+				<Card.Content class="flex flex-1 flex-col gap-6">
+					<div class="flex items-baseline gap-1">
+						<span class="text-5xl font-bold">$0</span>
+						<span class="text-muted-foreground">/forever</span>
+					</div>
+					<ul class="flex-1 space-y-3">
+						{#each localFeatures as feature}
+							<li class="flex items-center gap-3 text-sm">
+								<div class="flex h-5 w-5 items-center justify-center rounded-full bg-primary/10">
+									<Check class="h-3 w-3 text-primary" />
+								</div>
+								{feature}
+							</li>
+						{/each}
+					</ul>
+				</Card.Content>
+				<Card.Footer>
+					<Button class="group w-full" size="lg" href="/app">
+						Get Started Free
+						<ArrowRight class="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+					</Button>
+				</Card.Footer>
+			</Card.Root>
 
-		<!-- Cloud Tier (Future) -->
-		<Card.Root class="flex flex-col border-primary/20 bg-muted/50 opacity-75">
-			<Card.Header>
-				<div class="flex items-center justify-between">
-					<Card.Title class="text-2xl">Cloud Sync</Card.Title>
-					<Badge variant="secondary">Coming Soon</Badge>
-				</div>
-				<Card.Description>For those who need access across multiple devices.</Card.Description>
-			</Card.Header>
-			<Card.Content class="grid flex-1 place-items-start gap-6">
-				<div class="text-5xl font-bold">
-					TBD<span class="text-lg font-normal text-muted-foreground">/mo</span>
-				</div>
-				<ul class="space-y-2 text-sm text-muted-foreground">
-					<li class="flex items-center gap-2">
-						<Check class="h-4 w-4 text-primary" /> Everything in Local
-					</li>
-					<li class="flex items-center gap-2">
-						<Check class="h-4 w-4 text-primary" /> Cloud Backup
-					</li>
-					<li class="flex items-center gap-2">
-						<Check class="h-4 w-4 text-primary" /> Cross-Device Sync
-					</li>
-					<li class="flex items-center gap-2">
-						<Check class="h-4 w-4 text-primary" /> Team Collaboration
-					</li>
-				</ul>
-			</Card.Content>
-			<Card.Footer>
-				<Button class="w-full" disabled>Join Waitlist</Button>
-			</Card.Footer>
-		</Card.Root>
-	</div>
+			<!-- Cloud Tier: Coming Soon -->
+			<Card.Root class="relative flex flex-col border-dashed opacity-80">
+				<Card.Header class="pt-8 pb-4">
+					<div class="flex items-center gap-3">
+						<Card.Title class="text-2xl">Cloud Sync</Card.Title>
+						<Badge variant="secondary" class="text-xs">Coming Soon</Badge>
+					</div>
+					<Card.Description>For teams and multi-device access.</Card.Description>
+				</Card.Header>
+				<Card.Content class="flex flex-1 flex-col gap-6">
+					<div class="flex items-baseline gap-1">
+						<span class="text-5xl font-bold text-muted-foreground">TBD</span>
+						<span class="text-muted-foreground">/month</span>
+					</div>
+					<ul class="flex-1 space-y-3">
+						{#each cloudFeatures as feature}
+							<li class="flex items-center gap-3 text-sm text-muted-foreground">
+								<div class="flex h-5 w-5 items-center justify-center rounded-full bg-muted">
+									<Check class="h-3 w-3" />
+								</div>
+								{feature}
+							</li>
+						{/each}
+					</ul>
+				</Card.Content>
+				<Card.Footer>
+					<Button class="w-full" size="lg" variant="secondary" disabled>
+						<Cloud class="mr-2 h-4 w-4" />
+						Join Waitlist
+					</Button>
+				</Card.Footer>
+			</Card.Root>
+		</div>
+	</section>
 
-	<div class="mx-auto max-w-232 text-center">
-		<p class="text-sm text-muted-foreground">
-			Tech Invoice Forge is open source. You can host it yourself or use the local version forever.
-		</p>
-	</div>
+	<!-- Open Source Note -->
+	<section class="border-t border-border/40 bg-muted/30 py-16">
+		<div class="container mx-auto px-4 text-center">
+			<h2 class="text-2xl font-bold">Open Source, Self-Hostable</h2>
+			<p class="mx-auto mt-4 max-w-2xl text-muted-foreground">
+				Tech Invoice Forge is open source under MIT license. Deploy it on your own infrastructure,
+				modify it to your needs, or contribute to make it better for everyone.
+			</p>
+			<div class="mt-6">
+				<Button variant="outline" href="https://github.com/Michael-Obele/tif" target="_blank">
+					View on GitHub
+				</Button>
+			</div>
+		</div>
+	</section>
 </div>
