@@ -8,7 +8,7 @@
 
 **Tech Invoice Forge** is a professional-grade, offline-first invoice and receipt generator designed specifically for tech professionals. Unlike bloated SaaS solutions, TIF runs entirely in your browser, providing instant PDF generation without accounts, subscriptions, or backend dependencies.
 
-[**Live Demo (Coming Soon)**](#) | [**Report Bug**](https://github.com/Michael-Obele/tif/issues) | [**Request Feature**](https://github.com/Michael-Obele/tif/issues)
+[**Live Demo**](https://tif.svelte-apps.me) | [**Report Bug**](https://github.com/Michael-Obele/tif/issues) | [**Request Feature**](https://github.com/Michael-Obele/tif/issues)
 
 ---
 
