@@ -18,6 +18,20 @@
 	} from '@lucide/svelte';
 </script>
 
+<svelte:head>
+	<title>Tech Invoice Forge | Free Offline-First Invoice Generator</title>
+	<meta
+		name="description"
+		content="Professional, offline-first invoice generator for tech freelancers and small businesses. No signup required, your data stays in your browser."
+	/>
+	<meta property="og:title" content="Tech Invoice Forge | Free Offline-First Invoice Generator" />
+	<meta
+		property="og:description"
+		content="Professional, offline-first invoice generator for tech freelancers. No signup required, your data stays in your browser."
+	/>
+	<meta property="og:type" content="website" />
+</svelte:head>
+
 <div class="flex flex-col">
 	<!-- Hero Section -->
 	<section class="relative overflow-hidden border-b border-border/40">

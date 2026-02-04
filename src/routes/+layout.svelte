@@ -27,7 +27,21 @@
 	}
 </script>
 
-<svelte:head><link rel="icon" href={favicon} /></svelte:head>
+<svelte:head>
+	<title>Tech Invoice Forge</title>
+	<meta
+		name="description"
+		content="Professional, offline-first invoice generator for tech freelancers."
+	/>
+	<meta
+		name="keywords"
+		content="invoice, generator, tech, freelancer, offline, private, pdf, svelte, dexie, indexeddb"
+	/>
+	<meta name="author" content="Michael Obele" />
+	<meta property="og:site_name" content="Tech Invoice Forge" />
+	<meta name="twitter:card" content="summary_large_image" />
+	<link rel="icon" href={favicon} />
+</svelte:head>
 
 <ModeWatcher />
 <Toaster position="top-center" richColors />

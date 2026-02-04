@@ -25,6 +25,19 @@
 	];
 </script>
 
+<svelte:head>
+	<title>Pricing | Tech Invoice Forge</title>
+	<meta
+		name="description"
+		content="Tech Invoice Forge is free and open-source. See why we chose a client-side only approach for your privacy."
+	/>
+	<meta property="og:title" content="Pricing | Tech Invoice Forge" />
+	<meta
+		property="og:description"
+		content="Free and open-source invoice generator for tech freelancers."
+	/>
+</svelte:head>
+
 <div class="flex flex-col">
 	<!-- Header -->
 	<section class="container mx-auto px-4 py-16 text-center md:py-24">

@@ -184,6 +184,19 @@
 	}
 </script>
 
+<svelte:head>
+	<title>Invoice History | Tech Invoice Forge</title>
+	<meta
+		name="description"
+		content="Access and manage your previously created invoices. All stored locally in your browser for privacy."
+	/>
+	<meta property="og:title" content="Invoice History | Tech Invoice Forge" />
+	<meta
+		property="og:description"
+		content="Access and manage your previously created invoices locally."
+	/>
+</svelte:head>
+
 <div class="container mx-auto max-w-7xl space-y-8 px-4 py-8 md:px-6">
 	<div class="flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
 		<div>

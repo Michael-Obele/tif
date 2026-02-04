@@ -66,6 +66,19 @@
 	}
 </script>
 
+<svelte:head>
+	<title>Create Invoice | Tech Invoice Forge</title>
+	<meta
+		name="description"
+		content="Create professional tech invoices with ease. Export to PDF, manage clients, and track your billing offline."
+	/>
+	<meta property="og:title" content="Create Invoice | Tech Invoice Forge" />
+	<meta
+		property="og:description"
+		content="Create professional tech invoices with ease. Export to PDF and manage billing offline."
+	/>
+</svelte:head>
+
 <div class="relative flex h-[calc(100vh-3.5rem)] flex-col bg-background md:flex-row">
 	<!-- Left Panel: Editor -->
 	<div class="w-full overflow-y-auto border-r bg-background pb-20 md:w-1/2 md:pb-0 lg:w-5/12">
