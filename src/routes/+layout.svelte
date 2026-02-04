@@ -35,7 +35,7 @@
 	/>
 	<meta
 		name="keywords"
-		content="invoice, generator, tech, freelancer, offline, private, pdf, svelte, dexie, indexeddb"
+		content="invoice, generator, tech, freelancer, offline, private, pdf, svelte, indexeddb"
 	/>
 	<meta name="author" content="Michael Obele" />
 	<meta property="og:site_name" content="Tech Invoice Forge" />

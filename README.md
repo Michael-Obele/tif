@@ -28,7 +28,7 @@ In a world of account-mandated SaaS, TIF takes a different path: **Zero Friction
 ## 🚀 Key Features
 
 - **Real-time Forge**: Watch your PDF update instantly as you type with our side-by-side preview.
-- **Local Persistence**: All invoices and client data are stored in your browser's IndexedDB via `Dexie.js`.
+- **Local Persistence**: All invoices and client data are stored in your browser's IndexedDB using native Web APIs.
 - **Smart Line Items**: Automatic calculations for taxes, discounts, and currency handling.
 - **PDF Crafting**: Professional, high-precision PDF generation powered by `pdfmake`.
 - **Client Management**: Save and manage your client roster for one-click billing.
@@ -42,16 +42,18 @@ In a world of account-mandated SaaS, TIF takes a different path: **Zero Friction
 
 ## 🧰 The Tech Stack
 
-| Category           | Technology                                      |
-| :----------------- | :---------------------------------------------- |
-| **Framework**      | [Svelte 5 (Runes)](https://svelte.dev/)         |
-| **Meta-Framework** | [SvelteKit 2](https://kit.svelte.dev/)          |
-| **Styling**        | [Tailwind CSS v4](https://tailwindcss.com/)     |
-| **Database**       | [Dexie.js](https://dexie.org/) (IndexedDB)      |
-| **PDF Engine**     | [pdfmake](http://pdfmake.org/)                  |
-| **Iconography**    | [Lucide Svelte](https://lucide.dev/)            |
-| **Components**     | [shadcn-svelte](https://www.shadcn-svelte.com/) |
-| **Runtime**        | [Bun](https://bun.sh/)                          |
+| Category           | Technology                                                                                                               |
+| :----------------- | :----------------------------------------------------------------------------------------------------------------------- |
+| **Framework**      | [Svelte 5 (Runes)](https://svelte.dev/)                                                                                  |
+| **Meta-Framework** | [SvelteKit 2](https://kit.svelte.dev/)                                                                                   |
+| **Styling**        | [Tailwind CSS v4](https://tailwindcss.com/)                                                                              |
+| **Database**       | Native IndexedDB                                                                                                         |
+| **Validation**     | [Valibot](https://valibot.dev/)                                                                                          |
+| **PDF Engine**     | [pdfmake](http://pdfmake.org/)                                                                                           |
+| **Iconography**    | [Lucide Svelte](https://lucide.dev/)                                                                                     |
+| **Components**     | [shadcn-svelte](https://www.shadcn-svelte.com/)                                                                          |
+| **Utilities**      | [Mode Watcher](https://github.com/ignatiusmb/mode-watcher), [Svelte Sonner](https://github.com/wobsoriano/svelte-sonner) |
+| **Runtime**        | [Bun](https://bun.sh/)                                                                                                   |
 
 ---
 

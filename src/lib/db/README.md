@@ -19,7 +19,6 @@ Instead of using wrapper libraries like `idb` or `Dexie.js`, this project uses a
 | -------------- | ------------------------------------------ |
 | `db.native.ts` | Native IndexedDB wrapper implementation    |
 | `db.ts`        | Re-exports `db` from native implementation |
-| `db.dexie.ts`  | Dexie implementation (kept for reference)  |
 
 ### Classes
 
