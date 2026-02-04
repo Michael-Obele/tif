@@ -42,12 +42,11 @@ This document lists all NPM packages required to build Tech Invoice Forge. All p
 
 ### Data Storage
 
-| Package      | Version | Purpose            | Bundle Size |
-| :----------- | :------ | :----------------- | :---------- |
-| `dexie`      | ^4.0.10 | IndexedDB wrapper  | ~30KB       |
-| `idb-keyval` | ^6.2.1  | Fallback key-value | ~295B       |
+| Package  | Version | Purpose           | Bundle Size |
+| :------- | :------ | :---------------- | :---------- |
+| `native` | -       | IndexedDB Web API | 0KB         |
 
-> **SSR Note:** Dexie.js requires `ssr: false` in `+layout.ts` since IndexedDB is browser-only. See [Notes → Dexie.js SSR Compatibility](./notes.md#dexiejs--sveltekit-ssr-compatibility).
+> **SSR Note:** IndexedDB is a browser-only API. Logic using the database must be executed within `browser` checks or in Svelte 5 `$effect` runes.
 
 ### Forms & Validation
 
@@ -115,50 +114,49 @@ This document lists all NPM packages required to build Tech Invoice Forge. All p
 
 ```json
 {
-  "name": "tech-invoice-forge",
-  "version": "0.1.0",
-  "private": true,
-  "scripts": {
-    "dev": "vite dev",
-    "build": "vite build",
-    "preview": "vite preview",
-    "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
-    "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
-    "lint": "eslint .",
-    "format": "prettier --write ."
-  },
-  "dependencies": {
-    "@internationalized/date": "^3.7.0",
-    "bits-ui": "^1.0.0",
-    "clsx": "^2.1.1",
-    "dexie": "^4.0.10",
-    "lucide-svelte": "^0.460.0",
-    "pdfmake": "^0.2.18",
-    "tailwind-merge": "^2.5.0",
-    "tailwind-variants": "^0.3.0",
-    "valibot": "^1.0.0"
-  },
-  "devDependencies": {
-    "@sveltejs/adapter-static": "^3.0.8",
-    "@sveltejs/kit": "^2.0.0",
-    "@sveltejs/vite-plugin-svelte": "^5.0.0",
-    "@tailwindcss/vite": "^4.0.0",
-    "@types/node": "^22.0.0",
-    "@types/pdfmake": "^0.2.9",
-    "eslint": "^9.0.0",
-    "eslint-plugin-svelte": "^2.46.0",
-    "prettier": "^3.4.0",
-    "prettier-plugin-svelte": "^3.3.0",
-    "prettier-plugin-tailwindcss": "^0.6.0",
-    "svelte": "^5.0.0",
-    "svelte-check": "^4.0.0",
-    "tailwindcss": "^4.0.0",
-    "tailwindcss-animate": "^1.0.7",
-    "tslib": "^2.8.0",
-    "typescript": "^5.7.0",
-    "vite": "^6.0.0"
-  },
-  "type": "module"
+	"name": "tech-invoice-forge",
+	"version": "0.1.0",
+	"private": true,
+	"scripts": {
+		"dev": "vite dev",
+		"build": "vite build",
+		"preview": "vite preview",
+		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
+		"lint": "eslint .",
+		"format": "prettier --write ."
+	},
+	"dependencies": {
+		"@internationalized/date": "^3.10.0",
+		"bits-ui": "^?.*",
+		"clsx": "^?.*",
+		"lucide-svelte": "^?.*",
+		"pdfmake": "^?.*",
+		"tailwind-merge": "^?.*",
+		"tailwind-variants": "^?.*",
+		"valibot": "^?.*"
+	},
+	"devDependencies": {
+		"@sveltejs/adapter-static": "^3.0.8",
+		"@sveltejs/kit": "^2.0.0",
+		"@sveltejs/vite-plugin-svelte": "^5.0.0",
+		"@tailwindcss/vite": "^4.0.0",
+		"@types/node": "^22.0.0",
+		"@types/pdfmake": "^0.2.9",
+		"eslint": "^9.0.0",
+		"eslint-plugin-svelte": "^2.46.0",
+		"prettier": "^3.4.0",
+		"prettier-plugin-svelte": "^3.3.0",
+		"prettier-plugin-tailwindcss": "^0.6.0",
+		"svelte": "^5.0.0",
+		"svelte-check": "^4.0.0",
+		"tailwindcss": "^4.0.0",
+		"tailwindcss-animate": "^1.0.7",
+		"tslib": "^2.8.0",
+		"typescript": "^5.7.0",
+		"vite": "^6.0.0"
+	},
+	"type": "module"
 }
 ```
 
@@ -431,13 +429,9 @@ export const getClients = query(async () => {
 
 ```html
 <script>
-  import {
-    CalendarDate,
-    today,
-    getLocalTimeZone,
-  } from "@internationalized/date";
+	import { CalendarDate, today, getLocalTimeZone } from '@internationalized/date';
 
-  let value = $state(today(getLocalTimeZone()));
+	let value = $state(today(getLocalTimeZone()));
 </script>
 
 <Calendar bind:value />

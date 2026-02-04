@@ -1,9 +1,9 @@
 ---
-title: "Tech Invoice Forge"
+title: 'Tech Invoice Forge'
 status: draft
-owner: "@Michael-Obele"
+owner: '@Michael-Obele'
 tags: [invoice, pdf, svelte, web-app, freelance]
-estimated_time: "3-4 weeks"
+estimated_time: '3-4 weeks'
 prototype: false
 ---
 
@@ -34,8 +34,8 @@ prototype: false
 
 ## 🎯 Quick Links
 
-| Document                                  | Purpose                            | Status     |
-| :---------------------------------------- | :--------------------------------- | :--------- |
+| Document                                   | Purpose                            | Status      |
+| :----------------------------------------- | :--------------------------------- | :---------- |
 | [📋 **Master Plan**](./master-plan.md)     | Complete consolidated reference    | ✅ Complete |
 | [🏗️ **Architecture**](./architecture.md)   | Technical stack, data models, API  | ✅ Complete |
 | [⚡ **Features**](./features.md)           | All features with specifications   | ✅ Complete |
@@ -55,7 +55,7 @@ prototype: false
 | **Framework** | SvelteKit 2 + Svelte 5 (Runes)  | Web application             |
 | **Styling**   | Tailwind CSS v4 + shadcn-svelte | UI components               |
 | **PDF**       | pdfmake                         | Client-side PDF generation  |
-| **Storage**   | Dexie.js (IndexedDB)            | Local data persistence      |
+| **Storage**   | Native IndexedDB API            | Local data persistence      |
 | **Forms**     | HTML forms + Valibot            | Remote functions validation |
 | **Auth**      | Better Auth (optional)          | Future cloud sync           |
 | **Date**      | @internationalized/date         | Date handling               |
@@ -90,6 +90,7 @@ prototype: false
 ## 📊 Key Features
 
 ### Invoice Creation
+
 - Line item management (description, quantity, rate, tax)
 - Auto-calculations (subtotal, tax, discount, total)
 - Custom invoice numbering (e.g., `INV-2026-001`)
@@ -97,18 +98,21 @@ prototype: false
 - Notes and terms sections
 
 ### Receipt Generation
+
 - Payment confirmation details
 - Transaction reference numbers
 - Simplified single-page format
 - Digital signature placeholder
 
 ### Templates
+
 - **Classic** - Traditional professional layout
 - **Modern** - Clean, minimal design
 - **Tech** - Developer-focused with monospace touches
 - **Compact** - Single-page dense format
 
 ### Data Management
+
 - Client address book (saved locally)
 - Service/item library
 - Invoice history and drafts
@@ -128,7 +132,7 @@ prototype: false
 ## 📚 External Resources
 
 - [pdfmake Docs](https://pdfmake.github.io/docs/) - PDF generation
-- [Dexie.js Docs](https://dexie.org/docs/) - IndexedDB wrapper
+- [MDN IndexedDB Guide](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API) - Native Web API
 - [shadcn-svelte](https://shadcn-svelte.com) - UI components
 - [Valibot Docs](https://valibot.dev) - Schema validation
 - [Better Auth Docs](https://www.better-auth.com/docs) - Authentication (optional)
@@ -161,4 +165,3 @@ See [Notes → Monetization Strategy](./notes.md#monetization-strategy-free-fore
 ---
 
 > _"Creating an invoice shouldn't feel like work. Tech Invoice Forge makes billing as smooth as deploying to production."_
-

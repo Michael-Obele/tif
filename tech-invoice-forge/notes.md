@@ -67,28 +67,27 @@
 | Cookie        | 4KB        | Low         | Low        |
 | OPFS          | Unlimited  | Great       | High       |
 
-**Why IndexedDB (via Dexie.js):**
+**Why IndexedDB (Native):**
 
 - Stores complex objects (invoices, logos)
 - Query capabilities (filter by date, status)
 - Larger storage limit
-- Dexie.js makes it developer-friendly
+- Zero external dependencies
 - Works offline
 
 ---
 
-### Dexie.js + SvelteKit SSR Compatibility
+### Native IndexedDB + SvelteKit SSR Compatibility
 
-⚠️ **Critical Finding:** IndexedDB is a browser-only API. SvelteKit's SSR will fail if Dexie is imported at module level.
+⚠️ **Critical Finding:** IndexedDB is a browser-only API. SvelteKit's SSR will fail if IndexedDB is accessed at module level or during server rendering.
 
 **The Problem:**
 
 ```
-MissingAPIError: indexedDB API not found
 ReferenceError: indexedDB is not defined
 ```
 
-**Solution 1: Disable SSR (Recommended for This Project)**
+**Solution: Disable SSR (Recommended for This Project)**
 
 Since Tech Invoice Forge is offline-first and client-side only:
 
@@ -98,52 +97,14 @@ export const ssr = false;
 export const prerender = true; // Still prerender the HTML shell
 ```
 
-This is the **cleanest approach** for an offline-first, no-backend app.
+This is the **cleanest approach** for an offline-first, no-backend app. It allows us to import the `db` instance anywhere without worrying about server-side errors.
 
-**Solution 2: Browser Guards (Alternative)**
+**Implementation Note:**
+The project uses a custom, promise-based wrapper around the native IndexedDB API. This provides a clean interface similar to `idb` but with zero dependencies and specific optimizations for the invoice generation workflow.
 
-If SSR is needed for some routes:
+**Svelte 5 Runes + Database Compatibility:**
 
-```typescript
-// src/lib/db/index.ts
-import { browser } from "$app/environment";
-
-export async function getDB() {
-  if (!browser) {
-    throw new Error("Database only available in browser");
-  }
-
-  // Dynamic import to avoid server-side loading
-  const { Dexie } = await import("dexie");
-  // ... initialize
-}
-```
-
-**Svelte 5 Runes + liveQuery Compatibility:**
-
-There's a known pattern for using Dexie's `liveQuery` with Svelte 5 runes:
-
-```html
-<script lang="ts">
-  import { liveQuery } from "dexie";
-  import { db } from "$lib/db";
-
-  // liveQuery returns Observable, use $ prefix for subscription
-  let _clients = liveQuery(() => db.clients.toArray());
-  // Use $derived for null safety
-  let clients = $derived($_clients ?? []);
-</script>
-```
-
-**Fallback Alternatives (If Dexie Issues Arise):**
-
-| Package         | Size   | Use Case                      |
-| :-------------- | :----- | :---------------------------- |
-| **idb-keyval**  | ~295B  | Simple key-value storage      |
-| **idb**         | ~1.3KB | Full IndexedDB with promises  |
-| **localForage** | ~10KB  | Auto-fallback to localStorage |
-
-**Recommendation:** Use Dexie.js with `ssr: false`. Add `idb-keyval` as an emergency fallback listed in dependencies.
+Since we use native IndexedDB, we handle reactivity via Svelte 5 runes (`$state`, `$derived`, `$effect`). When the database updates, we manually refresh the relevant state in our stores.
 
 ---
 

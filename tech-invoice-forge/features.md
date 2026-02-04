@@ -17,16 +17,17 @@ This document provides detailed specifications for all features in Tech Invoice 
 #### Sender Information Section
 
 **Fields:**
-| Field         | Type     | Required | Validation             | Notes                            |
+| Field | Type | Required | Validation | Notes |
 | :------------ | :------- | :------- | :--------------------- | :------------------------------- |
-| Business Name | Text     | Yes      | 1-100 chars            | Displayed prominently on invoice |
-| Address       | Textarea | Yes      | 5-500 chars            | Multi-line, preserves formatting |
-| Email         | Email    | Yes      | Valid email format     | Contact email on invoice         |
-| Phone         | Tel      | No       | E.164 format preferred | Optional contact                 |
-| Tax ID / VAT  | Text     | No       | 1-50 chars             | For tax compliance               |
-| Logo          | File     | No       | PNG, JPG, SVG; max 2MB | Displayed on invoice header      |
+| Business Name | Text | Yes | 1-100 chars | Displayed prominently on invoice |
+| Address | Textarea | Yes | 5-500 chars | Multi-line, preserves formatting |
+| Email | Email | Yes | Valid email format | Contact email on invoice |
+| Phone | Tel | No | E.164 format preferred | Optional contact |
+| Tax ID / VAT | Text | No | 1-50 chars | For tax compliance |
+| Logo | File | No | PNG, JPG, SVG; max 2MB | Displayed on invoice header |
 
 **Behavior:**
+
 - Auto-saves to IndexedDB when field loses focus
 - Loads automatically on return visits
 - "Clear" button resets all fields
@@ -37,14 +38,15 @@ This document provides detailed specifications for all features in Tech Invoice 
 #### Client Information Section
 
 **Fields:**
-| Field       | Type     | Required | Validation         | Notes                         |
+| Field | Type | Required | Validation | Notes |
 | :---------- | :------- | :------- | :----------------- | :---------------------------- |
-| Client Name | Text     | Yes      | 1-100 chars        | Individual or business name   |
-| Company     | Text     | No       | 1-100 chars        | If different from client name |
-| Address     | Textarea | Yes      | 5-500 chars        | Billing address               |
-| Email       | Email    | Yes      | Valid email format | For records                   |
+| Client Name | Text | Yes | 1-100 chars | Individual or business name |
+| Company | Text | No | 1-100 chars | If different from client name |
+| Address | Textarea | Yes | 5-500 chars | Billing address |
+| Email | Email | Yes | Valid email format | For records |
 
 **Features:**
+
 - **Client Selector**: Dropdown to select from saved clients
 - **Quick Add**: Save current client to address book
 - **Edit Client**: Modify existing saved client
@@ -54,15 +56,16 @@ This document provides detailed specifications for all features in Tech Invoice 
 #### Invoice Details Section
 
 **Fields:**
-| Field          | Type   | Required | Default         | Notes                                                   |
+| Field | Type | Required | Default | Notes |
 | :------------- | :----- | :------- | :-------------- | :------------------------------------------------------ |
-| Invoice Number | Text   | Yes      | Auto-generated  | Format: `INV-2026-0001`                                 |
-| Issue Date     | Date   | Yes      | Today           | Date picker with calendar                               |
-| Due Date       | Date   | No       | Issue + 30 days | Calculated from payment terms                           |
-| Payment Terms  | Select | Yes      | Net 30          | Presets: Due on Receipt, Net 15, Net 30, Net 45, Net 60 |
-| Currency       | Select | Yes      | USD             | 30+ currencies supported                                |
+| Invoice Number | Text | Yes | Auto-generated | Format: `INV-2026-0001` |
+| Issue Date | Date | Yes | Today | Date picker with calendar |
+| Due Date | Date | No | Issue + 30 days | Calculated from payment terms |
+| Payment Terms | Select | Yes | Net 30 | Presets: Due on Receipt, Net 15, Net 30, Net 45, Net 60 |
+| Currency | Select | Yes | USD | 30+ currencies supported |
 
 **Payment Terms Options:**
+
 ```typescript
 const PAYMENT_TERMS = [
   { value: 'due_on_receipt', label: 'Due on Receipt', days: 0 },
@@ -80,16 +83,17 @@ const PAYMENT_TERMS = [
 #### Line Items Section
 
 **Per-Item Fields:**
-| Field       | Type     | Width | Validation      | Notes                       |
+| Field | Type | Width | Validation | Notes |
 | :---------- | :------- | :---- | :-------------- | :-------------------------- |
-| Description | Text     | 40%   | 1-500 chars     | Service/product description |
-| Quantity    | Number   | 10%   | > 0, 2 decimals | Amount of units             |
-| Unit        | Select   | 10%   | Required        | hour, day, unit, flat       |
-| Rate        | Currency | 15%   | >= 0            | Price per unit              |
-| Tax         | Number   | 10%   | 0-100%          | Tax rate %                  |
-| Amount      | Display  | 15%   | Calculated      | Qty × Rate                  |
+| Description | Text | 40% | 1-500 chars | Service/product description |
+| Quantity | Number | 10% | > 0, 2 decimals | Amount of units |
+| Unit | Select | 10% | Required | hour, day, unit, flat |
+| Rate | Currency | 15% | >= 0 | Price per unit |
+| Tax | Number | 10% | 0-100% | Tax rate % |
+| Amount | Display | 15% | Calculated | Qty × Rate |
 
 **Unit Options:**
+
 ```typescript
 const UNITS = [
   { value: 'hour', label: 'Hour', plural: 'Hours' },
@@ -104,6 +108,7 @@ const UNITS = [
 ```
 
 **Features:**
+
 - **Add Row**: Button to add new line item
 - **Remove Row**: X button per row (confirm if filled)
 - **Reorder Rows**: Drag handle for manual ordering
@@ -115,14 +120,15 @@ const UNITS = [
 #### Totals Section
 
 **Calculated Fields:**
-| Field         | Calculation                   | Notes                    |
+| Field | Calculation | Notes |
 | :------------ | :---------------------------- | :----------------------- |
-| Subtotal      | Σ (Qty × Rate)                | Before tax and discount  |
-| Tax           | Σ (Qty × Rate × Tax%)         | Per-item tax calculation |
-| Discount      | Subtotal × Discount% OR fixed | User-editable            |
-| **Total Due** | Subtotal + Tax - Discount     | Bold, prominent          |
+| Subtotal | Σ (Qty × Rate) | Before tax and discount |
+| Tax | Σ (Qty × Rate × Tax%) | Per-item tax calculation |
+| Discount | Subtotal × Discount% OR fixed | User-editable |
+| **Total Due** | Subtotal + Tax - Discount | Bold, prominent |
 
 **Discount Options:**
+
 - Percentage (e.g., 10%)
 - Fixed amount (e.g., $50)
 - Toggle between modes
@@ -132,12 +138,13 @@ const UNITS = [
 #### Notes & Terms Section
 
 **Fields:**
-| Field              | Type     | Max Length | Notes                           |
+| Field | Type | Max Length | Notes |
 | :----------------- | :------- | :--------- | :------------------------------ |
-| Notes              | Textarea | 2000 chars | Payment instructions, thank you |
-| Terms & Conditions | Textarea | 5000 chars | Legal terms, late fees          |
+| Notes | Textarea | 2000 chars | Payment instructions, thank you |
+| Terms & Conditions | Textarea | 5000 chars | Legal terms, late fees |
 
 **Features:**
+
 - Collapsible sections to reduce clutter
 - Common templates (e.g., "Payment due within X days")
 - Saved defaults from settings
@@ -147,28 +154,31 @@ const UNITS = [
 ### 1.2 Live PDF Preview
 
 **Implementation:**
+
 - Generate pdfmake document definition in real-time
 - Render to blob URL for iframe/embed preview
 - Debounced updates (300ms after last input)
 
 **Preview Panel Features:**
-| Feature         | Description                         |
+| Feature | Description |
 | :-------------- | :---------------------------------- |
-| Zoom Controls   | 50%, 75%, 100%, 125%, 150%          |
-| Scroll          | Vertical scroll for multi-page      |
+| Zoom Controls | 50%, 75%, 100%, 125%, 150% |
+| Scroll | Vertical scroll for multi-page |
 | Template Switch | Change template without losing data |
-| Refresh         | Manual refresh button               |
+| Refresh | Manual refresh button |
 
 ---
 
 ### 1.3 PDF Download
 
 **Behavior:**
+
 - Generate final PDF using pdfmake
 - Trigger browser download
 - Filename: `{invoice-number}.pdf` (e.g., `INV-2026-0001.pdf`)
 
 **Button States:**
+
 - Default: "Download PDF"
 - Loading: "Generating..."
 - Success: Brief checkmark feedback
@@ -180,20 +190,22 @@ const UNITS = [
 **Default Format:** `{PREFIX}-{YEAR}-{SEQUENCE}`
 
 **Examples:**
+
 - `INV-2026-0001`
 - `INV-2026-0002`
 - `REC-2026-0001` (receipts)
 
 **Configuration Options (in Settings):**
-| Option          | Type    | Default | Example       |
+| Option | Type | Default | Example |
 | :-------------- | :------ | :------ | :------------ |
-| Prefix          | Text    | "INV"   | "TECH", "DEV" |
-| Include Year    | Boolean | true    | 2026          |
-| Include Month   | Boolean | false   | 02            |
-| Separator       | Text    | "-"     | "/"           |
-| Sequence Length | Number  | 4       | 0001          |
+| Prefix | Text | "INV" | "TECH", "DEV" |
+| Include Year | Boolean | true | 2026 |
+| Include Month | Boolean | false | 02 |
+| Separator | Text | "-" | "/" |
+| Sequence Length | Number | 4 | 0001 |
 
 **Auto-Increment Logic:**
+
 ```typescript
 // On new invoice creation
 async function getNextNumber(): Promise<string> {
@@ -202,11 +214,11 @@ async function getNextNumber(): Promise<string> {
     .where('issueDate')
     .between(new Date(year, 0, 1), new Date(year, 11, 31))
     .last();
-  
-  const lastSeq = lastInvoice 
+
+  const lastSeq = lastInvoice
     ? parseInt(lastInvoice.number.split('-').pop() || '0')
     : 0;
-  
+
   return formatInvoiceNumber(lastSeq + 1);
 }
 ```
@@ -215,30 +227,31 @@ async function getNextNumber(): Promise<string> {
 
 ## Phase 2: Data Persistence
 
-### 2.1 IndexedDB Storage (Dexie.js)
+### 2.1 Native IndexedDB Storage
 
 **Tables:**
-| Table      | Purpose               | Indexes                             |
+| Table | Purpose | Indexes |
 | :--------- | :-------------------- | :---------------------------------- |
-| `senders`  | Saved sender profiles | businessName, isDefault             |
-| `clients`  | Client address book   | name, company, email                |
-| `services` | Service/item library  | name, category                      |
-| `invoices` | All invoices          | number, status, clientId, issueDate |
+| `senders` | Saved sender profiles | businessName, isDefault |
+| `clients` | Client address book | name, company, email |
+| `services` | Service/item library | name, category |
+| `invoices` | All invoices | number, status, clientId, issueDate |
 
 ---
 
 ### 2.2 Client Address Book
 
 **Features:**
-| Feature       | Description                          |
+| Feature | Description |
 | :------------ | :----------------------------------- |
-| Add Client    | Save current form data as new client |
-| Edit Client   | Update existing client               |
-| Delete Client | Remove with confirmation             |
-| Search        | Filter by name, company, email       |
-| Select        | Populate form from saved client      |
+| Add Client | Save current form data as new client |
+| Edit Client | Update existing client |
+| Delete Client | Remove with confirmation |
+| Search | Filter by name, company, email |
+| Select | Populate form from saved client |
 
 **UI:**
+
 - Dropdown with search in Client section
 - "Manage Clients" link to modal/page
 - Recently used clients at top
@@ -248,15 +261,16 @@ async function getNextNumber(): Promise<string> {
 ### 2.3 Service/Item Library
 
 **Features:**
-| Feature        | Description                                           |
+| Feature | Description |
 | :------------- | :---------------------------------------------------- |
-| Add Service    | Save line item as reusable template                   |
-| Edit Service   | Update name, rate, tax, unit                          |
-| Delete Service | Remove from library                                   |
-| Categories     | Optional grouping (e.g., "Development", "Consulting") |
-| Quick Add      | Click to add to current invoice                       |
+| Add Service | Save line item as reusable template |
+| Edit Service | Update name, rate, tax, unit |
+| Delete Service | Remove from library |
+| Categories | Optional grouping (e.g., "Development", "Consulting") |
+| Quick Add | Click to add to current invoice |
 
 **Saved Fields per Service:**
+
 - Name (used as description)
 - Default rate
 - Default unit
@@ -268,16 +282,17 @@ async function getNextNumber(): Promise<string> {
 ### 2.4 Invoice History
 
 **List View:**
-| Column    | Description                    |
+| Column | Description |
 | :-------- | :----------------------------- |
-| Invoice # | e.g., INV-2026-0001            |
-| Client    | Client name                    |
-| Date      | Issue date                     |
-| Total     | Formatted amount with currency |
-| Status    | Draft, Sent, Paid, Overdue     |
-| Actions   | View, Edit, Duplicate, Delete  |
+| Invoice # | e.g., INV-2026-0001 |
+| Client | Client name |
+| Date | Issue date |
+| Total | Formatted amount with currency |
+| Status | Draft, Sent, Paid, Overdue |
+| Actions | View, Edit, Duplicate, Delete |
 
 **Features:**
+
 - Sort by date, client, amount, status
 - Filter by status
 - Search by invoice number or client
@@ -288,6 +303,7 @@ async function getNextNumber(): Promise<string> {
 ### 2.5 Draft Auto-Save
 
 **Behavior:**
+
 - Save current form state every 30 seconds
 - Save on blur (field loses focus)
 - Save before closing browser (beforeunload)
@@ -302,6 +318,7 @@ async function getNextNumber(): Promise<string> {
 **Description:** Traditional, formal invoice layout.
 
 **Characteristics:**
+
 - Serif font optional
 - Boxed sections
 - Table with visible borders
@@ -314,6 +331,7 @@ async function getNextNumber(): Promise<string> {
 **Description:** Clean, minimal contemporary design (default).
 
 **Characteristics:**
+
 - Sans-serif typography (Inter)
 - Generous whitespace
 - Subtle borders (light gray)
@@ -326,6 +344,7 @@ async function getNextNumber(): Promise<string> {
 **Description:** Developer/tech-focused aesthetic.
 
 **Characteristics:**
+
 - Monospace font for numbers and invoice #
 - Code-inspired styling (dark header option)
 - Clean tables with no borders
@@ -338,6 +357,7 @@ async function getNextNumber(): Promise<string> {
 **Description:** Dense layout for detailed invoices.
 
 **Characteristics:**
+
 - Smaller font sizes
 - Compressed spacing
 - Fits more line items per page
@@ -361,17 +381,18 @@ async function getNextNumber(): Promise<string> {
 **Purpose:** Create payment confirmation documents.
 
 **Differences from Invoice:**
-| Aspect          | Invoice         | Receipt         |
+| Aspect | Invoice | Receipt |
 | :-------------- | :-------------- | :-------------- |
-| Purpose         | Request payment | Confirm payment |
-| Title           | "INVOICE"       | "RECEIPT"       |
-| Number Prefix   | INV             | REC             |
-| Due Date        | Required        | N/A             |
-| Paid Date       | N/A             | Required        |
-| Payment Method  | N/A             | Optional        |
-| Transaction Ref | N/A             | Optional        |
+| Purpose | Request payment | Confirm payment |
+| Title | "INVOICE" | "RECEIPT" |
+| Number Prefix | INV | REC |
+| Due Date | Required | N/A |
+| Paid Date | N/A | Required |
+| Payment Method | N/A | Optional |
+| Transaction Ref | N/A | Optional |
 
 **Additional Receipt Fields:**
+
 - Paid Date (required)
 - Payment Method (Cash, Card, Bank Transfer, etc.)
 - Transaction Reference / Check Number
@@ -381,6 +402,7 @@ async function getNextNumber(): Promise<string> {
 ### 4.2 Convert Invoice to Receipt
 
 **Flow:**
+
 1. Open invoice from history
 2. Click "Convert to Receipt"
 3. Add payment details (date, method, reference)
@@ -396,6 +418,7 @@ async function getNextNumber(): Promise<string> {
 **Use Case:** Share invoice data, backup individual records.
 
 **Format:**
+
 ```json
 {
   "version": "1.0",
@@ -421,6 +444,7 @@ async function getNextNumber(): Promise<string> {
 ### 5.2 Import Invoice (JSON)
 
 **Behavior:**
+
 - Validate JSON structure
 - Show preview before import
 - Option to create as new (generate new number) or restore original
@@ -431,6 +455,7 @@ async function getNextNumber(): Promise<string> {
 ### 5.3 Full Backup Export
 
 **Contents:**
+
 ```json
 {
   "version": "1.0",
@@ -450,6 +475,7 @@ async function getNextNumber(): Promise<string> {
 ### 5.4 Full Backup Import
 
 **Behavior:**
+
 - Validate backup structure
 - Show summary (X invoices, Y clients, etc.)
 - Options:
@@ -466,16 +492,19 @@ async function getNextNumber(): Promise<string> {
 **Sections:**
 
 **Invoice Defaults:**
+
 - Default currency
 - Default payment terms
 - Default tax rate
 - Invoice number format
 
 **Appearance:**
+
 - Theme (Light/Dark)
 - Default template
 
 **Data Management:**
+
 - Export all data
 - Import backup
 - Clear all data (with confirmation)
@@ -500,6 +529,7 @@ async function getNextNumber(): Promise<string> {
 ### 6.3 Print Support
 
 **Features:**
+
 - Print-optimized CSS
 - Removes UI elements
 - Shows clean invoice only

@@ -48,7 +48,7 @@
 
 <div class="relative flex min-h-screen flex-col">
 	<Navbar />
-	<main class="flex-1">
+	<main class="min-h-screen flex-1">
 		{@render children()}
 	</main>
 	<Footer />

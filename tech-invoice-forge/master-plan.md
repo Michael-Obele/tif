@@ -13,12 +13,14 @@ Tech Invoice Forge is a professional-grade, offline-first invoice and receipt ge
 ## Project Goals
 
 ### Primary Goals
+
 1. **Zero Friction** - Users can create their first invoice within 30 seconds of landing
 2. **Professional Output** - PDFs that rival enterprise invoicing solutions
 3. **Privacy First** - No data leaves the browser; everything stored locally
 4. **Tech-Tailored** - Templates and line items designed for software services
 
 ### Secondary Goals
+
 1. **Fast Performance** - Sub-100ms interactions, instant PDF preview
 2. **Accessible** - WCAG 2.1 AA compliant
 3. **Mobile Responsive** - Works on tablets and phones
@@ -29,17 +31,20 @@ Tech Invoice Forge is a professional-grade, offline-first invoice and receipt ge
 ## Target Audience
 
 ### Primary: Freelance Tech Professionals
+
 - **Software Developers** billing for projects, milestones, or hourly work
 - **Consultants** providing technical advisory services
 - **Designers** (UI/UX) working with tech clients
 - **DevOps Engineers** on contract engagements
 
 ### Secondary: Small Tech Businesses
+
 - **Solo SaaS founders** needing professional receipts
 - **Small agencies** (2-5 people) with multiple clients
 - **Technical writers** and content creators
 
 ### User Pain Points Addressed
+
 | Pain Point                                        | Solution                  |
 | :------------------------------------------------ | :------------------------ |
 | Complex invoicing tools with account requirements | No signup, instant use    |
@@ -55,6 +60,7 @@ Tech Invoice Forge is a professional-grade, offline-first invoice and receipt ge
 ### Phase 1: MVP (Week 1-2)
 
 #### Core Invoice Creation
+
 - [ ] Invoice form with all essential fields
 - [ ] Line item management (add, edit, remove, reorder)
 - [ ] Auto-calculation of subtotals, tax, discounts, totals
@@ -63,7 +69,9 @@ Tech Invoice Forge is a professional-grade, offline-first invoice and receipt ge
 - [ ] Invoice number generation (auto-increment)
 
 #### Essential Data Fields
+
 **From (Sender):**
+
 - Business name
 - Address (multi-line)
 - Email
@@ -72,12 +80,14 @@ Tech Invoice Forge is a professional-grade, offline-first invoice and receipt ge
 - Logo upload (optional)
 
 **To (Client):**
+
 - Client name
 - Company name (optional)
 - Address
 - Email
 
 **Invoice Details:**
+
 - Invoice number
 - Issue date
 - Due date
@@ -85,6 +95,7 @@ Tech Invoice Forge is a professional-grade, offline-first invoice and receipt ge
 - Currency
 
 **Line Items:**
+
 - Description
 - Quantity
 - Unit (hours, units, flat, etc.)
@@ -93,12 +104,14 @@ Tech Invoice Forge is a professional-grade, offline-first invoice and receipt ge
 - Amount (calculated)
 
 **Totals:**
+
 - Subtotal
 - Discount (% or fixed)
 - Tax amount
 - Total due
 
 **Additional:**
+
 - Notes section
 - Payment instructions
 - Terms & conditions
@@ -106,6 +119,7 @@ Tech Invoice Forge is a professional-grade, offline-first invoice and receipt ge
 ### Phase 2: Enhanced Features (Week 2-3)
 
 #### Data Persistence
+
 - [ ] Save invoices to IndexedDB via Dexie.js
 - [ ] Invoice history list with search/filter
 - [ ] Draft auto-save
@@ -113,12 +127,14 @@ Tech Invoice Forge is a professional-grade, offline-first invoice and receipt ge
 - [ ] Service/item library (save common items)
 
 #### Templates
+
 - [ ] Classic template (traditional layout)
 - [ ] Modern template (minimal design)
 - [ ] Tech template (monospace, code-inspired)
 - [ ] Compact template (dense, single-page)
 
 #### Receipt Generation
+
 - [ ] Simplified receipt mode
 - [ ] Payment confirmation details
 - [ ] Transaction reference field
@@ -126,6 +142,7 @@ Tech Invoice Forge is a professional-grade, offline-first invoice and receipt ge
 ### Phase 3: Polish (Week 3-4)
 
 #### Quality of Life
+
 - [ ] Duplicate invoice feature
 - [ ] Edit existing invoices
 - [ ] Delete with confirmation
@@ -136,6 +153,7 @@ Tech Invoice Forge is a professional-grade, offline-first invoice and receipt ge
 - [ ] Print-optimized CSS
 
 #### Advanced
+
 - [ ] Multi-currency with Intl formatting
 - [ ] Currency symbol customization
 - [ ] Date format preferences
@@ -283,13 +301,13 @@ class InvoiceState {
 
   // Computed totals
   subtotal = $derived(() => {
-    return this.invoice.lineItems.reduce((sum, item) => 
+    return this.invoice.lineItems.reduce((sum, item) =>
       sum + (item.quantity * item.rate), 0
     );
   });
 
   taxTotal = $derived(() => {
-    return this.invoice.lineItems.reduce((sum, item) => 
+    return this.invoice.lineItems.reduce((sum, item) =>
       sum + (item.quantity * item.rate * (item.taxRate / 100)), 0
     );
   });
@@ -307,91 +325,12 @@ export const invoiceState = new InvoiceState();
 
 ---
 
-## Database Schema (Dexie.js / IndexedDB)
+## Database Schema (Native IndexedDB)
 
 ```typescript
-// $lib/db/schema.ts
-import Dexie, { type Table } from 'dexie';
-
-interface Sender {
-  id?: number;
-  businessName: string;
-  address: string;
-  email: string;
-  phone?: string;
-  taxId?: string;
-  logo?: Blob;
-  isDefault: boolean;
-}
-
-interface Client {
-  id?: number;
-  name: string;
-  company?: string;
-  address: string;
-  email: string;
-  phone?: string;
-  notes?: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-interface ServiceItem {
-  id?: number;
-  name: string;
-  description: string;
-  defaultRate: number;
-  defaultUnit: 'hour' | 'day' | 'unit' | 'flat';
-  taxRate: number;
-  category?: string;
-}
-
-interface Invoice {
-  id?: number;
-  number: string;
-  type: 'invoice' | 'receipt';
-  status: 'draft' | 'sent' | 'paid' | 'overdue';
-  senderId: number;
-  clientId: number;
-  issueDate: Date;
-  dueDate?: Date;
-  paidDate?: Date;
-  currency: string;
-  lineItems: LineItem[];
-  discount: { type: 'percentage' | 'fixed'; value: number };
-  notes?: string;
-  terms?: string;
-  template: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-interface LineItem {
-  description: string;
-  quantity: number;
-  unit: string;
-  rate: number;
-  taxRate: number;
-}
-
-class InvoiceForgeDB extends Dexie {
-  senders!: Table<Sender>;
-  clients!: Table<Client>;
-  services!: Table<ServiceItem>;
-  invoices!: Table<Invoice>;
-
-  constructor() {
-    super('InvoiceForgeDB');
-    this.version(1).stores({
-      senders: '++id, businessName, isDefault',
-      clients: '++id, name, company, email',
-      services: '++id, name, category',
-      invoices: '++id, number, type, status, clientId, issueDate'
-    });
-  }
-}
-
-export const db = new InvoiceForgeDB();
+// $lib/db/db.native.ts
+// The app uses a custom native wrapper found in src/lib/db/db.native.ts
+// for zero-dependency local storage.
 ```
 
 ---
@@ -401,6 +340,7 @@ export const db = new InvoiceForgeDB();
 ### Library: pdfmake
 
 **Why pdfmake?**
+
 - Pure JavaScript, runs entirely in browser
 - No server dependency
 - Excellent table support (critical for invoices)
@@ -421,7 +361,7 @@ export function generateInvoicePDF(invoice: Invoice, template: Template): void {
   const docDefinition = {
     pageSize: 'A4',
     pageMargins: [40, 60, 40, 60],
-    
+
     content: [
       // Header with logo and invoice number
       {
@@ -436,7 +376,7 @@ export function generateInvoicePDF(invoice: Invoice, template: Template): void {
           }
         ]
       },
-      
+
       // Sender and Client info
       {
         columns: [
@@ -460,7 +400,7 @@ export function generateInvoicePDF(invoice: Invoice, template: Template): void {
         ],
         margin: [0, 30, 0, 30]
       },
-      
+
       // Invoice details row
       {
         columns: [
@@ -470,7 +410,7 @@ export function generateInvoicePDF(invoice: Invoice, template: Template): void {
         ],
         margin: [0, 0, 0, 20]
       },
-      
+
       // Line items table
       {
         table: {
@@ -489,7 +429,7 @@ export function generateInvoicePDF(invoice: Invoice, template: Template): void {
           ]
         }
       },
-      
+
       // Totals
       {
         columns: [
@@ -501,7 +441,7 @@ export function generateInvoicePDF(invoice: Invoice, template: Template): void {
                 ['Subtotal', formatCurrency(subtotal, invoice.currency)],
                 ['Tax', formatCurrency(taxTotal, invoice.currency)],
                 ['Discount', '-' + formatCurrency(discount, invoice.currency)],
-                [{ text: 'Total Due', bold: true }, 
+                [{ text: 'Total Due', bold: true },
                  { text: formatCurrency(total, invoice.currency), bold: true }]
               ]
             },
@@ -510,12 +450,12 @@ export function generateInvoicePDF(invoice: Invoice, template: Template): void {
         ],
         margin: [0, 20, 0, 30]
       },
-      
+
       // Notes and terms
       invoice.notes ? { text: ['Notes\n', invoice.notes], margin: [0, 0, 0, 15] } : {},
       invoice.terms ? { text: ['Terms & Conditions\n', invoice.terms] } : {}
     ],
-    
+
     styles: {
       documentTitle: { fontSize: 28, bold: true, color: '#4F46E5' },
       invoiceNumber: { fontSize: 14, color: '#64748B' },
@@ -523,7 +463,7 @@ export function generateInvoicePDF(invoice: Invoice, template: Template): void {
       bold: { bold: true }
     }
   };
-  
+
   pdfMake.createPdf(docDefinition).download(`${invoice.number}.pdf`);
 }
 ```
@@ -554,7 +494,7 @@ export const CURRENCIES = [
 
 export function formatCurrency(amount: number, currencyCode: string): string {
   const currency = CURRENCIES.find(c => c.code === currencyCode) || CURRENCIES[0];
-  
+
   return new Intl.NumberFormat(currency.locale, {
     style: 'currency',
     currency: currency.code,
@@ -592,22 +532,22 @@ export async function generateInvoiceNumber(config = defaultConfig): Promise<str
   const now = new Date();
   const year = now.getFullYear();
   const month = String(now.getMonth() + 1).padStart(2, '0');
-  
+
   // Get last invoice number from DB
   const lastInvoice = await db.invoices
     .where('issueDate')
     .between(new Date(year, 0, 1), new Date(year, 11, 31))
     .last();
-  
-  const sequence = lastInvoice 
+
+  const sequence = lastInvoice
     ? parseInt(lastInvoice.number.split(config.separator).pop() || '0') + 1
     : 1;
-  
+
   const parts = [config.prefix];
   if (config.includeYear) parts.push(String(year));
   if (config.includeMonth) parts.push(month);
   parts.push(String(sequence).padStart(config.padLength, '0'));
-  
+
   return parts.join(config.separator);
 }
 
@@ -621,6 +561,7 @@ export async function generateInvoiceNumber(config = defaultConfig): Promise<str
 ## Success Criteria
 
 ### Technical
+
 - [ ] PDF generation works in all major browsers (Chrome, Firefox, Safari, Edge)
 - [ ] Page load < 2 seconds on 3G connection
 - [ ] Works completely offline after first load (PWA potential)
@@ -628,6 +569,7 @@ export async function generateInvoiceNumber(config = defaultConfig): Promise<str
 - [ ] Export/import creates valid, restorable backups
 
 ### User Experience
+
 - [ ] First invoice created in under 60 seconds (new user)
 - [ ] Returning user creates invoice in under 30 seconds
 - [ ] Live preview updates within 100ms of input
@@ -635,6 +577,7 @@ export async function generateInvoiceNumber(config = defaultConfig): Promise<str
 - [ ] Mobile-friendly responsive design
 
 ### Quality
+
 - [ ] WCAG 2.1 AA accessibility compliance
 - [ ] 100% TypeScript coverage
 - [ ] All components use shadcn-svelte

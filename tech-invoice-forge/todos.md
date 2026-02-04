@@ -13,6 +13,7 @@ This document tracks all implementation tasks for Tech Invoice Forge. Tasks are 
 ## Phase 0: Project Setup
 
 ### Initial Setup
+
 - [ ] Create SvelteKit project with `bunx sv create tech-invoice-forge`
 - [ ] Initialize with TypeScript, Prettier, ESLint
 - [ ] Add Tailwind CSS v4 with `bunx sv add tailwindcss`
@@ -21,6 +22,7 @@ This document tracks all implementation tasks for Tech Invoice Forge. Tasks are 
 - [ ] Set up path aliases in `svelte.config.js`
 
 ### Configure Tailwind
+
 - [ ] Create custom color palette in `tailwind.config.js`
 - [ ] Add brand colors (indigo, emerald, amber)
 - [ ] Add surface colors (slate-800, slate-900)
@@ -28,13 +30,15 @@ This document tracks all implementation tasks for Tech Invoice Forge. Tasks are 
 - [ ] Add tailwindcss-animate plugin
 
 ### Install Core Dependencies
-- [ ] Install Dexie.js for IndexedDB
+
+- [x] Configure Native IndexedDB wrapper
 - [ ] Install pdfmake for PDF generation
 - [ ] Install valibot for validation
 - [ ] Install @internationalized/date
 - [ ] Install lucide-svelte icons
 
 ### Add shadcn Components
+
 - [ ] Add Button component
 - [ ] Add Input component
 - [ ] Add Textarea component
@@ -53,8 +57,9 @@ This document tracks all implementation tasks for Tech Invoice Forge. Tasks are 
 - [ ] Add Alert component
 
 ### Create Base Layout
+
 - [ ] Create root layout with dark theme
-- [ ] **Configure `ssr: false` in `+layout.ts`** (required for Dexie.js)
+- [x] **Configure `ssr: false` in `+layout.ts`** (required for IndexedDB)
 - [ ] Add Inter and JetBrains Mono fonts
 - [ ] Create Header component
 - [ ] Create responsive navigation
@@ -65,7 +70,8 @@ This document tracks all implementation tasks for Tech Invoice Forge. Tasks are 
 ## Phase 1: Core MVP
 
 ### Database Layer
-- [ ] Create `$lib/db/index.ts` - Dexie instance
+
+- [x] Create `$lib/db/db.native.ts` - Native implementation
 - [ ] Create `$lib/db/schema.ts` - Table interfaces
 - [ ] Create `$lib/db/senders.ts` - Sender CRUD
 - [ ] Create `$lib/db/clients.ts` - Client CRUD
@@ -74,6 +80,7 @@ This document tracks all implementation tasks for Tech Invoice Forge. Tasks are 
 - [ ] Test database operations
 
 ### Validation Schemas
+
 - [ ] Create `$lib/schemas/sender.ts`
 - [ ] Create `$lib/schemas/client.ts`
 - [ ] Create `$lib/schemas/invoice.ts`
@@ -81,6 +88,7 @@ This document tracks all implementation tasks for Tech Invoice Forge. Tasks are 
 - [ ] Create `$lib/schemas/settings.ts`
 
 ### Utility Functions
+
 - [ ] Create `$lib/utils/currency.ts` - formatCurrency with Intl
 - [ ] Create `$lib/utils/date.ts` - formatDate utilities
 - [ ] Create `$lib/utils/invoice-number.ts` - Number generation
@@ -90,6 +98,7 @@ This document tracks all implementation tasks for Tech Invoice Forge. Tasks are 
 - [ ] Create `$lib/constants/payment-terms.ts` - Terms list
 
 ### State Management
+
 - [ ] Create `$lib/stores/invoice.svelte.ts` - Invoice state
 - [ ] Implement line item management (add, remove, update)
 - [ ] Implement computed totals ($derived)
@@ -97,6 +106,7 @@ This document tracks all implementation tasks for Tech Invoice Forge. Tasks are 
 - [ ] Implement settings persistence (localStorage)
 
 ### Invoice Form Components
+
 - [ ] Create SectionCard wrapper component
 - [ ] Create FormGrid layout component
 - [ ] Create SenderForm component
@@ -133,6 +143,7 @@ This document tracks all implementation tasks for Tech Invoice Forge. Tasks are 
   - [ ] Collapsible behavior
 
 ### Remote Functions
+
 - [ ] Create `$lib/remote/index.ts` - Re-export all
 - [ ] Create `$lib/remote/client.remote.ts` - Client form handlers
 - [ ] Create `$lib/remote/invoice.remote.ts` - Invoice form handlers
@@ -140,6 +151,7 @@ This document tracks all implementation tasks for Tech Invoice Forge. Tasks are 
 - [ ] Create `$lib/remote/settings.remote.ts` - Settings form handlers
 
 ### Main Page
+
 - [ ] Create two-column layout (form + preview)
 - [ ] Implement responsive layout (mobile stacked)
 - [ ] Wire up all form components
@@ -150,12 +162,14 @@ This document tracks all implementation tasks for Tech Invoice Forge. Tasks are 
 ## Phase 2: PDF Generation
 
 ### PDF Setup
+
 - [ ] Create `$lib/pdf/generator.ts` - Main generator
 - [ ] Configure pdfmake with dynamic import
 - [ ] Set up font loading (VFS fonts)
 - [ ] Create `$lib/pdf/styles.ts` - Shared styles
 
 ### PDF Templates
+
 - [ ] Create `$lib/pdf/templates/modern.ts`
 - [ ] Create `$lib/pdf/templates/classic.ts`
 - [ ] Create `$lib/pdf/templates/tech.ts`
@@ -163,6 +177,7 @@ This document tracks all implementation tasks for Tech Invoice Forge. Tasks are 
 - [ ] Create template type definitions
 
 ### Preview Panel
+
 - [ ] Create PreviewPanel component
 - [ ] Implement blob URL generation for preview
 - [ ] Add zoom controls (50%, 75%, 100%, 125%, 150%)
@@ -170,6 +185,7 @@ This document tracks all implementation tasks for Tech Invoice Forge. Tasks are 
 - [ ] Implement debounced preview updates (300ms)
 
 ### Actions
+
 - [ ] Create DownloadButton component
 - [ ] Implement PDF download functionality
 - [ ] Add loading state during generation
@@ -182,6 +198,7 @@ This document tracks all implementation tasks for Tech Invoice Forge. Tasks are 
 ## Phase 3: Data Persistence
 
 ### Auto-Save
+
 - [ ] Implement draft auto-save (every 30 seconds)
 - [ ] Save on field blur
 - [ ] Save on beforeunload
@@ -189,11 +206,13 @@ This document tracks all implementation tasks for Tech Invoice Forge. Tasks are 
 - [ ] Implement draft recovery on page load
 
 ### Sender Persistence
+
 - [ ] Auto-load default sender on page load
 - [ ] Save sender after first invoice
 - [ ] "Remember my details" option
 
 ### Client Address Book
+
 - [ ] Create ClientSelector component (dropdown + search)
 - [ ] Create AddClientDialog component
 - [ ] Create EditClientDialog component
@@ -202,6 +221,7 @@ This document tracks all implementation tasks for Tech Invoice Forge. Tasks are 
 - [ ] Show recently used clients first
 
 ### Service Library
+
 - [ ] Create ServiceSelector component
 - [ ] Create AddServiceDialog component
 - [ ] Create EditServiceDialog component
@@ -209,6 +229,7 @@ This document tracks all implementation tasks for Tech Invoice Forge. Tasks are 
 - [ ] Category filtering (optional)
 
 ### Invoice History
+
 - [ ] Create `/history` route
 - [ ] Create InvoiceList component
 - [ ] Implement status badges (Draft, Sent, Paid, Overdue)
@@ -223,6 +244,7 @@ This document tracks all implementation tasks for Tech Invoice Forge. Tasks are 
 ## Phase 4: Receipt Mode
 
 ### Receipt Generation
+
 - [ ] Create `/receipt` route
 - [ ] Modify form for receipt-specific fields
   - [ ] Paid date picker
@@ -233,6 +255,7 @@ This document tracks all implementation tasks for Tech Invoice Forge. Tasks are 
 - [ ] Add "PAID" badge
 
 ### Convert Invoice to Receipt
+
 - [ ] Add "Convert to Receipt" action in history
 - [ ] Pre-fill receipt from invoice data
 - [ ] Add payment details form
@@ -243,24 +266,28 @@ This document tracks all implementation tasks for Tech Invoice Forge. Tasks are 
 ## Phase 5: Export/Import
 
 ### Single Invoice Export
+
 - [ ] Create export invoice as JSON function
 - [ ] Include sender and client data
 - [ ] Add version and timestamp
 - [ ] Trigger file download
 
 ### Single Invoice Import
+
 - [ ] Create import dialog
 - [ ] Validate JSON structure
 - [ ] Show preview before import
 - [ ] Option to create new or restore
 
 ### Full Backup Export
+
 - [ ] Export all tables (senders, clients, services, invoices)
 - [ ] Include settings
 - [ ] Add metadata (counts)
 - [ ] Trigger file download
 
 ### Full Backup Import
+
 - [ ] Create import dialog with file picker
 - [ ] Validate backup structure
 - [ ] Show summary (X invoices, Y clients)
@@ -272,6 +299,7 @@ This document tracks all implementation tasks for Tech Invoice Forge. Tasks are 
 ## Phase 6: Settings & Polish
 
 ### Settings Page
+
 - [ ] Create `/settings` route
 - [ ] Create settings tabs (Defaults, Appearance, Data)
 - [ ] Invoice Defaults section
@@ -288,6 +316,7 @@ This document tracks all implementation tasks for Tech Invoice Forge. Tasks are 
   - [ ] Clear all data button (with confirmation)
 
 ### Support/Pricing Page
+
 - [ ] Create `/support` route (or `/pricing`)
 - [ ] "Free Forever" messaging
 - [ ] Ko-fi integration button
@@ -296,6 +325,7 @@ This document tracks all implementation tasks for Tech Invoice Forge. Tasks are 
 - [ ] Link in footer navigation
 
 ### Logo Upload Feature
+
 - [ ] Create `$lib/utils/logo-compress.ts` - Image compression utility
 - [ ] Add logo upload input in SenderForm component
 - [ ] Implement drag-and-drop for logo
@@ -304,6 +334,7 @@ This document tracks all implementation tasks for Tech Invoice Forge. Tasks are 
 - [ ] Integrate logo into all PDF templates
 
 ### Keyboard Shortcuts
+
 - [ ] Implement Ctrl/Cmd + S for save draft
 - [ ] Implement Ctrl/Cmd + D for download PDF
 - [ ] Implement Ctrl/Cmd + N for new invoice
@@ -311,6 +342,7 @@ This document tracks all implementation tasks for Tech Invoice Forge. Tasks are 
 - [ ] Add keyboard shortcut hint tooltips
 
 ### Accessibility
+
 - [ ] Add proper ARIA labels to all interactive elements
 - [ ] Ensure focus management in dialogs
 - [ ] Test with keyboard navigation
@@ -318,17 +350,20 @@ This document tracks all implementation tasks for Tech Invoice Forge. Tasks are 
 - [ ] Verify color contrast ratios
 
 ### Empty States
+
 - [ ] Create empty state for invoice history
 - [ ] Create empty state for client list
 - [ ] Create empty state for service library
 
 ### Error Handling
+
 - [ ] Add form validation error messages
 - [ ] Add PDF generation error handling
 - [ ] Add database error handling
 - [ ] Add toast notifications for actions
 
 ### Performance
+
 - [ ] Lazy load pdfmake (~500KB)
 - [ ] Optimize Tailwind CSS (purge unused)
 - [ ] Add loading indicators
@@ -339,6 +374,7 @@ This document tracks all implementation tasks for Tech Invoice Forge. Tasks are 
 ## Phase 7: Testing & Deployment
 
 ### Browser Testing
+
 - [ ] Test on Chrome
 - [ ] Test on Firefox
 - [ ] Test on Safari
@@ -347,6 +383,7 @@ This document tracks all implementation tasks for Tech Invoice Forge. Tasks are 
 - [ ] Test on mobile Safari (iOS)
 
 ### Responsive Testing
+
 - [ ] Test on 320px width (small phone)
 - [ ] Test on 375px width (iPhone)
 - [ ] Test on 768px width (tablet)
@@ -354,6 +391,7 @@ This document tracks all implementation tasks for Tech Invoice Forge. Tasks are 
 - [ ] Test on 1920px width (desktop)
 
 ### Functionality Testing
+
 - [ ] Create invoice end-to-end
 - [ ] Create receipt end-to-end
 - [ ] Test all templates
@@ -362,6 +400,7 @@ This document tracks all implementation tasks for Tech Invoice Forge. Tasks are 
 - [ ] Test after browser restart (data persistence)
 
 ### Deployment
+
 - [ ] Configure build for production
 - [ ] Test production build locally
 - [ ] Deploy to Vercel/Netlify/Cloudflare Pages
@@ -373,18 +412,21 @@ This document tracks all implementation tasks for Tech Invoice Forge. Tasks are 
 ## Future Enhancements (Post-MVP)
 
 ### P1 - High Priority
+
 - [ ] PWA support (offline after first load)
 - [ ] Service worker for caching
 - [ ] Email invoice (mailto link)
 - [ ] Stripe payment links
 
 ### P2 - Medium Priority
+
 - [ ] Cloud sync (optional account)
 - [ ] Multi-language support (i18n)
 - [ ] Recurring invoice templates
 - [ ] Invoice analytics/dashboard
 
 ### P3 - Low Priority
+
 - [ ] Custom font upload for PDF
 - [ ] Invoice scheduling
 - [ ] Client portal

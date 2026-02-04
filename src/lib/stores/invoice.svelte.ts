@@ -244,7 +244,7 @@ export class InvoiceStore {
 			const invoiceToSave = serializeInvoiceForStorage(this.invoice);
 			invoiceToSave.isDraft = 0 as any; // 0 for false (saved to history)
 
-			// CRITICAL: Remove the ID so Dexie auto-generates a new one
+			// CRITICAL: Remove the ID so IndexedDB auto-generates a new one
 			// This prevents ConstraintError when the draft ID already exists
 			delete invoiceToSave.id;
 			console.log('[InvoiceStore] Invoice prepared for history (ID removed):', {

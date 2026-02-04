@@ -6,7 +6,7 @@
 
 ## Overview
 
-All data is stored locally in the browser using IndexedDB through Dexie.js. No data is sent to any server.
+All data is stored locally in the browser using the native IndexedDB Web API. No data is sent to any server.
 
 ---
 
@@ -93,14 +93,14 @@ export interface ServiceItem {
   updatedAt: Date;
 }
 
-export type Unit = 
-  | 'hour' 
-  | 'day' 
-  | 'unit' 
-  | 'flat' 
-  | 'project' 
-  | 'month' 
-  | 'word' 
+export type Unit =
+  | 'hour'
+  | 'day'
+  | 'unit'
+  | 'flat'
+  | 'project'
+  | 'month'
+  | 'word'
   | 'page';
 
 // Example
@@ -190,25 +190,25 @@ export interface Invoice {
   updatedAt: Date;
 }
 
-export type InvoiceStatus = 
-  | 'draft' 
-  | 'sent' 
-  | 'paid' 
+export type InvoiceStatus =
+  | 'draft'
+  | 'sent'
+  | 'paid'
   | 'overdue'
   | 'cancelled';
 
-export type PaymentMethod = 
-  | 'bank_transfer' 
-  | 'credit_card' 
-  | 'paypal' 
-  | 'cash' 
-  | 'check' 
+export type PaymentMethod =
+  | 'bank_transfer'
+  | 'credit_card'
+  | 'paypal'
+  | 'cash'
+  | 'check'
   | 'other';
 
-export type TemplateName = 
-  | 'modern' 
-  | 'classic' 
-  | 'tech' 
+export type TemplateName =
+  | 'modern'
+  | 'classic'
+  | 'tech'
   | 'compact';
 
 // Example
@@ -270,15 +270,15 @@ export interface InvoiceNumberConfig {
   padLength: number;
 }
 
-export type PaymentTerms = 
-  | 'due_on_receipt' 
-  | 'net_7' 
-  | 'net_15' 
-  | 'net_30' 
-  | 'net_45' 
+export type PaymentTerms =
+  | 'due_on_receipt'
+  | 'net_7'
+  | 'net_15'
+  | 'net_30'
+  | 'net_45'
   | 'net_60';
 
-export type DateFormat = 
+export type DateFormat =
   | 'YYYY-MM-DD'     // 2026-02-01
   | 'MM/DD/YYYY'     // 02/01/2026
   | 'DD/MM/YYYY'     // 01/02/2026
@@ -316,8 +316,8 @@ export interface Currency {
   decimalPlaces: number;
 }
 
-export type CurrencyCode = 
-  | 'USD' | 'EUR' | 'GBP' | 'CAD' | 'AUD' 
+export type CurrencyCode =
+  | 'USD' | 'EUR' | 'GBP' | 'CAD' | 'AUD'
   | 'JPY' | 'CNY' | 'INR' | 'NGN' | 'CHF'
   | 'BRL' | 'MXN' | 'KRW' | 'SGD' | 'HKD'
   | 'SEK' | 'NOK' | 'DKK' | 'PLN' | 'ZAR'
@@ -355,34 +355,22 @@ export const CURRENCIES: Currency[] = [
 
 ---
 
-## Dexie.js Database Schema
+## Native IndexedDB Database Schema
+
+The project uses a custom, promise-based wrapper around the native IndexedDB API.
 
 ```typescript
-// $lib/db/index.ts
-import Dexie, { type Table } from 'dexie';
-import type { Sender, Client, ServiceItem, Invoice } from './schema';
+// $lib/db/db.native.ts
+// Database configuration
+const DB_NAME = 'TechInvoiceForgeDB';
+const DB_VERSION = 3;
 
-class InvoiceForgeDB extends Dexie {
-  senders!: Table<Sender>;
-  clients!: Table<Client>;
-  services!: Table<ServiceItem>;
-  invoices!: Table<Invoice>;
-
-  constructor() {
-    super('InvoiceForgeDB');
-    
-    this.version(1).stores({
-      // Indexes: ++id = auto-increment primary key
-      // Other fields are indexed for querying
-      senders: '++id, businessName, isDefault, createdAt',
-      clients: '++id, name, company, email, createdAt',
-      services: '++id, name, category, createdAt',
-      invoices: '++id, number, type, status, clientId, senderId, issueDate, createdAt'
-    });
-  }
-}
-
-export const db = new InvoiceForgeDB();
+// Object Stores
+// - senders: Business profiles
+// - clients: Client database
+// - serviceItems: Reusable services/products
+// - invoices: The core invoice records (history)
+// - settings: App-wide configuration
 ```
 
 ---
@@ -553,19 +541,19 @@ export function calculateLineItemTax(item: LineItem): number {
 }
 
 export function calculateSubtotal(lineItems: LineItem[]): number {
-  return lineItems.reduce((sum, item) => 
+  return lineItems.reduce((sum, item) =>
     sum + calculateLineItemAmount(item), 0
   );
 }
 
 export function calculateTaxTotal(lineItems: LineItem[]): number {
-  return lineItems.reduce((sum, item) => 
+  return lineItems.reduce((sum, item) =>
     sum + calculateLineItemTax(item), 0
   );
 }
 
 export function calculateDiscountAmount(
-  subtotal: number, 
+  subtotal: number,
   discount: Discount
 ): number {
   if (discount.type === 'percentage') {
@@ -575,13 +563,13 @@ export function calculateDiscountAmount(
 }
 
 export function calculateTotal(
-  lineItems: LineItem[], 
+  lineItems: LineItem[],
   discount: Discount
 ): number {
   const subtotal = calculateSubtotal(lineItems);
   const taxTotal = calculateTaxTotal(lineItems);
   const discountAmount = calculateDiscountAmount(subtotal, discount);
-  
+
   return subtotal + taxTotal - discountAmount;
 }
 ```
