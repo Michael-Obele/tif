@@ -18,7 +18,7 @@
 		Package,
 		StickyNote
 	} from '@lucide/svelte';
-	import type { Unit } from '$lib/types';
+	import type { Unit, InvoiceStatus } from '$lib/types';
 
 	// Currency options
 	const currencies = [
@@ -46,6 +46,15 @@
 		{ value: 'month', label: 'Month' },
 		{ value: 'word', label: 'Word' },
 		{ value: 'page', label: 'Page' }
+	];
+
+	// Status options
+	const statuses: { value: InvoiceStatus; label: string }[] = [
+		{ value: 'draft', label: 'Draft' },
+		{ value: 'sent', label: 'Sent' },
+		{ value: 'paid', label: 'Paid' },
+		{ value: 'overdue', label: 'Overdue' },
+		{ value: 'cancelled', label: 'Cancelled' }
 	];
 
 	// Payment terms options
@@ -242,6 +251,25 @@
 				<Card.Content class="grid gap-4 pt-0">
 					<div class="grid gap-4 sm:grid-cols-2">
 						<div class="space-y-2">
+							<Label for="invoice-status">Status</Label>
+							<Select.Root
+								type="single"
+								value={invoiceStore.invoice.status}
+								onValueChange={(v) => {
+									if (v) invoiceStore.invoice.status = v as InvoiceStatus;
+								}}
+							>
+								<Select.Trigger id="invoice-status" class="w-full">
+									{statuses.find((s) => s.value === invoiceStore.invoice.status)?.label || 'Draft'}
+								</Select.Trigger>
+								<Select.Content>
+									{#each statuses as status}
+										<Select.Item value={status.value}>{status.label}</Select.Item>
+									{/each}
+								</Select.Content>
+							</Select.Root>
+						</div>
+						<div class="space-y-2">
 							<Label for="invoice-number">Invoice Number</Label>
 							<Input
 								id="invoice-number"
@@ -249,6 +277,8 @@
 								bind:value={invoiceStore.invoice.number}
 							/>
 						</div>
+					</div>
+					<div class="grid gap-4 sm:grid-cols-2">
 						<div class="space-y-2">
 							<Label for="currency">Currency</Label>
 							<Select.Root

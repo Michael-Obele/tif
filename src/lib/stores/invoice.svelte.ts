@@ -244,12 +244,6 @@ export class InvoiceStore {
 			const invoiceToSave = serializeInvoiceForStorage(this.invoice);
 			invoiceToSave.isDraft = 0 as any; // 0 for false (saved to history)
 
-			// If status is still draft, default to 'sent' when saving to history
-			// Otherwise respect the user-selected status (e.g. 'paid', 'overdue')
-			if (invoiceToSave.status === 'draft') {
-				invoiceToSave.status = 'sent';
-			}
-
 			// CRITICAL: Remove the ID so Dexie auto-generates a new one
 			// This prevents ConstraintError when the draft ID already exists
 			delete invoiceToSave.id;

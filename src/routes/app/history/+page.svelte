@@ -200,6 +200,7 @@
 		class="flex flex-col items-center justify-between gap-4 rounded-lg border bg-card p-4 shadow-sm sm:flex-row"
 	>
 		<div class="relative w-full sm:max-w-sm">
+			<Search class="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
 			<Input placeholder="Search client, number..." class="pl-11" bind:value={searchQuery} />
 		</div>
 		<div class="flex w-full flex-wrap items-center gap-2 sm:w-auto">
@@ -215,6 +216,7 @@
 					<Select.Item value="sent">Sent</Select.Item>
 					<Select.Item value="paid">Paid</Select.Item>
 					<Select.Item value="overdue">Overdue</Select.Item>
+					<Select.Item value="cancelled">Cancelled</Select.Item>
 				</Select.Content>
 			</Select.Root>
 
