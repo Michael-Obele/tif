@@ -275,7 +275,7 @@
 						<Table.Head>Client</Table.Head>
 						<Table.Head>Date</Table.Head>
 						<Table.Head class="text-right">Amount</Table.Head>
-						<Table.Head class="w-[50px]"></Table.Head>
+						<Table.Head class="w-12.5"></Table.Head>
 						<Table.Head class="w-12.5"></Table.Head>
 					</Table.Row>
 				</Table.Header>
