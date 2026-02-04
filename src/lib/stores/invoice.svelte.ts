@@ -53,41 +53,41 @@ function serializeInvoiceForStorage(invoice: Invoice): Invoice {
 		// Nested objects - clean serialization
 		senderData: snapshot.senderData
 			? {
-				businessName: snapshot.senderData.businessName || '',
-				address: snapshot.senderData.address || '',
-				email: snapshot.senderData.email || '',
-				phone: snapshot.senderData.phone,
-				taxId: snapshot.senderData.taxId,
-				isDefault: snapshot.senderData.isDefault || false,
-				createdAt:
-					snapshot.senderData.createdAt instanceof Date
-						? snapshot.senderData.createdAt
-						: new Date(snapshot.senderData.createdAt || Date.now()),
-				updatedAt:
-					snapshot.senderData.updatedAt instanceof Date
-						? snapshot.senderData.updatedAt
-						: new Date(snapshot.senderData.updatedAt || Date.now())
-				// Note: logo is intentionally excluded (Blob type not serializable)
-			}
+					businessName: snapshot.senderData.businessName || '',
+					address: snapshot.senderData.address || '',
+					email: snapshot.senderData.email || '',
+					phone: snapshot.senderData.phone,
+					taxId: snapshot.senderData.taxId,
+					isDefault: snapshot.senderData.isDefault || false,
+					createdAt:
+						snapshot.senderData.createdAt instanceof Date
+							? snapshot.senderData.createdAt
+							: new Date(snapshot.senderData.createdAt || Date.now()),
+					updatedAt:
+						snapshot.senderData.updatedAt instanceof Date
+							? snapshot.senderData.updatedAt
+							: new Date(snapshot.senderData.updatedAt || Date.now())
+					// Note: logo is intentionally excluded (Blob type not serializable)
+				}
 			: undefined,
 
 		clientSnapshot: snapshot.clientSnapshot
 			? {
-				name: snapshot.clientSnapshot.name || '',
-				company: snapshot.clientSnapshot.company,
-				address: snapshot.clientSnapshot.address || '',
-				email: snapshot.clientSnapshot.email || '',
-				phone: snapshot.clientSnapshot.phone,
-				notes: snapshot.clientSnapshot.notes,
-				createdAt:
-					snapshot.clientSnapshot.createdAt instanceof Date
-						? snapshot.clientSnapshot.createdAt
-						: new Date(snapshot.clientSnapshot.createdAt || Date.now()),
-				updatedAt:
-					snapshot.clientSnapshot.updatedAt instanceof Date
-						? snapshot.clientSnapshot.updatedAt
-						: new Date(snapshot.clientSnapshot.updatedAt || Date.now())
-			}
+					name: snapshot.clientSnapshot.name || '',
+					company: snapshot.clientSnapshot.company,
+					address: snapshot.clientSnapshot.address || '',
+					email: snapshot.clientSnapshot.email || '',
+					phone: snapshot.clientSnapshot.phone,
+					notes: snapshot.clientSnapshot.notes,
+					createdAt:
+						snapshot.clientSnapshot.createdAt instanceof Date
+							? snapshot.clientSnapshot.createdAt
+							: new Date(snapshot.clientSnapshot.createdAt || Date.now()),
+					updatedAt:
+						snapshot.clientSnapshot.updatedAt instanceof Date
+							? snapshot.clientSnapshot.updatedAt
+							: new Date(snapshot.clientSnapshot.updatedAt || Date.now())
+				}
 			: undefined,
 
 		// Other fields
@@ -202,11 +202,12 @@ export class InvoiceStore {
 
 			// Clean up any *other* drafts (enforce single draft policy)
 			// We do this after saving to ensure we have a valid saved draft first
-			await (db.invoices as any)
-				.where('isDraft')
-				.equals(1) // Check for 1 (true)
-				.filter((i: any) => i.id !== id)
-				.delete();
+			const drafts = await db.invoices.getAllFromIndex('isDraft', 1);
+			for (const draft of drafts) {
+				if (draft.id !== id && draft.id) {
+					await db.invoices.delete(draft.id);
+				}
+			}
 
 			this.lastSaved = new Date();
 			console.log('[InvoiceStore] Draft auto-saved successfully, ID:', id);
@@ -242,7 +243,12 @@ export class InvoiceStore {
 			// Serialize the current invoice
 			const invoiceToSave = serializeInvoiceForStorage(this.invoice);
 			invoiceToSave.isDraft = 0 as any; // 0 for false (saved to history)
-			invoiceToSave.status = 'sent';
+
+			// If status is still draft, default to 'sent' when saving to history
+			// Otherwise respect the user-selected status (e.g. 'paid', 'overdue')
+			if (invoiceToSave.status === 'draft') {
+				invoiceToSave.status = 'sent';
+			}
 
 			// CRITICAL: Remove the ID so Dexie auto-generates a new one
 			// This prevents ConstraintError when the draft ID already exists
@@ -298,7 +304,8 @@ export class InvoiceStore {
 			console.log('[InvoiceStore] Loading draft from IndexedDB...');
 
 			// Get the current draft (check for 1)
-			const savedDraft = await (db.invoices as any).where('isDraft').equals(1).first();
+			const drafts = await db.invoices.getAllFromIndex('isDraft', 1);
+			const savedDraft = drafts[0];
 
 			if (savedDraft) {
 				console.log('[InvoiceStore] Found saved draft:', savedDraft);
@@ -374,19 +381,27 @@ export class InvoiceStore {
 			console.log('[InvoiceStore] === LOADING HISTORY ===');
 
 			// First, let's see ALL invoices for debugging
-			const allInvoices = await db.invoices.toArray();
+			const allInvoices = await db.invoices.getAll();
 			console.log('[InvoiceStore] Total invoices in DB:', allInvoices.length);
 			console.log(
 				'[InvoiceStore] All invoices (isDraft values):',
-				allInvoices.map((i) => ({ id: i.id, isDraft: i.isDraft, number: i.number, status: i.status }))
+				allInvoices.map((i) => ({
+					id: i.id,
+					isDraft: i.isDraft,
+					number: i.number,
+					status: i.status
+				}))
 			);
 
 			// Query for non-draft invoices (isDraft = 0)
-			const history = await (db.invoices as any)
-				.where('isDraft')
-				.equals(0) // 0 for false
-				.reverse()
-				.sortBy('createdAt');
+			const rawHistory = await db.invoices.getAllFromIndex('isDraft', 0);
+			const history = rawHistory.sort((a, b) => {
+				const dateA =
+					a.createdAt instanceof Date ? a.createdAt.getTime() : new Date(a.createdAt).getTime();
+				const dateB =
+					b.createdAt instanceof Date ? b.createdAt.getTime() : new Date(b.createdAt).getTime();
+				return dateB - dateA;
+			});
 
 			this.invoiceHistory = history;
 			console.log('[InvoiceStore] History loaded:', history.length, 'invoices');
@@ -459,7 +474,10 @@ export class InvoiceStore {
 	async clearDraft() {
 		if (browser) {
 			try {
-				await (db.invoices as any).where('isDraft').equals(1).delete();
+				const drafts = await db.invoices.getAllFromIndex('isDraft', 1);
+				for (const draft of drafts) {
+					if (draft.id) await db.invoices.delete(draft.id);
+				}
 				console.log('[InvoiceStore] Draft cleared from IndexedDB');
 			} catch (error) {
 				console.error('[InvoiceStore] Error clearing draft:', error);

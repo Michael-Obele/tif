@@ -8,10 +8,22 @@
 	import { generateInvoicePdf } from '$lib/utils/pdf-generator';
 	import { browser } from '$app/environment';
 
+	import * as Select from '$lib/components/ui/select';
 	import { toast } from 'svelte-sonner';
 	import { goto } from '$app/navigation';
 
 	let isGenerating = $state(false);
+
+	const statuses = [
+		{ value: 'draft', label: 'Draft' },
+		{ value: 'sent', label: 'Sent' },
+		{ value: 'paid', label: 'Paid' },
+		{ value: 'overdue', label: 'Overdue' }
+	];
+
+	const triggerContent = $derived(
+		statuses.find((s) => s.value === invoiceStore.invoice.status)?.label ?? 'Status'
+	);
 
 	async function handleDownloadPdf() {
 		if (isGenerating) return;
@@ -77,6 +89,19 @@
 				{/if}
 			</div>
 			<div class="flex items-center gap-2">
+				<div class="w-32">
+					<Select.Root type="single" bind:value={invoiceStore.invoice.status}>
+						<Select.Trigger class="h-8" placeholder="Status">
+							{triggerContent}
+						</Select.Trigger>
+						<Select.Content>
+							<Select.Item value="draft">Draft</Select.Item>
+							<Select.Item value="sent">Sent</Select.Item>
+							<Select.Item value="paid">Paid</Select.Item>
+							<Select.Item value="overdue">Overdue</Select.Item>
+						</Select.Content>
+					</Select.Root>
+				</div>
 				<Button size="sm" variant="outline" onclick={handleDownloadPdf} disabled={isGenerating}>
 					{#if isGenerating}
 						<Loader2 class="mr-2 h-4 w-4 animate-spin" />
