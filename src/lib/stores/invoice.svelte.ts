@@ -53,41 +53,41 @@ function serializeInvoiceForStorage(invoice: Invoice): Invoice {
 		// Nested objects - clean serialization
 		senderData: snapshot.senderData
 			? {
-					businessName: snapshot.senderData.businessName || '',
-					address: snapshot.senderData.address || '',
-					email: snapshot.senderData.email || '',
-					phone: snapshot.senderData.phone,
-					taxId: snapshot.senderData.taxId,
-					isDefault: snapshot.senderData.isDefault || false,
-					createdAt:
-						snapshot.senderData.createdAt instanceof Date
-							? snapshot.senderData.createdAt
-							: new Date(snapshot.senderData.createdAt || Date.now()),
-					updatedAt:
-						snapshot.senderData.updatedAt instanceof Date
-							? snapshot.senderData.updatedAt
-							: new Date(snapshot.senderData.updatedAt || Date.now())
-					// Note: logo is intentionally excluded (Blob type not serializable)
-				}
+				businessName: snapshot.senderData.businessName || '',
+				address: snapshot.senderData.address || '',
+				email: snapshot.senderData.email || '',
+				phone: snapshot.senderData.phone,
+				taxId: snapshot.senderData.taxId,
+				isDefault: snapshot.senderData.isDefault || false,
+				createdAt:
+					snapshot.senderData.createdAt instanceof Date
+						? snapshot.senderData.createdAt
+						: new Date(snapshot.senderData.createdAt || Date.now()),
+				updatedAt:
+					snapshot.senderData.updatedAt instanceof Date
+						? snapshot.senderData.updatedAt
+						: new Date(snapshot.senderData.updatedAt || Date.now())
+				// Note: logo is intentionally excluded (Blob type not serializable)
+			}
 			: undefined,
 
 		clientSnapshot: snapshot.clientSnapshot
 			? {
-					name: snapshot.clientSnapshot.name || '',
-					company: snapshot.clientSnapshot.company,
-					address: snapshot.clientSnapshot.address || '',
-					email: snapshot.clientSnapshot.email || '',
-					phone: snapshot.clientSnapshot.phone,
-					notes: snapshot.clientSnapshot.notes,
-					createdAt:
-						snapshot.clientSnapshot.createdAt instanceof Date
-							? snapshot.clientSnapshot.createdAt
-							: new Date(snapshot.clientSnapshot.createdAt || Date.now()),
-					updatedAt:
-						snapshot.clientSnapshot.updatedAt instanceof Date
-							? snapshot.clientSnapshot.updatedAt
-							: new Date(snapshot.clientSnapshot.updatedAt || Date.now())
-				}
+				name: snapshot.clientSnapshot.name || '',
+				company: snapshot.clientSnapshot.company,
+				address: snapshot.clientSnapshot.address || '',
+				email: snapshot.clientSnapshot.email || '',
+				phone: snapshot.clientSnapshot.phone,
+				notes: snapshot.clientSnapshot.notes,
+				createdAt:
+					snapshot.clientSnapshot.createdAt instanceof Date
+						? snapshot.clientSnapshot.createdAt
+						: new Date(snapshot.clientSnapshot.createdAt || Date.now()),
+				updatedAt:
+					snapshot.clientSnapshot.updatedAt instanceof Date
+						? snapshot.clientSnapshot.updatedAt
+						: new Date(snapshot.clientSnapshot.updatedAt || Date.now())
+			}
 			: undefined,
 
 		// Other fields
@@ -426,7 +426,8 @@ export class InvoiceStore {
 	}
 
 	/**
-	 * Load a specific invoice from history
+	 * Load a specific invoice from history as a COPY (new draft).
+	 * The original invoice in history is preserved.
 	 */
 	async loadInvoiceFromHistory(id: number) {
 		if (!browser) return false;
@@ -434,13 +435,15 @@ export class InvoiceStore {
 		try {
 			const invoice = await db.invoices.get(id);
 			if (invoice) {
-				// Convert to draft and load as current
+				// IMPORTANT: Remove the ID so this becomes a NEW draft.
+				// This prevents overwriting the original saved invoice in history.
 				this.invoice = {
 					...invoice,
+					id: undefined, // ← Remove ID to create a new draft
 					isDraft: true,
 					updatedAt: new Date()
 				};
-				console.log('[InvoiceStore] Loaded invoice from history:', id);
+				console.log('[InvoiceStore] Loaded invoice from history as new draft (original preserved):', id);
 				return true;
 			}
 			return false;

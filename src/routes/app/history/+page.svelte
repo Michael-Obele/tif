@@ -2,7 +2,7 @@
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
-	import { ArrowLeft, Trash2, Eye } from '@lucide/svelte';
+	import { ArrowLeft, Trash2, Eye, RefreshCw } from '@lucide/svelte';
 	import { Button } from '$lib/components/ui/button';
 	import {
 		Card,
@@ -24,6 +24,7 @@
 
 	let invoices: Invoice[] = $state([]);
 	let isLoading = $state(true);
+	let isRefreshing = $state(false);
 	let selectedInvoices = $state<Set<number>>(new Set());
 
 	onMount(async () => {
@@ -31,6 +32,12 @@
 		invoices = await invoiceStore.getHistory();
 		isLoading = false;
 	});
+
+	async function refreshHistory() {
+		isRefreshing = true;
+		invoices = await invoiceStore.getHistory();
+		isRefreshing = false;
+	}
 
 	async function openInvoice(invoiceId: number | undefined) {
 		if (!invoiceId) return;
@@ -120,12 +127,23 @@
 					<CardTitle>All Invoices</CardTitle>
 					<CardDescription>{invoices.length} invoice(s) saved</CardDescription>
 				</div>
-				{#if selectedInvoices.size > 0}
-					<Button variant="destructive" size="sm" onclick={deleteSelected}>
-						<Trash2 class="mr-2 h-4 w-4" />
-						Delete {selectedInvoices.size}
+				<div class="flex items-center gap-2">
+					<Button
+						variant="outline"
+						size="sm"
+						onclick={refreshHistory}
+						disabled={isRefreshing}
+						title="Refresh history"
+					>
+						<RefreshCw class="h-4 w-4 {isRefreshing ? 'animate-spin' : ''}" />
 					</Button>
-				{/if}
+					{#if selectedInvoices.size > 0}
+						<Button variant="destructive" size="sm" onclick={deleteSelected}>
+							<Trash2 class="mr-2 h-4 w-4" />
+							Delete {selectedInvoices.size}
+						</Button>
+					{/if}
+				</div>
 			</div>
 		</CardHeader>
 
