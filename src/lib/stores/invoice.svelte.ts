@@ -231,18 +231,40 @@ export class InvoiceStore {
 
 		try {
 			this.isSaving = true;
-			console.log('[InvoiceStore] Saving invoice and creating new draft...');
+			console.log('[InvoiceStore] === SAVE TO HISTORY START ===');
+			console.log('[InvoiceStore] Current invoice ID:', this.invoice.id);
+			console.log('[InvoiceStore] Current invoice number:', this.invoice.number);
 
-			// Serialize and save the current invoice
+			// Store the old draft ID so we can delete it after saving
+			const oldDraftId = this.invoice.id;
+			console.log('[InvoiceStore] Old draft ID to delete:', oldDraftId);
+
+			// Serialize the current invoice
 			const invoiceToSave = serializeInvoiceForStorage(this.invoice);
-			invoiceToSave.isDraft = 0 as any; // 0 for false
+			invoiceToSave.isDraft = 0 as any; // 0 for false (saved to history)
 			invoiceToSave.status = 'sent';
 
-			// Save to history
-			const savedId = await db.invoices.add(invoiceToSave);
-			console.log('[InvoiceStore] Invoice saved with ID:', savedId);
+			// CRITICAL: Remove the ID so Dexie auto-generates a new one
+			// This prevents ConstraintError when the draft ID already exists
+			delete invoiceToSave.id;
+			console.log('[InvoiceStore] Invoice prepared for history (ID removed):', {
+				number: invoiceToSave.number,
+				isDraft: invoiceToSave.isDraft,
+				status: invoiceToSave.status
+			});
 
-			// Create fresh draft
+			// Delete the old draft first (if it exists)
+			if (oldDraftId) {
+				console.log('[InvoiceStore] Deleting old draft with ID:', oldDraftId);
+				await db.invoices.delete(oldDraftId);
+				console.log('[InvoiceStore] Old draft deleted successfully');
+			}
+
+			// Save to history with a fresh auto-generated ID
+			const savedId = await db.invoices.add(invoiceToSave);
+			console.log('[InvoiceStore] Invoice saved to history with new ID:', savedId);
+
+			// Create fresh draft for new invoice
 			this.invoice = {
 				...defaultInvoice,
 				isDraft: true,
@@ -251,9 +273,15 @@ export class InvoiceStore {
 			};
 
 			this.lastSaved = new Date();
-			console.log('[InvoiceStore] New draft created');
+			console.log('[InvoiceStore] New draft created, ready for next invoice');
+			console.log('[InvoiceStore] === SAVE TO HISTORY COMPLETE ===');
 		} catch (error) {
+			console.error('[InvoiceStore] === SAVE TO HISTORY FAILED ===');
 			console.error('[InvoiceStore] Error saving invoice:', error);
+			if (error && (error as any).name) {
+				console.error('[InvoiceStore] Error Name:', (error as any).name);
+				console.error('[InvoiceStore] Error Message:', (error as any).message);
+			}
 			this.lastSaved = null;
 		} finally {
 			this.isSaving = false;
@@ -343,6 +371,17 @@ export class InvoiceStore {
 		if (!browser) return [];
 
 		try {
+			console.log('[InvoiceStore] === LOADING HISTORY ===');
+
+			// First, let's see ALL invoices for debugging
+			const allInvoices = await db.invoices.toArray();
+			console.log('[InvoiceStore] Total invoices in DB:', allInvoices.length);
+			console.log(
+				'[InvoiceStore] All invoices (isDraft values):',
+				allInvoices.map((i) => ({ id: i.id, isDraft: i.isDraft, number: i.number, status: i.status }))
+			);
+
+			// Query for non-draft invoices (isDraft = 0)
 			const history = await (db.invoices as any)
 				.where('isDraft')
 				.equals(0) // 0 for false
@@ -350,9 +389,22 @@ export class InvoiceStore {
 				.sortBy('createdAt');
 
 			this.invoiceHistory = history;
-			console.log('[InvoiceStore] Loaded history:', history.length, 'invoices');
+			console.log('[InvoiceStore] History loaded:', history.length, 'invoices');
+			if (history.length > 0) {
+				console.log(
+					'[InvoiceStore] History items:',
+					history.map((i: Invoice) => ({
+						id: i.id,
+						number: i.number,
+						status: i.status,
+						createdAt: i.createdAt
+					}))
+				);
+			}
+			console.log('[InvoiceStore] === HISTORY LOAD COMPLETE ===');
 			return history;
 		} catch (error) {
+			console.error('[InvoiceStore] === HISTORY LOAD FAILED ===');
 			console.error('[InvoiceStore] Error loading history:', error);
 			return [];
 		}

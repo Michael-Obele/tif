@@ -7,6 +7,8 @@
 	import { invoiceStore } from '$lib/stores/invoice.svelte';
 	import { browser } from '$app/environment';
 
+	import { Toaster } from 'svelte-sonner';
+
 	let { children } = $props();
 
 	// Set up auto-save effect for invoice changes
@@ -28,6 +30,7 @@
 <svelte:head><link rel="icon" href={favicon} /></svelte:head>
 
 <ModeWatcher />
+<Toaster position="top-center" richColors />
 
 <div class="relative flex min-h-screen flex-col">
 	<Navbar />

@@ -129,7 +129,12 @@
 			<!-- Desktop CTA -->
 			{#if isActive('/app')}
 				<div class="hidden items-center gap-2 md:flex">
-					<Button variant="ghost" size="sm" href="/app/history" aria-label="View Invoice History">
+					<Button
+						variant={isActive('/app/history') ? 'secondary' : 'ghost'}
+						size="sm"
+						href="/app/history"
+						aria-label="View Invoice History"
+					>
 						<Clock class="mr-1 h-4 w-4" />
 						History
 					</Button>

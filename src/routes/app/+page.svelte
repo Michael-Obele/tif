@@ -8,6 +8,9 @@
 	import { generateInvoicePdf } from '$lib/utils/pdf-generator';
 	import { browser } from '$app/environment';
 
+	import { toast } from 'svelte-sonner';
+	import { goto } from '$app/navigation';
+
 	let isGenerating = $state(false);
 
 	async function handleDownloadPdf() {
@@ -17,7 +20,6 @@
 			isGenerating = true;
 			console.log('[App] Generating PDF...');
 
-			// Get current totals from store
 			const totals = {
 				subtotal: invoiceStore.subtotal,
 				taxTotal: invoiceStore.taxTotal,
@@ -25,15 +27,29 @@
 				total: invoiceStore.total
 			};
 
-			// Generate and download PDF
 			generateInvoicePdf(invoiceStore.invoice, totals);
-
+			toast.success('PDF downloaded successfully');
 			console.log('[App] PDF generation complete');
 		} catch (error) {
 			console.error('[App] Error generating PDF:', error);
-			alert('Failed to generate PDF. Please try again.');
+			toast.error('Failed to generate PDF');
 		} finally {
 			isGenerating = false;
+		}
+	}
+
+	async function handleSave() {
+		try {
+			await invoiceStore.saveInvoiceAndCreateNew();
+			toast.success('Invoice saved to history', {
+				action: {
+					label: 'View',
+					onClick: () => goto('/app/history')
+				}
+			});
+		} catch (error) {
+			console.error('[App] Error saving invoice:', error);
+			toast.error('Failed to save invoice');
 		}
 	}
 </script>
@@ -61,13 +77,21 @@
 				{/if}
 			</div>
 			<div class="flex items-center gap-2">
-				<Button variant="outline" size="sm" onclick={handleDownloadPdf} disabled={isGenerating}>
+				<Button size="sm" variant="outline" onclick={handleDownloadPdf} disabled={isGenerating}>
 					{#if isGenerating}
 						<Loader2 class="mr-2 h-4 w-4 animate-spin" />
 						Generating...
 					{:else}
 						<Download class="mr-2 h-4 w-4" />
 						Download PDF
+					{/if}
+				</Button>
+				<Button variant="secondary" size="sm" onclick={handleSave} disabled={invoiceStore.isSaving}>
+					{#if invoiceStore.isSaving}
+						<Loader2 class="mr-2 h-4 w-4 animate-spin" />
+						Saving...
+					{:else}
+						<span class="flex items-center gap-2"> Save to History </span>
 					{/if}
 				</Button>
 			</div>
@@ -106,6 +130,18 @@
 			{:else}
 				<Download class="mr-2 h-4 w-4" />
 				Download
+			{/if}
+		</Button>
+		<Button
+			variant="secondary"
+			class="flex-1"
+			onclick={handleSave}
+			disabled={invoiceStore.isSaving}
+		>
+			{#if invoiceStore.isSaving}
+				<Loader2 class="h-4 w-4 animate-spin" />
+			{:else}
+				Save
 			{/if}
 		</Button>
 	</div>

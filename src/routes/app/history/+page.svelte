@@ -101,9 +101,9 @@
 	<!-- Header -->
 	<div class="flex items-center justify-between">
 		<div class="flex items-center gap-3">
-			<Button variant="ghost" size="sm" onclick={() => goto('/app')} class="gap-2">
+			<Button variant="outline" size="sm" onclick={() => goto('/app')} class="gap-2">
 				<ArrowLeft class="h-4 w-4" />
-				Back
+				Back to Editor
 			</Button>
 			<div>
 				<h1 class="text-3xl font-bold tracking-tight">Invoice History</h1>
