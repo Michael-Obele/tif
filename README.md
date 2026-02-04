@@ -12,7 +12,7 @@
 
 ---
 
-![Dashboard Preview](./static/preview-placeholder.png)
+![Dashboard Preview](./static/dashboard-preview.png)
 
 ## ✨ Why Tech Invoice Forge?
 
@@ -33,6 +33,10 @@ In a world of account-mandated SaaS, TIF takes a different path: **Zero Friction
 - **PDF Crafting**: Professional, high-precision PDF generation powered by `pdfmake`.
 - **Client Management**: Save and manage your client roster for one-click billing.
 - **Responsive Interface**: Built with Tailwind CSS v4 for a seamless experience across all devices.
+
+### Invoice History
+![Invoice History](./static/history-preview.png)
+*All your invoices are stored locally in your browser.*
 
 ---
 
@@ -102,6 +106,13 @@ Contributions are what make the open-source community an amazing place to learn,
 3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
 4. Push to the Branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
+
+---
+
+## 👤 Author
+
+**Michael Obele**
+- [GitHub](https://github.com/Michael-Obele)
 
 ---
 
