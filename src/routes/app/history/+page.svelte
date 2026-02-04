@@ -9,8 +9,8 @@
 		Trash2,
 		Copy,
 		Download,
-		Calendar,
-		ArrowUpDown
+		ArrowUpDown,
+		ChevronRight
 	} from '@lucide/svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
@@ -20,7 +20,7 @@
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
 	import * as Select from '$lib/components/ui/select';
 	import { invoiceStore } from '$lib/stores/invoice.svelte';
-	import type { Invoice, InvoiceStatus, LineItem } from '$lib/types';
+	import type { Invoice, InvoiceStatus } from '$lib/types';
 	import { generateInvoicePdf } from '$lib/utils/pdf-generator';
 
 	let invoices = $state<Invoice[]>([]);
@@ -200,8 +200,7 @@
 		class="flex flex-col items-center justify-between gap-4 rounded-lg border bg-card p-4 shadow-sm sm:flex-row"
 	>
 		<div class="relative w-full sm:max-w-sm">
-			<Search class="absolute top-1/2 left-2.5 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-			<Input placeholder="Search client, number..." class="pl-9" bind:value={searchQuery} />
+			<Input placeholder="Search client, number..." class="pl-11" bind:value={searchQuery} />
 		</div>
 		<div class="flex w-full flex-wrap items-center gap-2 sm:w-auto">
 			<Select.Root type="single" bind:value={statusFilter}>
@@ -276,13 +275,14 @@
 						<Table.Head>Client</Table.Head>
 						<Table.Head>Date</Table.Head>
 						<Table.Head class="text-right">Amount</Table.Head>
+						<Table.Head class="w-[50px]"></Table.Head>
 						<Table.Head class="w-12.5"></Table.Head>
 					</Table.Row>
 				</Table.Header>
 				<Table.Body>
 					{#each filteredInvoices as invoice (invoice.id ?? invoice.number)}
 						<Table.Row
-							class="cursor-pointer hover:bg-muted/50"
+							class="group cursor-pointer hover:bg-muted/50"
 							onclick={() => handleOpen(invoice.id)}
 						>
 							<Table.Cell>
@@ -304,6 +304,11 @@
 							</Table.Cell>
 							<Table.Cell class="text-right font-medium">
 								{formatCurrency(calculateTotal(invoice), invoice.currency)}
+							</Table.Cell>
+							<Table.Cell>
+								<ChevronRight
+									class="h-4 w-4 text-muted-foreground/50 transition-transform group-hover:translate-x-1 group-hover:text-foreground"
+								/>
 							</Table.Cell>
 							<Table.Cell>
 								<DropdownMenu.Root>
