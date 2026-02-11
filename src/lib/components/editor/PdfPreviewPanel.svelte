@@ -2,6 +2,8 @@
 	import { invoiceStore } from '$lib/stores/invoice.svelte';
 	import { Badge } from '$lib/components/ui/badge';
 	import { Separator } from '$lib/components/ui/separator';
+	import { cn } from '$lib/utils';
+	import { Sparkles, Scroll, Terminal, Zap } from '@lucide/svelte';
 
 	// Format date for display
 	function formatDate(date: Date | undefined): string {
@@ -34,36 +36,88 @@
 				return 'outline';
 		}
 	}
+
+	// Template-specific styling
+	const template = $derived(invoiceStore.invoice.template);
+
+	const isModern = $derived(template === 'modern');
+	const isClassic = $derived(template === 'classic');
+	const isTech = $derived(template === 'tech');
+	const isBold = $derived(template === 'bold');
+
+	const templateConfig = $derived({
+		icon: isClassic ? Scroll : isTech ? Terminal : isBold ? Zap : Sparkles,
+		name: isClassic ? 'Classic' : isTech ? 'Tech' : isBold ? 'Bold' : 'Modern',
+		colors: {
+			accent: isTech ? 'text-emerald-500' : isBold ? 'text-slate-900' : 'text-primary'
+		}
+	});
 </script>
 
-<div class="flex h-full flex-col bg-slate-100 p-4 md:p-6 lg:p-8 dark:bg-slate-900/50">
+<div
+	class="flex h-full flex-col bg-slate-100 p-4 transition-colors duration-500 md:p-6 lg:p-8 dark:bg-slate-900/50"
+>
+	<!-- Template Indicator Badge -->
+	<div class="mb-4 flex justify-center">
+		<Badge variant="outline" class="bg-white/80 backdrop-blur-sm dark:bg-slate-800/80">
+			<templateConfig.icon class="mr-1.5 h-3.5 w-3.5" />
+			Style: {templateConfig.name}
+		</Badge>
+	</div>
+
 	<!-- Invoice Document -->
 	<div
-		class="mx-auto w-full max-w-2xl flex-1 overflow-auto rounded-lg border border-border bg-white shadow-lg dark:bg-card"
+		class={cn(
+			'mx-auto w-full max-w-2xl flex-1 overflow-auto rounded-lg border border-border bg-white shadow-lg transition-all duration-300 dark:bg-card',
+			isClassic && 'font-serif',
+			isTech && 'border-2 border-slate-900 font-mono',
+			isBold && 'border-t-12 border-slate-900'
+		)}
 	>
 		<div class="p-6 md:p-8">
 			<!-- Header -->
-			<div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+			<div
+				class={cn(
+					'mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between',
+					isClassic && 'border-b-2 border-double border-slate-200 pb-6',
+					isBold && '-mx-8 -mt-8 bg-slate-900 p-8 text-white'
+				)}
+			>
 				<div>
-					<p class="text-xs font-medium tracking-wider text-muted-foreground uppercase">Invoice</p>
-					<p class="font-mono text-2xl font-bold">
+					<p
+						class={cn(
+							'text-xs font-medium tracking-wider text-muted-foreground uppercase',
+							isBold && 'text-slate-400'
+						)}
+					>
+						Invoice
+					</p>
+					<p class={cn('text-2xl font-bold', isModern && 'font-mono', isBold && 'text-3xl')}>
 						{invoiceStore.invoice.number || 'INV-001'}
 					</p>
 				</div>
 				<div class="text-right">
-					<Badge variant={getStatusVariant(invoiceStore.invoice.status)} class="capitalize">
+					<Badge
+						variant={getStatusVariant(invoiceStore.invoice.status)}
+						class={cn('capitalize', isBold && 'bg-white text-slate-900')}
+					>
 						{invoiceStore.invoice.status}
 					</Badge>
 				</div>
 			</div>
 
 			<!-- Sender & Client Info -->
-			<div class="mb-6 grid gap-6 sm:grid-cols-2">
+			<div class={cn('mb-6 grid gap-6 sm:grid-cols-2', isClassic && 'rounded-md border p-4')}>
 				<div>
-					<p class="mb-1 text-xs font-medium tracking-wider text-muted-foreground uppercase">
+					<p
+						class={cn(
+							'mb-1 text-xs font-medium tracking-wider text-muted-foreground uppercase',
+							isTech && 'text-emerald-600 before:content-["//_"]'
+						)}
+					>
 						From
 					</p>
-					<p class="font-semibold">
+					<p class={cn('font-semibold', isClassic && 'text-lg italic')}>
 						{invoiceStore.invoice.senderData?.businessName || 'Your Business Name'}
 					</p>
 					{#if invoiceStore.invoice.senderData?.address}
@@ -74,15 +128,17 @@
 					{#if invoiceStore.invoice.senderData?.email}
 						<p class="text-sm text-muted-foreground">{invoiceStore.invoice.senderData.email}</p>
 					{/if}
-					{#if invoiceStore.invoice.senderData?.phone}
-						<p class="text-sm text-muted-foreground">{invoiceStore.invoice.senderData.phone}</p>
-					{/if}
 				</div>
 				<div>
-					<p class="mb-1 text-xs font-medium tracking-wider text-muted-foreground uppercase">
+					<p
+						class={cn(
+							'mb-1 text-xs font-medium tracking-wider text-muted-foreground uppercase',
+							isTech && 'text-emerald-600 before:content-["//_"]'
+						)}
+					>
 						Bill To
 					</p>
-					<p class="font-semibold">
+					<p class={cn('font-semibold', isClassic && 'text-lg italic')}>
 						{invoiceStore.invoice.clientSnapshot?.name || 'Client Name'}
 					</p>
 					{#if invoiceStore.invoice.clientSnapshot?.company}
@@ -100,7 +156,13 @@
 			</div>
 
 			<!-- Invoice Dates -->
-			<div class="mb-6 grid grid-cols-2 gap-4 rounded-lg bg-muted/50 p-4 sm:grid-cols-4">
+			<div
+				class={cn(
+					'mb-6 grid grid-cols-2 gap-4 rounded-lg bg-muted/50 p-4 sm:grid-cols-4',
+					isTech && 'border-y border-dashed border-emerald-500 bg-transparent',
+					isClassic && 'rounded-none border-y border-slate-200 bg-slate-50'
+				)}
+			>
 				<div>
 					<p class="text-xs font-medium tracking-wider text-muted-foreground uppercase">
 						Issue Date
@@ -123,24 +185,41 @@
 				{/if}
 			</div>
 
-			<Separator class="my-6" />
+			<Separator class={cn('my-6', isTech && 'border-dashed border-emerald-200')} />
 
 			<!-- Line Items -->
 			<div class="mb-6">
 				<table class="w-full text-sm">
 					<thead>
-						<tr class="border-b border-border text-left">
-							<th class="pb-3 font-medium text-muted-foreground">Description</th>
-							<th class="pb-3 text-right font-medium text-muted-foreground">Qty</th>
-							<th class="hidden pb-3 text-right font-medium text-muted-foreground sm:table-cell">
+						<tr
+							class={cn(
+								'border-b border-border text-left',
+								isBold && 'bg-slate-50',
+								isTech && 'border-emerald-500'
+							)}
+						>
+							<th class={cn('pb-3 font-medium text-muted-foreground', isBold && 'p-2')}>
+								Description
+							</th>
+							<th class={cn('pb-3 text-right font-medium text-muted-foreground', isBold && 'p-2')}>
+								Qty
+							</th>
+							<th
+								class={cn(
+									'hidden pb-3 text-right font-medium text-muted-foreground sm:table-cell',
+									isBold && 'p-2'
+								)}
+							>
 								Rate
 							</th>
-							<th class="pb-3 text-right font-medium text-muted-foreground">Amount</th>
+							<th class={cn('pb-3 text-right font-medium text-muted-foreground', isBold && 'p-2')}>
+								Amount
+							</th>
 						</tr>
 					</thead>
 					<tbody>
-						{#each invoiceStore.invoice.lineItems as item}
-							<tr class="border-b border-border/50">
+						{#each invoiceStore.invoice.lineItems as item (item.description)}
+							<tr class={cn('border-b border-border/50', isTech && 'border-dashed')}>
 								<td class="py-3">
 									<p class="font-medium">{item.description || 'Service'}</p>
 									<p class="text-xs text-muted-foreground sm:hidden">
@@ -148,12 +227,12 @@
 										{formatCurrency(item.rate)}
 									</p>
 								</td>
-								<td class="py-3 text-right font-mono">{item.quantity}</td>
-								<td class="hidden py-3 text-right font-mono sm:table-cell">
+								<td class="py-3 text-right">{item.quantity}</td>
+								<td class="hidden py-3 text-right sm:table-cell">
 									{invoiceStore.invoice.currency}
 									{formatCurrency(item.rate)}
 								</td>
-								<td class="py-3 text-right font-mono font-medium">
+								<td class="py-3 text-right font-medium">
 									{invoiceStore.invoice.currency}
 									{formatCurrency(item.quantity * item.rate)}
 								</td>
@@ -165,10 +244,12 @@
 
 			<!-- Totals -->
 			<div class="flex justify-end">
-				<div class="w-full space-y-2 sm:w-64">
+				<div
+					class={cn('w-full space-y-2 sm:w-64', isClassic && 'border-t-2 border-slate-900 pt-4')}
+				>
 					<div class="flex justify-between text-sm">
 						<span class="text-muted-foreground">Subtotal</span>
-						<span class="font-mono">
+						<span>
 							{invoiceStore.invoice.currency}
 							{formatCurrency(invoiceStore.subtotal)}
 						</span>
@@ -176,7 +257,7 @@
 					{#if invoiceStore.taxTotal > 0}
 						<div class="flex justify-between text-sm">
 							<span class="text-muted-foreground">Tax</span>
-							<span class="font-mono">
+							<span>
 								{invoiceStore.invoice.currency}
 								{formatCurrency(invoiceStore.taxTotal)}
 							</span>
@@ -185,16 +266,16 @@
 					{#if invoiceStore.discountAmount > 0}
 						<div class="flex justify-between text-sm text-emerald-600 dark:text-emerald-400">
 							<span>Discount</span>
-							<span class="font-mono">
+							<span>
 								-{invoiceStore.invoice.currency}
 								{formatCurrency(invoiceStore.discountAmount)}
 							</span>
 						</div>
 					{/if}
-					<Separator />
+					<Separator class={cn(isTech && 'border-emerald-500')} />
 					<div class="flex justify-between">
 						<span class="font-semibold">Total Due</span>
-						<span class="font-mono text-xl font-bold text-primary">
+						<span class={cn('text-xl font-bold', templateConfig.colors.accent)}>
 							{invoiceStore.invoice.currency}
 							{formatCurrency(invoiceStore.total)}
 						</span>

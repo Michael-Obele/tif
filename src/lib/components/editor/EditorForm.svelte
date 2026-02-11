@@ -6,6 +6,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import * as Card from '$lib/components/ui/card';
 	import * as Select from '$lib/components/ui/select';
+	import * as Tabs from '$lib/components/ui/tabs';
 	import * as Collapsible from '$lib/components/ui/collapsible';
 	import { Separator } from '$lib/components/ui/separator';
 	import {
@@ -16,9 +17,15 @@
 		User,
 		FileText,
 		Package,
-		StickyNote
+		StickyNote,
+		Sparkles,
+		Scroll,
+		Terminal,
+		Zap
 	} from '@lucide/svelte';
 	import type { Unit, InvoiceStatus } from '$lib/types';
+	import { templates } from '$lib/pdf/templates';
+	import type { TemplateId } from '$lib/pdf/types';
 
 	// Currency options
 	const currencies = [
@@ -66,6 +73,12 @@
 		{ value: 'net_45', label: 'Net 45' },
 		{ value: 'net_60', label: 'Net 60' }
 	];
+
+	// Template options
+	const templateOptions = Object.values(templates).map((t) => ({
+		value: t.id,
+		label: t.name
+	}));
 
 	// Collapsible states
 	let senderOpen = $state(true);
@@ -298,6 +311,47 @@
 									{/each}
 								</Select.Content>
 							</Select.Root>
+						</div>
+						<div class="space-y-2">
+							<Label for="template">PDF Template Style</Label>
+							<Tabs.Root
+								value={invoiceStore.invoice.template}
+								onValueChange={(v) => {
+									if (v) invoiceStore.invoice.template = v as TemplateId;
+								}}
+								class="w-full"
+							>
+								<Tabs.List class="grid h-auto w-full grid-cols-4 p-1">
+									<Tabs.Trigger
+										value="modern"
+										class="flex flex-col gap-1 py-1 text-[10px] tracking-tighter uppercase sm:text-xs"
+									>
+										<Zap class="size-3.5" />
+										Modern
+									</Tabs.Trigger>
+									<Tabs.Trigger
+										value="classic"
+										class="flex flex-col gap-1 py-1 text-[10px] tracking-tighter uppercase sm:text-xs"
+									>
+										<Scroll class="size-3.5" />
+										Classic
+									</Tabs.Trigger>
+									<Tabs.Trigger
+										value="tech"
+										class="flex flex-col gap-1 py-1 text-[10px] tracking-tighter uppercase sm:text-xs"
+									>
+										<Terminal class="size-3.5" />
+										Tech
+									</Tabs.Trigger>
+									<Tabs.Trigger
+										value="bold"
+										class="flex flex-col gap-1 py-1 text-[10px] tracking-tighter uppercase sm:text-xs"
+									>
+										<Sparkles class="size-3.5" />
+										Bold
+									</Tabs.Trigger>
+								</Tabs.List>
+							</Tabs.Root>
 						</div>
 					</div>
 					<div class="grid gap-4 sm:grid-cols-2">

@@ -1,6 +1,6 @@
 export type Unit = 'hour' | 'day' | 'unit' | 'flat' | 'project' | 'month' | 'word' | 'page';
 export type CurrencyCode = string;
-export type TemplateName = 'modern' | 'classic' | 'tech' | 'compact';
+export type TemplateName = 'modern' | 'classic' | 'tech' | 'bold';
 export type InvoiceStatus = 'draft' | 'sent' | 'paid' | 'overdue' | 'cancelled';
 export type PaymentMethod = 'bank_transfer' | 'credit_card' | 'paypal' | 'cash' | 'check' | 'other';
 export type PaymentTerms =
