@@ -19,7 +19,7 @@ export interface Sender {
 	email: string;
 	phone?: string;
 	taxId?: string;
-	logo?: Blob | null;
+	logo?: string | null;
 	isDefault: boolean;
 	createdAt: Date;
 	updatedAt: Date;
@@ -32,6 +32,7 @@ export interface Client {
 	address: string;
 	email: string;
 	phone?: string;
+	taxId?: string;
 	notes?: string;
 	createdAt: Date;
 	updatedAt: Date;

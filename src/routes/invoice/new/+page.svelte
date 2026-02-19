@@ -25,29 +25,46 @@
 		statuses.find((s) => s.value === invoiceStore.invoice.status)?.label ?? 'Status'
 	);
 
-	async function handleDownloadPdf() {
+	async function handleDownloadPdf(action: 'download' | 'open' = 'download') {
 		if (isGenerating) return;
 
-		try {
-			isGenerating = true;
-			console.log('[App] Generating PDF...');
+		isGenerating = true;
+		const actionText = action === 'download' ? 'Downloading PDF...' : 'Opening PDF...';
 
-			const totals = {
-				subtotal: invoiceStore.subtotal,
-				taxTotal: invoiceStore.taxTotal,
-				discountAmount: invoiceStore.discountAmount,
-				total: invoiceStore.total
-			};
-
-			generateInvoicePdf(invoiceStore.invoice, totals);
-			toast.success('PDF downloaded successfully');
-			console.log('[App] PDF generation complete');
-		} catch (error) {
-			console.error('[App] Error generating PDF:', error);
-			toast.error('Failed to generate PDF');
-		} finally {
-			isGenerating = false;
+		let targetWindow: Window | null = null;
+		if (action === 'open') {
+			targetWindow = window.open('', '_blank');
+			if (targetWindow) {
+				targetWindow.document.write(
+					'<html><head><title>Generating PDF...</title><style>body{font-family:sans-serif;display:flex;justify-content:center;align-items:center;height:100vh;background:#f0f0f0;margin:0;}</style></head><body><div style="text-align:center"><h2>Generating Invoice PDF...</h2><p>Please wait...</p></div></body></html>'
+				);
+			}
 		}
+
+		toast.promise(
+			(async () => {
+				const totals = {
+					subtotal: invoiceStore.subtotal,
+					taxTotal: invoiceStore.taxTotal,
+					discountAmount: invoiceStore.discountAmount,
+					total: invoiceStore.total
+				};
+				await generateInvoicePdf(invoiceStore.invoice, totals, { action, targetWindow });
+			})(),
+			{
+				loading: actionText,
+				success: () => {
+					isGenerating = false;
+					return action === 'download' ? 'PDF downloaded successfully' : 'PDF opened in new tab';
+				},
+				error: (err) => {
+					isGenerating = false;
+					targetWindow?.close();
+					console.error('[App] PDF generation failed:', err);
+					return `Failed to generate PDF: ${err instanceof Error ? err.message : 'Unknown error'}`;
+				}
+			}
+		);
 	}
 
 	async function handleSave() {
@@ -115,7 +132,21 @@
 						</Select.Content>
 					</Select.Root>
 				</div>
-				<Button size="sm" variant="outline" onclick={handleDownloadPdf} disabled={isGenerating}>
+				<Button
+					size="sm"
+					variant="ghost"
+					onclick={() => handleDownloadPdf('open')}
+					disabled={isGenerating}
+					title="Open PDF in new tab"
+				>
+					<Eye class="h-4 w-4" />
+				</Button>
+				<Button
+					size="sm"
+					variant="outline"
+					onclick={() => handleDownloadPdf('download')}
+					disabled={isGenerating}
+				>
 					{#if isGenerating}
 						<Loader2 class="mr-2 h-4 w-4 animate-spin" />
 						Generating...
@@ -161,7 +192,7 @@
 			</Sheet.Content>
 		</Sheet.Root>
 
-		<Button class="flex-1" onclick={handleDownloadPdf} disabled={isGenerating}>
+		<Button class="flex-1" onclick={() => handleDownloadPdf('download')} disabled={isGenerating}>
 			{#if isGenerating}
 				<Loader2 class="mr-2 h-4 w-4 animate-spin" />
 				Generating...

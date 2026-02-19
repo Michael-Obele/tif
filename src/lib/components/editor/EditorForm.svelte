@@ -112,6 +112,27 @@
 	function getLineAmount(qty: number, rate: number): number {
 		return qty * rate;
 	}
+
+	async function handleLogoUpload(e: Event) {
+		const target = e.target as HTMLInputElement;
+		const file = target.files?.[0];
+		if (!file) return;
+
+		const reader = new FileReader();
+		reader.onload = (e) => {
+			const result = e.target?.result as string;
+			if (result && invoiceStore.invoice.senderData) {
+				invoiceStore.invoice.senderData.logo = result;
+			}
+		};
+		reader.readAsDataURL(file);
+	}
+
+	function removeLogo() {
+		if (invoiceStore.invoice.senderData) {
+			invoiceStore.invoice.senderData.logo = null;
+		}
+	}
 </script>
 
 <div class="space-y-4 p-4 md:p-6">
@@ -141,6 +162,31 @@
 								placeholder="Your Business Name"
 								bind:value={invoiceStore.invoice.senderData!.businessName}
 							/>
+						</div>
+						<div class="space-y-2">
+							<Label for="sender-logo">Logo</Label>
+							<div class="flex items-center gap-2">
+								{#if invoiceStore.invoice.senderData?.logo}
+									<div class="relative h-10 w-10 shrink-0 overflow-hidden rounded-md border">
+										<img
+											src={invoiceStore.invoice.senderData.logo}
+											alt="Logo"
+											class="h-full w-full object-contain"
+										/>
+									</div>
+									<Button variant="outline" size="icon" class="h-10 w-10" onclick={removeLogo}>
+										<Trash2 class="h-4 w-4 text-destructive" />
+									</Button>
+								{:else}
+									<Input
+										id="sender-logo"
+										type="file"
+										accept="image/*"
+										class="cursor-pointer"
+										onchange={handleLogoUpload}
+									/>
+								{/if}
+							</div>
 						</div>
 						<div class="space-y-2">
 							<Label for="sender-email">Email</Label>
@@ -218,6 +264,23 @@
 								id="client-company"
 								placeholder="Acme Corp"
 								bind:value={invoiceStore.invoice.clientSnapshot!.company}
+							/>
+						</div>
+						<div class="space-y-2">
+							<Label for="client-email">Email</Label>
+							<Input
+								id="client-email"
+								type="email"
+								placeholder="client@company.com"
+								bind:value={invoiceStore.invoice.clientSnapshot!.email}
+							/>
+						</div>
+						<div class="space-y-2">
+							<Label for="client-taxid">Tax ID / VAT</Label>
+							<Input
+								id="client-taxid"
+								placeholder="XX-XXXXXXX"
+								bind:value={invoiceStore.invoice.clientSnapshot!.taxId}
 							/>
 						</div>
 					</div>

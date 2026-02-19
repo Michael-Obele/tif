@@ -97,6 +97,15 @@ export const modernTemplate: TemplateDefinition = {
 
 		return {
 			content: [
+				// Logo
+				invoice.senderData?.logo
+					? {
+						image: invoice.senderData.logo,
+						width: 80,
+						margin: [0, 0, 0, 20]
+					}
+					: {},
+
 				// Header with Invoice Number
 				{
 					columns: [
@@ -141,7 +150,8 @@ export const modernTemplate: TemplateDefinition = {
 								{ text: clientSnapshot?.name || 'Client Name', style: 'companyName' },
 								{ text: clientSnapshot?.company || '', color: '#444' },
 								{ text: clientSnapshot?.address || '', color: '#666', margin: [0, 5, 0, 0] },
-								{ text: clientSnapshot?.email || '', color: '#666' }
+								{ text: clientSnapshot?.email || '', color: '#666' },
+								{ text: clientSnapshot?.taxId ? `Tax ID: ${clientSnapshot.taxId}` : '', color: '#666', fontSize: 9, margin: [0, 2, 0, 0] }
 							]
 						}
 					],
@@ -178,19 +188,19 @@ export const modernTemplate: TemplateDefinition = {
 				// Notes and Terms
 				invoice.notes
 					? {
-							stack: [
-								{ text: 'Notes', style: 'sectionLabel', margin: [0, 30, 0, 5] },
-								{ text: invoice.notes, color: '#666' }
-							]
-						}
+						stack: [
+							{ text: 'Notes', style: 'sectionLabel', margin: [0, 30, 0, 5] },
+							{ text: invoice.notes, color: '#666' }
+						]
+					}
 					: {},
 				invoice.terms
 					? {
-							stack: [
-								{ text: 'Terms & Conditions', style: 'sectionLabel', margin: [0, 20, 0, 5] },
-								{ text: invoice.terms, color: '#666', fontSize: 9 }
-							]
-						}
+						stack: [
+							{ text: 'Terms & Conditions', style: 'sectionLabel', margin: [0, 20, 0, 5] },
+							{ text: invoice.terms, color: '#666', fontSize: 9 }
+						]
+					}
 					: {}
 			],
 			styles: {

@@ -84,6 +84,15 @@
 				)}
 			>
 				<div>
+					{#if invoiceStore.invoice.senderData?.logo}
+						<div class="mb-4">
+							<img
+								src={invoiceStore.invoice.senderData.logo}
+								alt="Business Logo"
+								class="h-16 w-auto object-contain"
+							/>
+						</div>
+					{/if}
 					<p
 						class={cn(
 							'text-xs font-medium tracking-wider text-muted-foreground uppercase',
@@ -151,6 +160,11 @@
 					{/if}
 					{#if invoiceStore.invoice.clientSnapshot?.email}
 						<p class="text-sm text-muted-foreground">{invoiceStore.invoice.clientSnapshot.email}</p>
+					{/if}
+					{#if invoiceStore.invoice.clientSnapshot?.taxId}
+						<p class="text-sm text-muted-foreground">
+							Tax ID: {invoiceStore.invoice.clientSnapshot.taxId}
+						</p>
 					{/if}
 				</div>
 			</div>

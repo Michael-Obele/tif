@@ -66,8 +66,8 @@ function serializeInvoiceForStorage(invoice: Invoice): Invoice {
 				updatedAt:
 					snapshot.senderData.updatedAt instanceof Date
 						? snapshot.senderData.updatedAt
-						: new Date(snapshot.senderData.updatedAt || Date.now())
-				// Note: logo is intentionally excluded (Blob type not serializable)
+						: new Date(snapshot.senderData.updatedAt || Date.now()),
+				logo: snapshot.senderData.logo || null
 			}
 			: undefined,
 
