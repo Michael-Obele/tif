@@ -315,15 +315,6 @@
 							bind:value={invoiceStore.invoice.clientSnapshot!.address}
 						/>
 					</div>
-					<div class="space-y-2">
-						<Label for="client-email">Email</Label>
-						<Input
-							id="client-email"
-							type="email"
-							placeholder="client@company.com"
-							bind:value={invoiceStore.invoice.clientSnapshot!.email}
-						/>
-					</div>
 				</Card.Content>
 			</Collapsible.Content>
 		</Card.Root>

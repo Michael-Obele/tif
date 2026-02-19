@@ -6,8 +6,6 @@
 	import * as Sheet from '$lib/components/ui/sheet';
 	import { invoiceStore } from '$lib/stores/invoice.svelte';
 	import { generateInvoicePdf } from '$lib/utils/pdf-generator';
-	import { browser } from '$app/environment';
-
 	import * as Select from '$lib/components/ui/select';
 	import { toast } from 'svelte-sonner';
 	import { goto } from '$app/navigation';
@@ -31,16 +29,6 @@
 		isGenerating = true;
 		const actionText = action === 'download' ? 'Downloading PDF...' : 'Opening PDF...';
 
-		let targetWindow: Window | null = null;
-		if (action === 'open') {
-			targetWindow = window.open('', '_blank');
-			if (targetWindow) {
-				targetWindow.document.write(
-					'<html><head><title>Generating PDF...</title><style>body{font-family:sans-serif;display:flex;justify-content:center;align-items:center;height:100vh;background:#f0f0f0;margin:0;}</style></head><body><div style="text-align:center"><h2>Generating Invoice PDF...</h2><p>Please wait...</p></div></body></html>'
-				);
-			}
-		}
-
 		toast.promise(
 			(async () => {
 				const totals = {
@@ -49,7 +37,7 @@
 					discountAmount: invoiceStore.discountAmount,
 					total: invoiceStore.total
 				};
-				await generateInvoicePdf(invoiceStore.invoice, totals, { action, targetWindow });
+				await generateInvoicePdf(invoiceStore.invoice, totals, { action });
 			})(),
 			{
 				loading: actionText,
@@ -59,7 +47,6 @@
 				},
 				error: (err) => {
 					isGenerating = false;
-					targetWindow?.close();
 					console.error('[App] PDF generation failed:', err);
 					return `Failed to generate PDF: ${err instanceof Error ? err.message : 'Unknown error'}`;
 				}
@@ -172,37 +159,37 @@
 						Download PDF
 					{/if}
 				</Button>
-			<div class="flex items-center gap-2">
-				<Button
-					size="sm"
-					variant="outline"
-					onclick={handleSaveToHistory}
-					disabled={invoiceStore.isSaving}
-					title="Save to invoice history without clearing the form"
-					class="flex items-center gap-2"
-				>
-					{#if invoiceStore.isSaving}
-						<Loader2 class="h-4 w-4 animate-spin" />
-						Saving...
-					{:else}
-						<span class="flex items-center gap-2">Save to History</span>
-					{/if}
-				</Button>
-				<Button
-					variant="secondary"
-					size="sm"
-					onclick={handleSaveAndCreateNew}
-					disabled={invoiceStore.isSaving}
-					title="Save to history and start a new invoice"
-				>
-					{#if invoiceStore.isSaving}
-						<Loader2 class="mr-2 h-4 w-4 animate-spin" />
-						Saving...
-					{:else}
-						<span class="flex items-center gap-2"> Save & New </span>
-					{/if}
-				</Button>
-			</div>
+				<div class="flex items-center gap-2">
+					<Button
+						size="sm"
+						variant="outline"
+						onclick={handleSaveToHistory}
+						disabled={invoiceStore.isSaving}
+						title="Save to invoice history without clearing the form"
+						class="flex items-center gap-2"
+					>
+						{#if invoiceStore.isSaving}
+							<Loader2 class="h-4 w-4 animate-spin" />
+							Saving...
+						{:else}
+							<span class="flex items-center gap-2">Save to History</span>
+						{/if}
+					</Button>
+					<Button
+						variant="secondary"
+						size="sm"
+						onclick={handleSaveAndCreateNew}
+						disabled={invoiceStore.isSaving}
+						title="Save to history and start a new invoice"
+					>
+						{#if invoiceStore.isSaving}
+							<Loader2 class="mr-2 h-4 w-4 animate-spin" />
+							Saving...
+						{:else}
+							<span class="flex items-center gap-2"> Save & New </span>
+						{/if}
+					</Button>
+				</div>
 			</div>
 		</div>
 		<div class="flex flex-1 justify-center overflow-y-auto bg-slate-100 p-8 dark:bg-slate-900/50">

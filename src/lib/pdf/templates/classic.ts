@@ -67,81 +67,138 @@ export const classicTemplate: TemplateDefinition = {
 
 		return {
 			content: [
-				// Centered Header
+				// Header
 				{
-					text: 'INVOICE',
-					fontSize: 28,
-					bold: true,
-					alignment: 'center',
-					margin: [0, 0, 0, 10]
+					stack: [
+						invoice.senderData?.logo
+							? {
+									image: invoice.senderData.logo,
+									width: 80,
+									margin: [0, 0, 0, 10]
+								}
+							: {},
+						{
+							text: 'INVOICE',
+							fontSize: 10,
+							bold: true,
+							color: '#64748b',
+							characterSpacing: 2
+						},
+						{
+							text: invoice.number || 'INV-001',
+							fontSize: 24,
+							bold: true,
+							margin: [0, 2, 0, 0]
+						}
+					]
 				},
+				// Double Border Separator
 				{
-					text: invoice.number || 'INV-001',
-					fontSize: 12,
-					alignment: 'center',
-					margin: [0, 0, 0, 30]
+					canvas: [
+						{ type: 'line', x1: 0, y1: 5, x2: 515, y2: 5, lineWidth: 1, lineColor: '#e2e8f0' },
+						{ type: 'line', x1: 0, y1: 8, x2: 515, y2: 8, lineWidth: 1, lineColor: '#e2e8f0' }
+					],
+					margin: [0, 20, 0, 20]
 				},
 
-				// Boxed Info Section
+				// Boxed Info Section (From / To)
 				{
 					table: {
-						widths: ['50%', '50%'],
+						widths: ['*'],
 						body: [
 							[
 								{
-									stack: [
-										{ text: 'FROM:', style: 'sectionLabel' },
-										{ text: senderData?.businessName || 'Your Business', style: 'companyName' },
-										{ text: senderData?.address || '', margin: [0, 2, 0, 0] },
-										{ text: senderData?.email || '' },
-										{ text: senderData?.phone || '' },
-										{ text: senderData?.taxId ? `Tax ID: ${senderData.taxId}` : '', fontSize: 9 }
-									],
-									margin: [10, 10, 10, 10]
-								},
-								{
-									stack: [
-										{ text: 'TO:', style: 'sectionLabel' },
-										{ text: clientSnapshot?.name || 'Client Name', style: 'companyName' },
-										{ text: clientSnapshot?.company || '' },
-										{ text: clientSnapshot?.address || '', margin: [0, 2, 0, 0] },
-										{ text: clientSnapshot?.email || '' },
-										{ text: clientSnapshot?.taxId ? `Tax ID: ${clientSnapshot.taxId}` : '', fontSize: 9 }
+									columns: [
+										{
+											stack: [
+												{ text: 'FROM', style: 'sectionLabel' },
+												{
+													text: senderData?.businessName || 'Your Business',
+													style: 'companyName'
+												},
+												{ text: senderData?.address || '', margin: [0, 2, 0, 0] },
+												{ text: senderData?.email || '', color: '#666' },
+												{ text: senderData?.phone || '', color: '#666' },
+												{
+													text: senderData?.taxId ? `Tax ID: ${senderData.taxId}` : '',
+													fontSize: 9,
+													color: '#666'
+												}
+											]
+										},
+										{
+											stack: [
+												{ text: 'BILL TO', style: 'sectionLabel' },
+												{
+													text: clientSnapshot?.name || 'Client Name',
+													style: 'companyName'
+												},
+												{ text: clientSnapshot?.company || '', margin: [0, 2, 0, 0] },
+												{ text: clientSnapshot?.address || '', margin: [0, 2, 0, 0] },
+												{ text: clientSnapshot?.email || '', color: '#666' },
+												{
+													text: clientSnapshot?.taxId ? `Tax ID: ${clientSnapshot.taxId}` : '',
+													fontSize: 9,
+													color: '#666'
+												}
+											]
+										}
 									],
 									margin: [10, 10, 10, 10]
 								}
 							]
 						]
+					},
+					layout: {
+						hLineWidth: () => 1,
+						vLineWidth: () => 1,
+						hLineColor: '#e2e8f0',
+						vLineColor: '#e2e8f0'
 					},
 					margin: [0, 0, 0, 20]
 				},
 
-				// Dates Bar
+				// Dates Bar (Grey, 4 columns)
 				{
 					table: {
-						widths: ['33%', '33%', '33%'],
+						widths: ['25%', '25%', '25%', '25%'],
 						body: [
 							[
 								{
-									text: `Issue Date: ${formatDate(invoice.issueDate)}`,
-									alignment: 'center',
-									margin: [0, 5, 0, 5]
+									stack: [
+										{ text: 'ISSUE DATE', style: 'dateLabel' },
+										{ text: formatDate(invoice.issueDate), style: 'dateValue' }
+									]
 								},
 								{
-									text: `Due Date: ${formatDate(invoice.dueDate)}`,
-									alignment: 'center',
-									margin: [0, 5, 0, 5]
+									stack: [
+										{ text: 'DUE DATE', style: 'dateLabel' },
+										{ text: formatDate(invoice.dueDate), style: 'dateValue' }
+									]
 								},
 								{
-									text: `Amount Due: ${formatCurrency(totals.total, currency)}`,
-									alignment: 'center',
-									bold: true,
-									margin: [0, 5, 0, 5]
+									stack: [
+										{ text: 'CURRENCY', style: 'dateLabel' },
+										{ text: invoice.currency, style: 'dateValue' }
+									]
+								},
+								{
+									stack: [
+										{ text: 'TAX ID', style: 'dateLabel' },
+										{ text: senderData?.taxId || '-', style: 'dateValue' }
+									]
 								}
 							]
 						]
 					},
-					layout: 'headerLineOnly',
+					layout: {
+						hLineWidth: (i: number) => (i === 0 || i === 1 ? 1 : 0),
+						vLineWidth: () => 0,
+						hLineColor: '#e2e8f0',
+						fillColor: '#f8fafc',
+						paddingTop: () => 10,
+						paddingBottom: () => 10
+					},
 					margin: [0, 0, 0, 20]
 				},
 
@@ -154,9 +211,8 @@ export const classicTemplate: TemplateDefinition = {
 					},
 					layout: {
 						hLineWidth: () => 1,
-						vLineWidth: () => 1,
-						hLineColor: '#000',
-						vLineColor: '#000',
+						vLineWidth: () => 0,
+						hLineColor: '#e2e8f0',
 						paddingTop: () => 8,
 						paddingBottom: () => 8
 					}
@@ -166,32 +222,74 @@ export const classicTemplate: TemplateDefinition = {
 				invoice.notes
 					? {
 							text: ['Notes: ', { text: invoice.notes, italics: true }],
-							margin: [0, 30, 0, 5]
+							margin: [0, 30, 0, 5],
+							color: '#666'
 						}
 					: {},
 				invoice.terms
 					? {
 							text: ['Terms: ', { text: invoice.terms, italics: true }],
-							fontSize: 9
+							fontSize: 9,
+							color: '#666'
 						}
 					: {}
 			],
 			styles: {
-				sectionLabel: { fontSize: 10, bold: true, margin: [0, 0, 0, 5] },
-				companyName: { fontSize: 11, bold: true, margin: [0, 0, 0, 2] },
+				sectionLabel: {
+					fontSize: 10,
+					bold: true,
+					margin: [0, 0, 0, 5],
+					color: '#64748b'
+				},
+				companyName: {
+					fontSize: 14,
+					bold: true,
+					italics: true, // Classic touch
+					margin: [0, 0, 0, 5],
+					color: '#1e293b'
+				},
+				dateLabel: {
+					fontSize: 9,
+					bold: true,
+					color: '#64748b',
+					margin: [0, 0, 0, 2]
+				},
+				dateValue: {
+					fontSize: 11,
+					color: '#1e293b'
+				},
 				tableHeader: {
 					bold: true,
 					fontSize: 10,
-					color: 'black',
-					fillColor: '#eeeeee',
-					alignment: 'center'
+					color: '#1e293b',
+					alignment: 'left'
 				},
-				totalLabel: { bold: true, alignment: 'right' },
-				totalValue: { alignment: 'right' },
-				totalLabelBold: { bold: true, alignment: 'right', fontSize: 11 },
-				totalValueBold: { bold: true, alignment: 'right', fontSize: 11 }
+				totalLabel: {
+					bold: true,
+					alignment: 'right',
+					color: '#64748b'
+				},
+				totalValue: {
+					alignment: 'right',
+					color: '#1e293b'
+				},
+				totalLabelBold: {
+					bold: true,
+					alignment: 'right',
+					fontSize: 11,
+					color: '#0f172a'
+				},
+				totalValueBold: {
+					bold: true,
+					alignment: 'right',
+					fontSize: 11,
+					color: '#0f172a'
+				}
 			},
-			defaultStyle: { fontSize: 10, font: 'Times' }
+			defaultStyle: {
+				fontSize: 10,
+				font: 'Times' // Will fallback to Roboto if properly aliased in pdf-generator
+			}
 		};
 	}
 };

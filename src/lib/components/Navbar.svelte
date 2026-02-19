@@ -1,30 +1,15 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import {
-		Hammer,
-		Menu,
-		ArrowRight,
-		ExternalLink,
-		Github,
-		Zap,
-		FilePlus,
-		Clock,
-		Sparkles,
-		Shield,
-		Smartphone,
-		FileText
-	} from '@lucide/svelte';
+	import { Hammer, Menu, ArrowRight, Zap, FilePlus } from '@lucide/svelte';
 	import { MediaQuery } from 'svelte/reactivity';
 	import { invoiceStore } from '$lib/stores/invoice.svelte';
 	import { Button } from '$lib/components/ui/button';
-	import { Badge } from '$lib/components/ui/badge';
 	import { Separator } from '$lib/components/ui/separator';
 	import * as Sheet from '$lib/components/ui/sheet';
 	import * as NavigationMenu from '$lib/components/ui/navigation-menu';
 	import { navigationMenuTriggerStyle } from '$lib/components/ui/navigation-menu/navigation-menu-trigger.svelte';
 	import ModeToggle from './mode-toggle.svelte';
 	import { cn } from '$lib/utils';
-	import { onMount } from 'svelte';
 
 	let isOpen = $state(false);
 	let scrolled = $state(false);
@@ -120,7 +105,7 @@
 					<NavigationMenu.Item>
 						<NavigationMenu.Trigger>Product</NavigationMenu.Trigger>
 						<NavigationMenu.Content>
-							<ul class="grid gap-3 p-4 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
+							<ul class="grid gap-3 p-4 md:w-100 lg:w-125 lg:grid-cols-[.75fr_1fr]">
 								<li class="row-span-3">
 									<NavigationMenu.Link
 										href="/"
@@ -143,7 +128,7 @@
 					<NavigationMenu.Item>
 						<NavigationMenu.Trigger>Resources</NavigationMenu.Trigger>
 						<NavigationMenu.Content>
-							<ul class="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
+							<ul class="grid w-100 gap-3 p-4 md:w-125 md:grid-cols-2 lg:w-150">
 								{@render listItem({
 									href: 'https://github.com/Michael-Obele/tif',
 									title: 'GitHub',
