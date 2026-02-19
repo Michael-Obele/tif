@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { TemplateContext, TemplateDefinition } from '../types';
 import { formatCurrency, formatDate } from '../utils';
 
@@ -15,9 +14,7 @@ export const techTemplate: TemplateDefinition = {
 		const { invoice, totals } = ctx;
 		const { currency, senderData, clientSnapshot, lineItems } = invoice;
 
-		// Build line items table body
 		const tableBody: any[][] = [
-			// Header row
 			[
 				{ text: '// DESCRIPTION', style: 'tableHeader' },
 				{ text: '// QTY', style: 'tableHeader', alignment: 'center' },
@@ -26,7 +23,6 @@ export const techTemplate: TemplateDefinition = {
 			]
 		];
 
-		// Add line items
 		lineItems.forEach((item) => {
 			const amount = item.quantity * item.rate;
 			tableBody.push([
@@ -37,7 +33,6 @@ export const techTemplate: TemplateDefinition = {
 			]);
 		});
 
-		// Build taxes and discounts
 		const totalsStack: any[] = [
 			{
 				columns: [
@@ -104,7 +99,6 @@ export const techTemplate: TemplateDefinition = {
 
 		return {
 			content: [
-				// Header
 				{
 					columns: [
 						{
@@ -118,17 +112,6 @@ export const techTemplate: TemplateDefinition = {
 									: {},
 								{ text: 'INVOICE', fontSize: 10, color: MUTED, characterSpacing: 2 },
 								{ text: invoice.number || 'INV-001', fontSize: 24, bold: true, color: SLATE_900 }
-							]
-						},
-						{
-							stack: [
-								{
-									text: invoice.status.toUpperCase(),
-									color: MUTED,
-									alignment: 'right',
-									background: '#f1f5f9',
-									decorationStyle: 'dashed' // Fallback visual
-								}
 							]
 						}
 					],

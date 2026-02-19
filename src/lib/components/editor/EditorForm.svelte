@@ -9,6 +9,8 @@
 	import * as Tabs from '$lib/components/ui/tabs';
 	import * as Collapsible from '$lib/components/ui/collapsible';
 	import { Separator } from '$lib/components/ui/separator';
+	import { Badge } from '$lib/components/ui/badge';
+	import * as Tooltip from '$lib/components/ui/tooltip';
 	import {
 		Plus,
 		Trash2,
@@ -21,7 +23,9 @@
 		Sparkles,
 		Scroll,
 		Terminal,
-		Zap
+		Zap,
+		Dot,
+		Clock
 	} from '@lucide/svelte';
 	import type { Unit, InvoiceStatus } from '$lib/types';
 	import { templates } from '$lib/pdf/templates';
@@ -136,6 +140,24 @@
 </script>
 
 <div class="space-y-4 p-4 md:p-6">
+	<!-- Unsaved Changes Indicator -->
+	{#if invoiceStore.isDirty}
+		<Tooltip.Root>
+			<Tooltip.Trigger>
+				<div class="flex items-center gap-2 rounded-lg bg-amber-50 p-3 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 cursor-help">
+					<Dot class="h-2 w-2 fill-amber-600 text-amber-600 animate-pulse" />
+					<span class="text-sm font-medium text-amber-700 dark:text-amber-400">
+						Unsaved changes
+					</span>
+					<Clock class="ml-auto h-4 w-4 text-amber-600 dark:text-amber-500" />
+				</div>
+			</Tooltip.Trigger>
+			<Tooltip.Content>
+				<p class="text-xs">You have made changes since last saving to history</p>
+			</Tooltip.Content>
+		</Tooltip.Root>
+	{/if}
+
 	<!-- Sender Section -->
 	<Collapsible.Root bind:open={senderOpen}>
 		<Card.Root>

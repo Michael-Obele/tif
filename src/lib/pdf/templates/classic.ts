@@ -94,7 +94,8 @@ export const classicTemplate: TemplateDefinition = {
 										{ text: senderData?.businessName || 'Your Business', style: 'companyName' },
 										{ text: senderData?.address || '', margin: [0, 2, 0, 0] },
 										{ text: senderData?.email || '' },
-										{ text: senderData?.phone || '' }
+										{ text: senderData?.phone || '' },
+										{ text: senderData?.taxId ? `Tax ID: ${senderData.taxId}` : '', fontSize: 9 }
 									],
 									margin: [10, 10, 10, 10]
 								},
@@ -104,7 +105,8 @@ export const classicTemplate: TemplateDefinition = {
 										{ text: clientSnapshot?.name || 'Client Name', style: 'companyName' },
 										{ text: clientSnapshot?.company || '' },
 										{ text: clientSnapshot?.address || '', margin: [0, 2, 0, 0] },
-										{ text: clientSnapshot?.email || '' }
+										{ text: clientSnapshot?.email || '' },
+										{ text: clientSnapshot?.taxId ? `Tax ID: ${clientSnapshot.taxId}` : '', fontSize: 9 }
 									],
 									margin: [10, 10, 10, 10]
 								}

@@ -215,7 +215,7 @@
 						variant="secondary"
 						size="sm"
 						class="gap-2"
-						onclick={() => invoiceStore.saveInvoiceAndCreateNew()}
+						onclick={() => invoiceStore.saveAndCreateNew()}
 					>
 						<FilePlus class="h-4 w-4" />
 						<span>Save & New</span>
@@ -302,7 +302,7 @@
 										variant="secondary"
 										class="mb-2 w-full justify-start gap-2"
 										onclick={() => {
-											invoiceStore.saveInvoiceAndCreateNew();
+											invoiceStore.saveAndCreateNew();
 											closeMenu();
 										}}
 									>

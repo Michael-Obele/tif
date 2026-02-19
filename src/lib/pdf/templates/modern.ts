@@ -9,9 +9,7 @@ export const modernTemplate: TemplateDefinition = {
 		const { invoice, totals } = ctx;
 		const { currency, senderData, clientSnapshot, lineItems } = invoice;
 
-		// Build line items table body
 		const tableBody: any[][] = [
-			// Header row
 			[
 				{ text: 'Description', style: 'tableHeader' },
 				{ text: 'Qty', style: 'tableHeader', alignment: 'center' },
@@ -20,7 +18,6 @@ export const modernTemplate: TemplateDefinition = {
 			]
 		];
 
-		// Add line items
 		lineItems.forEach((item) => {
 			const amount = item.quantity * item.rate;
 			tableBody.push([
@@ -39,7 +36,6 @@ export const modernTemplate: TemplateDefinition = {
 			]);
 		});
 
-		// Build totals stack
 		const totalsStack: any[] = [
 			{
 				columns: [
@@ -97,7 +93,6 @@ export const modernTemplate: TemplateDefinition = {
 
 		return {
 			content: [
-				// Logo
 				invoice.senderData?.logo
 					? {
 						image: invoice.senderData.logo,
@@ -106,7 +101,6 @@ export const modernTemplate: TemplateDefinition = {
 					}
 					: {},
 
-				// Header with Invoice Number
 				{
 					columns: [
 						{

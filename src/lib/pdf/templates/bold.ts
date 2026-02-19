@@ -86,7 +86,8 @@ export const boldTemplate: TemplateDefinition = {
 									margin: [0, 0, 0, 5]
 								},
 								{ text: clientSnapshot?.company || '', fontSize: 10 },
-								{ text: clientSnapshot?.address || '', fontSize: 10, color: '#555' }
+								{ text: clientSnapshot?.address || '', fontSize: 10, color: '#555' },
+								{ text: clientSnapshot?.taxId ? `Tax ID: ${clientSnapshot.taxId}` : '', fontSize: 9, color: '#888', margin: [0, 3, 0, 0] }
 							]
 						},
 						{

@@ -7,6 +7,7 @@
 	import { invoiceStore } from '$lib/stores/invoice.svelte';
 	import { browser } from '$app/environment';
 
+	import * as Tooltip from '$lib/components/ui/tooltip/index.js';
 	import { Toaster } from 'svelte-sonner';
 
 	let { children } = $props();
@@ -49,7 +50,9 @@
 <div class="relative flex min-h-screen flex-col">
 	<Navbar />
 	<main class="min-h-screen flex-1">
-		{@render children()}
+		<Tooltip.Provider>
+			{@render children()}
+		</Tooltip.Provider>
 	</main>
 	<Footer />
 </div>

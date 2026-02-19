@@ -67,12 +67,29 @@
 		);
 	}
 
-	async function handleSave() {
+	async function handleSaveToHistory() {
 		try {
-			await invoiceStore.saveInvoiceAndCreateNew();
+			await invoiceStore.saveToHistory();
 			toast.success('Invoice saved to history', {
+				description: 'Your changes have been saved. The form remains open for additional edits.',
 				action: {
-					label: 'View',
+					label: 'View History',
+					onClick: () => goto('/invoices')
+				}
+			});
+		} catch (error) {
+			console.error('[App] Error saving invoice to history:', error);
+			toast.error('Failed to save invoice to history');
+		}
+	}
+
+	async function handleSaveAndCreateNew() {
+		try {
+			await invoiceStore.saveAndCreateNew();
+			toast.success('Invoice saved and ready for next', {
+				description: 'Your invoice has been saved. A fresh form is ready for your next invoice.',
+				action: {
+					label: 'View History',
 					onClick: () => goto('/invoices')
 				}
 			});
@@ -155,14 +172,37 @@
 						Download PDF
 					{/if}
 				</Button>
-				<Button variant="secondary" size="sm" onclick={handleSave} disabled={invoiceStore.isSaving}>
+			<div class="flex items-center gap-2">
+				<Button
+					size="sm"
+					variant="outline"
+					onclick={handleSaveToHistory}
+					disabled={invoiceStore.isSaving}
+					title="Save to invoice history without clearing the form"
+					class="flex items-center gap-2"
+				>
+					{#if invoiceStore.isSaving}
+						<Loader2 class="h-4 w-4 animate-spin" />
+						Saving...
+					{:else}
+						<span class="flex items-center gap-2">Save to History</span>
+					{/if}
+				</Button>
+				<Button
+					variant="secondary"
+					size="sm"
+					onclick={handleSaveAndCreateNew}
+					disabled={invoiceStore.isSaving}
+					title="Save to history and start a new invoice"
+				>
 					{#if invoiceStore.isSaving}
 						<Loader2 class="mr-2 h-4 w-4 animate-spin" />
 						Saving...
 					{:else}
-						<span class="flex items-center gap-2"> Save to History </span>
+						<span class="flex items-center gap-2"> Save & New </span>
 					{/if}
 				</Button>
+			</div>
 			</div>
 		</div>
 		<div class="flex flex-1 justify-center overflow-y-auto bg-slate-100 p-8 dark:bg-slate-900/50">
@@ -204,13 +244,14 @@
 		<Button
 			variant="secondary"
 			class="flex-1"
-			onclick={handleSave}
+			onclick={handleSaveAndCreateNew}
 			disabled={invoiceStore.isSaving}
+			title="Save to history and prepare for next invoice"
 		>
 			{#if invoiceStore.isSaving}
 				<Loader2 class="h-4 w-4 animate-spin" />
 			{:else}
-				Save
+				Save & New
 			{/if}
 		</Button>
 	</div>

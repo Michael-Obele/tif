@@ -78,6 +78,7 @@ function serializeInvoiceForStorage(invoice: Invoice): Invoice {
 				address: snapshot.clientSnapshot.address || '',
 				email: snapshot.clientSnapshot.email || '',
 				phone: snapshot.clientSnapshot.phone,
+				taxId: snapshot.clientSnapshot.taxId,
 				notes: snapshot.clientSnapshot.notes,
 				createdAt:
 					snapshot.clientSnapshot.createdAt instanceof Date
@@ -108,6 +109,7 @@ export class InvoiceStore {
 	lastSaved = $state<Date | null>(null);
 	isInitialized = $state(false);
 	invoiceHistory = $state<Invoice[]>([]);
+	lastSavedSnapshot = $state<string | null>(null); // JSON snapshot of invoice when last saved to history
 
 	subtotal = $derived(
 		this.invoice.lineItems.reduce((sum, item) => sum + item.quantity * item.rate, 0)
@@ -120,6 +122,14 @@ export class InvoiceStore {
 	);
 	discountAmount = $derived(this.calculateDiscount());
 	total = $derived(this.subtotal + this.taxTotal - this.discountAmount);
+
+	/**
+	 * Derived property: Check if invoice has unsaved changes since last history save
+	 * Only applies to invoices that were previously saved to history
+	 */
+	isDirty = $derived(
+		this.lastSavedSnapshot !== null && this.lastSavedSnapshot !== this.getCurrentSnapshot()
+	);
 
 	// Debounced save function
 	private debouncedSave = debounce(() => this.saveDraftToDb(), 500);
@@ -147,6 +157,51 @@ export class InvoiceStore {
 			return this.invoice.discount.value;
 		}
 		return this.subtotal * (this.invoice.discount.value / 100);
+	}
+
+	/**
+	 * Get a JSON snapshot of the current invoice state (excluding dates and timestamps)
+	 * Used to detect if invoice has unsaved changes
+	 */
+	private getCurrentSnapshot(): string {
+		const snapshot = $state.snapshot(this.invoice);
+		// Create a comparable snapshot without ID and date fields that change frequently
+		const comparable = {
+			number: snapshot.number,
+			status: snapshot.status,
+			type: snapshot.type,
+			currency: snapshot.currency,
+			senderData: {
+				businessName: snapshot.senderData?.businessName,
+				address: snapshot.senderData?.address,
+				email: snapshot.senderData?.email,
+				phone: snapshot.senderData?.phone,
+				taxId: snapshot.senderData?.taxId
+			},
+			clientSnapshot: {
+				name: snapshot.clientSnapshot?.name,
+				company: snapshot.clientSnapshot?.company,
+				address: snapshot.clientSnapshot?.address,
+				email: snapshot.clientSnapshot?.email,
+				phone: snapshot.clientSnapshot?.phone,
+				taxId: snapshot.clientSnapshot?.taxId,
+				notes: snapshot.clientSnapshot?.notes
+			},
+			lineItems: snapshot.lineItems.map((item: LineItem) => ({
+				description: item.description,
+				quantity: item.quantity,
+				unit: item.unit,
+				rate: item.rate,
+				taxRate: item.taxRate
+			})),
+			discount: snapshot.discount,
+			notes: snapshot.notes,
+			terms: snapshot.terms,
+			paymentMethod: snapshot.paymentMethod,
+			transactionRef: snapshot.transactionRef,
+			template: snapshot.template
+		};
+		return JSON.stringify(comparable);
 	}
 
 	addLineItem() {
@@ -225,14 +280,64 @@ export class InvoiceStore {
 	}
 
 	/**
-	 * Save current invoice to history (marks as sent/saved, creates new draft)
+	 * Save current invoice to history without clearing the form
+	 * Preserves all input data and sets snapshot for dirty tracking
 	 */
-	async saveInvoiceAndCreateNew() {
+	async saveToHistory(): Promise<IDBValidKey | undefined> {
 		if (!browser) return;
 
 		try {
 			this.isSaving = true;
-			console.log('[InvoiceStore] === SAVE TO HISTORY START ===');
+			console.log('[InvoiceStore] === SAVE TO HISTORY START (NO CLEAR) ===');
+			console.log('[InvoiceStore] Current invoice ID:', this.invoice.id);
+			console.log('[InvoiceStore] Current invoice number:', this.invoice.number);
+
+			// Serialize the current invoice
+			const invoiceToSave = serializeInvoiceForStorage(this.invoice);
+			invoiceToSave.isDraft = 0 as any; // 0 for false (saved to history)
+
+			// Store old ID for deletion
+			const oldHistoryId = invoiceToSave.id;
+			delete invoiceToSave.id; // Remove ID so IndexedDB auto-generates new one
+
+			console.log('[InvoiceStore] Invoice prepared for history (ID removed):', {
+				number: invoiceToSave.number,
+				isDraft: invoiceToSave.isDraft,
+				status: invoiceToSave.status
+			});
+
+			// Save to history with fresh auto-generated ID
+			const savedId = await db.invoices.add(invoiceToSave);
+			console.log('[InvoiceStore] Invoice saved to history with new ID:', savedId);
+
+			// Update the snapshot to mark as "clean"
+			this.lastSavedSnapshot = this.getCurrentSnapshot();
+			this.lastSaved = new Date();
+
+			// Refresh history
+			await this.getHistory();
+
+			console.log('[InvoiceStore] === SAVE TO HISTORY COMPLETE ===');
+			return savedId;
+		} catch (error) {
+			console.error('[InvoiceStore] === SAVE TO HISTORY FAILED ===');
+			console.error('[InvoiceStore] Error saving invoice:', error);
+			throw error;
+		} finally {
+			this.isSaving = false;
+		}
+	}
+
+	/**
+	 * Save current invoice to history AND create a new draft (clears the form)
+	 * This is the "Save & New" action
+	 */
+	async saveAndCreateNew(): Promise<void> {
+		if (!browser) return;
+
+		try {
+			this.isSaving = true;
+			console.log('[InvoiceStore] === SAVE TO HISTORY & CREATE NEW START ===');
 			console.log('[InvoiceStore] Current invoice ID:', this.invoice.id);
 			console.log('[InvoiceStore] Current invoice number:', this.invoice.number);
 
@@ -264,7 +369,7 @@ export class InvoiceStore {
 			const savedId = await db.invoices.add(invoiceToSave);
 			console.log('[InvoiceStore] Invoice saved to history with new ID:', savedId);
 
-			// Create fresh draft for new invoice
+			// Create fresh draft for new invoice (THIS CLEARS THE FORM)
 			this.invoice = {
 				...defaultInvoice,
 				isDraft: true,
@@ -272,21 +377,25 @@ export class InvoiceStore {
 				updatedAt: new Date()
 			};
 
+			// Reset dirty tracking for new invoice
+			this.lastSavedSnapshot = null;
 			this.lastSaved = new Date();
+			
+			// Refresh history
+			await this.getHistory();
+			
 			console.log('[InvoiceStore] New draft created, ready for next invoice');
-			console.log('[InvoiceStore] === SAVE TO HISTORY COMPLETE ===');
+			console.log('[InvoiceStore] === SAVE TO HISTORY & CREATE NEW COMPLETE ===');
 		} catch (error) {
-			console.error('[InvoiceStore] === SAVE TO HISTORY FAILED ===');
+			console.error('[InvoiceStore] === SAVE TO HISTORY & CREATE NEW FAILED ===');
 			console.error('[InvoiceStore] Error saving invoice:', error);
-			if (error && (error as any).name) {
-				console.error('[InvoiceStore] Error Name:', (error as any).name);
-				console.error('[InvoiceStore] Error Message:', (error as any).message);
-			}
-			this.lastSaved = null;
+			throw error;
 		} finally {
 			this.isSaving = false;
 		}
 	}
+
+
 
 	/**
 	 * Load current draft from IndexedDB
