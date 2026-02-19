@@ -21,23 +21,23 @@ export const boldTemplate: TemplateDefinition = {
 
 		lineItems.forEach((item) => {
 			tableBody.push([
-				{ text: item.description, margin: [0, 8, 0, 8], bold: true, color: '#0f172a' },
+				{ text: item.description, margin: [0, 3, 0, 3], bold: true, color: '#0f172a' },
 				{
 					text: String(item.quantity),
 					alignment: 'center',
-					margin: [0, 8, 0, 8],
+					margin: [0, 3, 0, 3],
 					color: '#334155'
 				},
 				{
 					text: formatCurrency(item.rate, currency),
 					alignment: 'right',
-					margin: [0, 8, 0, 8],
+					margin: [0, 3, 0, 3],
 					color: '#334155'
 				},
 				{
 					text: formatCurrency(item.quantity * item.rate, currency),
 					alignment: 'right',
-					margin: [0, 8, 0, 8],
+					margin: [0, 3, 0, 3],
 					bold: true,
 					color: '#0f172a'
 				}
@@ -54,7 +54,7 @@ export const boldTemplate: TemplateDefinition = {
 							? {
 									image: invoice.senderData.logo,
 									width: 80,
-									margin: [0, 0, 0, 15]
+									margin: [0, 0, 0, 10]
 								}
 							: {},
 						{
@@ -76,7 +76,7 @@ export const boldTemplate: TemplateDefinition = {
 					padding: [40, 40, 30, 40]
 				},
 
-				// From / To Section (Now below header)
+				// From / To Section (Now below header) - Better spacing
 				{
 					columns: [
 						{
@@ -86,10 +86,14 @@ export const boldTemplate: TemplateDefinition = {
 									text: senderData?.businessName || 'Your Business',
 									style: 'companyName'
 								},
-								{ text: senderData?.address || '', style: 'address' },
-								{ text: senderData?.email || '', style: 'contact' },
-								{ text: senderData?.phone || '', style: 'contact' },
-								{ text: senderData?.taxId ? `Tax ID: ${senderData.taxId}` : '', style: 'contact' }
+								{ text: senderData?.address || '', style: 'address', margin: [0, 8, 0, 0] },
+								{ text: senderData?.email || '', style: 'contact', margin: [0, 2, 0, 0] },
+								{ text: senderData?.phone || '', style: 'contact', margin: [0, 2, 0, 0] },
+								{
+									text: senderData?.taxId ? `Tax ID: ${senderData.taxId}` : '',
+									style: 'contact',
+									margin: [0, 2, 0, 0]
+								}
 							]
 						},
 						{
@@ -99,20 +103,21 @@ export const boldTemplate: TemplateDefinition = {
 									text: clientSnapshot?.name || 'Client Name',
 									style: 'companyName'
 								},
-								{ text: clientSnapshot?.company || '', style: 'address' },
-								{ text: clientSnapshot?.address || '', style: 'address' },
-								{ text: clientSnapshot?.email || '', style: 'contact' },
+								{ text: clientSnapshot?.company || '', style: 'address', margin: [0, 2, 0, 0] },
+								{ text: clientSnapshot?.address || '', style: 'address', margin: [0, 8, 0, 0] },
+								{ text: clientSnapshot?.email || '', style: 'contact', margin: [0, 2, 0, 0] },
 								{
 									text: clientSnapshot?.taxId ? `Tax ID: ${clientSnapshot.taxId}` : '',
-									style: 'contact'
+									style: 'contact',
+									margin: [0, 2, 0, 0]
 								}
 							]
 						}
 					],
-					margin: [0, 0, 0, 30]
+					margin: [0, 0, 0, 10]
 				},
 
-				// Details Grid (Grey Box, 4 Columns)
+				// Details Grid (Grey Box, 4 Columns) - Better spacing
 				{
 					table: {
 						widths: ['25%', '25%', '25%', '25%'],
@@ -121,25 +126,29 @@ export const boldTemplate: TemplateDefinition = {
 								{
 									stack: [
 										{ text: 'ISSUE DATE', style: 'gridLabel' },
-										{ text: formatDate(invoice.issueDate), style: 'gridValue' }
+										{
+											text: formatDate(invoice.issueDate),
+											style: 'gridValue',
+											margin: [0, 6, 0, 0]
+										}
 									]
 								},
 								{
 									stack: [
 										{ text: 'DUE DATE', style: 'gridLabel' },
-										{ text: formatDate(invoice.dueDate), style: 'gridValue' }
+										{ text: formatDate(invoice.dueDate), style: 'gridValue', margin: [0, 6, 0, 0] }
 									]
 								},
 								{
 									stack: [
 										{ text: 'CURRENCY', style: 'gridLabel' },
-										{ text: invoice.currency, style: 'gridValue' }
+										{ text: invoice.currency, style: 'gridValue', margin: [0, 6, 0, 0] }
 									]
 								},
 								{
 									stack: [
 										{ text: 'TAX ID', style: 'gridLabel' },
-										{ text: senderData?.taxId || '-', style: 'gridValue' }
+										{ text: senderData?.taxId || '-', style: 'gridValue', margin: [0, 6, 0, 0] }
 									]
 								}
 							]
@@ -149,15 +158,15 @@ export const boldTemplate: TemplateDefinition = {
 						hLineWidth: () => 0,
 						vLineWidth: () => 0,
 						fillColor: '#f8fafc',
-						paddingTop: () => 10,
-						paddingBottom: () => 10,
-						paddingLeft: () => 10,
-						paddingRight: () => 10
+						paddingTop: () => 6,
+						paddingBottom: () => 6,
+						paddingLeft: () => 8,
+						paddingRight: () => 12
 					},
-					margin: [0, 0, 0, 30]
+					margin: [0, 0, 0, 10]
 				},
 
-				// Table
+				// Table - Better spacing
 				{
 					table: {
 						headerRows: 1,
@@ -167,18 +176,19 @@ export const boldTemplate: TemplateDefinition = {
 					layout: {
 						hLineWidth: (i: number) => (i === 1 ? 0 : 1),
 						vLineWidth: () => 0,
-						hLineColor: '#e2e8f0',
-						paddingTop: () => 10,
-						paddingBottom: () => 10
-					}
+						hLineColor: '#cbd5e1',
+						paddingTop: () => 11,
+						paddingBottom: () => 6
+					},
+					margin: [0, 0, 0, 10]
 				},
 
-				// Totals
+				// Totals section - Better styling and spacing
 				{
 					columns: [
 						{ width: '*', text: '' },
 						{
-							width: 200,
+							width: 220,
 							stack: [
 								{
 									canvas: [
@@ -186,19 +196,20 @@ export const boldTemplate: TemplateDefinition = {
 											type: 'line',
 											x1: 0,
 											y1: 0,
-											x2: 200,
+											x2: 220,
 											y2: 0,
-											lineWidth: 1,
+											lineWidth: 2,
 											lineColor: '#0f172a'
 										}
-									]
+									],
+									margin: [0, 0, 0, 12]
 								},
 								{
 									columns: [
 										{ text: 'Subtotal', style: 'totalLabel' },
 										{ text: formatCurrency(totals.subtotal, currency), style: 'totalValue' }
 									],
-									margin: [0, 10, 0, 0]
+									margin: [0, 0, 0, 8]
 								},
 								totals.taxTotal > 0
 									? {
@@ -206,73 +217,98 @@ export const boldTemplate: TemplateDefinition = {
 												{ text: 'Tax', style: 'totalLabel' },
 												{ text: formatCurrency(totals.taxTotal, currency), style: 'totalValue' }
 											],
-											margin: [0, 5, 0, 0]
+											margin: [0, 0, 0, 8]
 										}
 									: {},
 								totals.discountAmount > 0
 									? {
 											columns: [
-												{ text: 'Discount', style: 'totalLabel', color: '#16a34a' },
+												{ text: 'Discount', style: 'totalLabel', color: '#059669' },
 												{
 													text: `-${formatCurrency(totals.discountAmount, currency)}`,
 													style: 'totalValue',
-													color: '#16a34a'
+													color: '#059669'
 												}
 											],
-											margin: [0, 5, 0, 0]
+											margin: [0, 0, 0, 8]
 										}
 									: {},
 								{
+									canvas: [
+										{
+											type: 'line',
+											x1: 0,
+											y1: 0,
+											x2: 220,
+											y2: 0,
+											lineWidth: 1.5,
+											lineColor: '#cbd5e1'
+										}
+									],
+									margin: [0, 8, 0, 12]
+								},
+								{
 									columns: [
-										{ text: 'Total Due', fontSize: 14, bold: true, margin: [0, 10, 0, 0] },
+										{ text: 'Total Due', fontSize: 12, bold: true },
 										{
 											text: formatCurrency(totals.total, currency),
 											fontSize: 16,
 											bold: true,
 											alignment: 'right',
-											margin: [0, 10, 0, 0],
 											color: '#0f172a'
 										}
 									]
 								}
 							],
-							margin: [0, 20, 0, 0]
+							margin: [0, 0, 0, 0]
 						}
-					]
+					],
+					margin: [0, 0, 0, 12]
 				},
 
-				// Footer Notes
+				// Footer Notes - Better spacing
 				invoice.notes
 					? {
 							text: ['Notes: ', { text: invoice.notes, italics: true }],
-							margin: [0, 40, 0, 5],
-							color: '#64748b'
+							margin: [0, 30, 0, 10],
+							color: '#64748b',
+							fontSize: 9,
+							lineHeight: 1.4
 						}
 					: {},
 				invoice.terms
 					? {
 							text: ['Terms: ', { text: invoice.terms, italics: true }],
 							fontSize: 9,
-							color: '#64748b'
+							color: '#64748b',
+							lineHeight: 1.4,
+							margin: [0, 10, 0, 0]
 						}
 					: {}
 			],
 			styles: {
-				sectionLabel: { fontSize: 10, bold: true, color: '#94a3b8', margin: [0, 0, 0, 5] },
-				companyName: { fontSize: 12, bold: true, color: '#0f172a', margin: [0, 0, 0, 2] },
-				address: { fontSize: 10, color: '#334155', lineHeight: 1.4 },
-				contact: { fontSize: 10, color: '#64748b', lineHeight: 1.4 },
-				gridLabel: { fontSize: 9, bold: true, color: '#64748b', margin: [0, 0, 0, 4] },
-				gridValue: { fontSize: 11, bold: true, color: '#0f172a' },
+				sectionLabel: { fontSize: 10, bold: true, color: '#94a3b8', characterSpacing: 1 },
+				companyName: { fontSize: 12, bold: true, color: '#0f172a', margin: [0, 0, 0, 0] },
+				address: { fontSize: 10, color: '#334155', lineHeight: 1.5 },
+				contact: { fontSize: 10, color: '#64748b', lineHeight: 1.5 },
+				gridLabel: { fontSize: 8, bold: true, color: '#64748b', characterSpacing: 0.5 },
+				gridValue: { fontSize: 11, bold: true, color: '#0f172a', lineHeight: 1.3 },
 				tableHeader: {
 					fontSize: 10,
 					bold: true,
 					color: '#64748b',
 					fillColor: '#f8fafc',
-					margin: [0, 5, 0, 5]
+					margin: [0, 5, 0, 5],
+					characterSpacing: 0.5
 				},
-				totalLabel: { color: '#64748b', fontSize: 10 },
-				totalValue: { color: '#0f172a', fontSize: 10, alignment: 'right', bold: true }
+				totalLabel: { color: '#64748b', fontSize: 10, lineHeight: 1.4 },
+				totalValue: {
+					color: '#0f172a',
+					fontSize: 10,
+					alignment: 'right',
+					bold: true,
+					lineHeight: 1.4
+				}
 			},
 			defaultStyle: { fontSize: 10, color: '#0f172a' }
 		};

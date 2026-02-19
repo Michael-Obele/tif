@@ -26,10 +26,10 @@ export const techTemplate: TemplateDefinition = {
 		lineItems.forEach((item) => {
 			const amount = item.quantity * item.rate;
 			tableBody.push([
-				{ text: item.description || 'Service', margin: [0, 8, 0, 8] },
-				{ text: String(item.quantity), alignment: 'center', margin: [0, 8, 0, 8] },
-				{ text: formatCurrency(item.rate, currency), alignment: 'right', margin: [0, 8, 0, 8] },
-				{ text: formatCurrency(amount, currency), alignment: 'right', margin: [0, 8, 0, 8] }
+				{ text: item.description || 'Service', margin: [0, 3, 0, 3] },
+				{ text: String(item.quantity), alignment: 'center', margin: [0, 3, 0, 3] },
+				{ text: formatCurrency(item.rate, currency), alignment: 'right', margin: [0, 3, 0, 3] },
+				{ text: formatCurrency(amount, currency), alignment: 'right', margin: [0, 3, 0, 3] }
 			]);
 		});
 
@@ -39,7 +39,7 @@ export const techTemplate: TemplateDefinition = {
 					{ text: 'Subtotal', color: MUTED },
 					{ text: formatCurrency(totals.subtotal, currency), alignment: 'right' }
 				],
-				margin: [0, 5, 0, 5]
+				margin: [0, 3, 0, 3]
 			}
 		];
 
@@ -49,7 +49,7 @@ export const techTemplate: TemplateDefinition = {
 					{ text: 'Tax', color: MUTED },
 					{ text: formatCurrency(totals.taxTotal, currency), alignment: 'right' }
 				],
-				margin: [0, 5, 0, 5]
+				margin: [0, 3, 0, 3]
 			});
 		}
 
@@ -63,7 +63,7 @@ export const techTemplate: TemplateDefinition = {
 						color: EMERALD_600
 					}
 				],
-				margin: [0, 5, 0, 5]
+				margin: [0, 3, 0, 3]
 			});
 		}
 
@@ -76,16 +76,16 @@ export const techTemplate: TemplateDefinition = {
 						y1: 0,
 						x2: 200,
 						y2: 0,
-						lineWidth: 1,
+						lineWidth: 1.5,
 						lineColor: EMERALD_500,
 						dash: { length: 4 }
 					}
 				],
-				margin: [0, 10, 0, 10]
+				margin: [0, 12, 0, 12]
 			},
 			{
 				columns: [
-					{ text: 'Total Due', bold: true },
+					{ text: 'Total Due', bold: true, fontSize: 11 },
 					{
 						text: formatCurrency(totals.total, currency),
 						alignment: 'right',
@@ -93,57 +93,100 @@ export const techTemplate: TemplateDefinition = {
 						fontSize: 14,
 						color: EMERALD_500
 					}
-				]
+				],
+				margin: [0, 0, 0, 0]
 			}
 		);
 
 		return {
 			content: [
+				// Header with Logo and Invoice Number
 				{
 					columns: [
 						{
+							width: 'auto',
 							stack: [
 								invoice.senderData?.logo
 									? {
-										image: invoice.senderData.logo,
-										width: 80,
-										margin: [0, 0, 0, 15]
-									}
+											image: invoice.senderData.logo,
+											width: 80,
+											margin: [0, 0, 0, 10]
+										}
 									: {},
-								{ text: 'INVOICE', fontSize: 10, color: MUTED, characterSpacing: 2 },
-								{ text: invoice.number || 'INV-001', fontSize: 24, bold: true, color: SLATE_900 }
+								{
+									text: 'INVOICE',
+									fontSize: 9,
+									color: MUTED,
+									characterSpacing: 2,
+									margin: [0, 0, 0, 6]
+								},
+								{ text: invoice.number || 'INV-001', fontSize: 26, bold: true, color: SLATE_900 }
 							]
 						}
 					],
-					margin: [0, 0, 0, 30]
+					margin: [0, 0, 0, 10]
 				},
 
-				// Sender & Client (Columns)
+				// Sender & Client Info (Columns) - Better spacing
 				{
 					columns: [
 						{
+							width: '50%',
 							stack: [
 								{ text: '// FROM', style: 'label' },
-								{ text: senderData?.businessName || 'Your Business', style: 'valueBold' },
-								{ text: senderData?.address || '', style: 'value' },
-								{ text: senderData?.email || '', style: 'value' }
+								{
+									text: senderData?.businessName || 'Your Business',
+									style: 'valueBold',
+									margin: [0, 6, 0, 0]
+								},
+								{
+									text: senderData?.address || '',
+									style: 'value',
+									margin: [0, 8, 0, 0],
+									lineHeight: 1.4
+								},
+								{ text: senderData?.email || '', style: 'value', margin: [0, 2, 0, 0] },
+								{ text: senderData?.phone || '', style: 'value' },
+								{
+									text: senderData?.taxId ? `Tax ID: ${senderData.taxId}` : '',
+									style: 'value',
+									color: MUTED,
+									fontSize: 8,
+									margin: [0, 2, 0, 0]
+								}
 							]
 						},
 						{
+							width: '50%',
 							stack: [
 								{ text: '// BILL TO', style: 'label' },
-								{ text: clientSnapshot?.name || 'Client Name', style: 'valueBold' },
-								{ text: clientSnapshot?.company || '', style: 'value' },
-								{ text: clientSnapshot?.address || '', style: 'value' },
-								{ text: clientSnapshot?.email || '', style: 'value' },
-								{ text: clientSnapshot?.taxId ? `Tax ID: ${clientSnapshot.taxId}` : '', style: 'value', color: MUTED }
+								{
+									text: clientSnapshot?.name || 'Client Name',
+									style: 'valueBold',
+									margin: [0, 6, 0, 0]
+								},
+								{ text: clientSnapshot?.company || '', style: 'value', margin: [0, 2, 0, 0] },
+								{
+									text: clientSnapshot?.address || '',
+									style: 'value',
+									margin: [0, 8, 0, 0],
+									lineHeight: 1.4
+								},
+								{ text: clientSnapshot?.email || '', style: 'value', margin: [0, 2, 0, 0] },
+								{
+									text: clientSnapshot?.taxId ? `Tax ID: ${clientSnapshot.taxId}` : '',
+									style: 'value',
+									color: MUTED,
+									fontSize: 8,
+									margin: [0, 2, 0, 0]
+								}
 							]
 						}
 					],
-					margin: [0, 0, 0, 30]
+					margin: [0, 0, 0, 10]
 				},
 
-				// Dates Box (Dashed Borders)
+				// Dates Box (Dashed Borders) - Better spacing
 				{
 					table: {
 						widths: ['*', '*', '*', '*'],
@@ -152,25 +195,25 @@ export const techTemplate: TemplateDefinition = {
 								{
 									stack: [
 										{ text: 'ISSUE DATE', style: 'subLabel' },
-										{ text: formatDate(invoice.issueDate), style: 'value' }
+										{ text: formatDate(invoice.issueDate), style: 'value', margin: [0, 6, 0, 0] }
 									]
 								},
 								{
 									stack: [
 										{ text: 'DUE DATE', style: 'subLabel' },
-										{ text: formatDate(invoice.dueDate), style: 'value' }
+										{ text: formatDate(invoice.dueDate), style: 'value', margin: [0, 6, 0, 0] }
 									]
 								},
 								{
 									stack: [
 										{ text: 'CURRENCY', style: 'subLabel' },
-										{ text: invoice.currency, style: 'value' }
+										{ text: invoice.currency, style: 'value', margin: [0, 6, 0, 0] }
 									]
 								},
 								{
 									stack: [
 										{ text: 'TAX ID', style: 'subLabel' },
-										{ text: senderData?.taxId || '-', style: 'value' }
+										{ text: senderData?.taxId || '-', style: 'value', margin: [0, 6, 0, 0] }
 									]
 								}
 							]
@@ -181,10 +224,12 @@ export const techTemplate: TemplateDefinition = {
 						vLineWidth: () => 0,
 						hLineColor: () => EMERALD_500,
 						hLineStyle: () => ({ dash: { length: 4 } }),
-						paddingTop: () => 10,
-						paddingBottom: () => 10
+						paddingTop: () => 5,
+						paddingBottom: () => 5,
+						paddingLeft: () => 8,
+						paddingRight: () => 8
 					},
-					margin: [0, 0, 0, 30]
+					margin: [0, 0, 0, 10]
 				},
 
 				// Line Items
@@ -198,47 +243,65 @@ export const techTemplate: TemplateDefinition = {
 						hLineWidth: (i: number) => (i === 1 || i > 1 ? 1 : 0),
 						vLineWidth: () => 0,
 						hLineColor: (i: number) => (i === 1 ? EMERALD_500 : '#e2e8f0'),
-						hLineStyle: () => ({ dash: { length: 4 } }),
-						paddingTop: () => 10,
-						paddingBottom: () => 10
-					}
+						hLineStyle: (i: number) => (i === 1 ? { dash: { length: 4 } } : {}),
+						paddingTop: () => 5,
+						paddingBottom: () => 6
+					},
+					margin: [0, 0, 0, 10]
 				},
 
-				// Totals
+				// Totals section with better spacing
 				{
 					columns: [
 						{ width: '*', text: '' },
 						{
-							width: 200,
-							stack: totalsStack,
-							margin: [0, 20, 0, 0]
+							width: 220,
+							stack: totalsStack
 						}
-					]
+					],
+					margin: [0, 0, 0, 12]
 				},
-				// Notes and Terms
+
+				// Notes section
 				invoice.notes
 					? {
-						stack: [
-							{ text: 'Notes', bold: true, margin: [0, 30, 0, 5] },
-							{ text: invoice.notes, color: MUTED }
-						]
-					}
+							stack: [
+								{ text: '// NOTES', style: 'label', margin: [0, 0, 0, 8] },
+								{
+									text: invoice.notes,
+									color: MUTED,
+									lineHeight: 1.5,
+									margin: [0, 8, 0, 0],
+									fontSize: 9
+								}
+							],
+							margin: [0, 6, 0, 0]
+						}
 					: {},
+
+				// Terms section
 				invoice.terms
 					? {
-						stack: [
-							{ text: 'Terms & Conditions', bold: true, margin: [0, 20, 0, 5] },
-							{ text: invoice.terms, color: MUTED, fontSize: 9 }
-						]
-					}
+							stack: [
+								{ text: '// TERMS & CONDITIONS', style: 'label', margin: [0, 0, 0, 8] },
+								{
+									text: invoice.terms,
+									color: MUTED,
+									fontSize: 9,
+									lineHeight: 1.5,
+									margin: [0, 8, 0, 0]
+								}
+							],
+							margin: [0, 6, 0, 0]
+						}
 					: {}
 			],
 			styles: {
-				label: { fontSize: 9, color: EMERALD_600, bold: true, margin: [0, 0, 0, 4] },
-				subLabel: { fontSize: 9, color: MUTED, margin: [0, 0, 0, 4] },
-				value: { fontSize: 10, color: SLATE_900, lineHeight: 1.2 },
-				valueBold: { fontSize: 10, bold: true, color: SLATE_900, lineHeight: 1.2 },
-				tableHeader: { fontSize: 9, bold: true, color: MUTED }
+				label: { fontSize: 9, color: EMERALD_600, bold: true, characterSpacing: 1 },
+				subLabel: { fontSize: 9, color: MUTED, characterSpacing: 0.5 },
+				value: { fontSize: 10, color: SLATE_900, lineHeight: 1.3 },
+				valueBold: { fontSize: 10, bold: true, color: SLATE_900, lineHeight: 1.3 },
+				tableHeader: { fontSize: 9, bold: true, color: MUTED, characterSpacing: 0.5 }
 			},
 			defaultStyle: {
 				font: 'Courier', // Try standard Courier for the 'Tech' feel

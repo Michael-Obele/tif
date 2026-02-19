@@ -25,45 +25,12 @@ export const classicTemplate: TemplateDefinition = {
 		lineItems.forEach((item) => {
 			const amount = item.quantity * item.rate;
 			tableBody.push([
-				{ text: item.description || 'Service', margin: [0, 5, 0, 5] },
-				{ text: String(item.quantity), alignment: 'center', margin: [0, 5, 0, 5] },
-				{ text: formatCurrency(item.rate, currency), alignment: 'right', margin: [0, 5, 0, 5] },
-				{ text: formatCurrency(amount, currency), alignment: 'right', margin: [0, 5, 0, 5] }
+				{ text: item.description || 'Service', margin: [0, 3, 0, 3] },
+				{ text: String(item.quantity), alignment: 'center', margin: [0, 3, 0, 3] },
+				{ text: formatCurrency(item.rate, currency), alignment: 'right', margin: [0, 3, 0, 3] },
+				{ text: formatCurrency(amount, currency), alignment: 'right', margin: [0, 3, 0, 3] }
 			]);
 		});
-
-		// Add totals rows to the table
-		tableBody.push([
-			{ text: '', border: [false, false, false, false] },
-			{ text: '', border: [false, false, false, false] },
-			{ text: 'SUBTOTAL', style: 'totalLabel' },
-			{ text: formatCurrency(totals.subtotal, currency), style: 'totalValue' }
-		]);
-
-		if (totals.taxTotal > 0) {
-			tableBody.push([
-				{ text: '', border: [false, false, false, false] },
-				{ text: '', border: [false, false, false, false] },
-				{ text: 'TAX', style: 'totalLabel' },
-				{ text: formatCurrency(totals.taxTotal, currency), style: 'totalValue' }
-			]);
-		}
-
-		if (totals.discountAmount > 0) {
-			tableBody.push([
-				{ text: '', border: [false, false, false, false] },
-				{ text: '', border: [false, false, false, false] },
-				{ text: 'DISCOUNT', style: 'totalLabel' },
-				{ text: `-${formatCurrency(totals.discountAmount, currency)}`, style: 'totalValue' }
-			]);
-		}
-
-		tableBody.push([
-			{ text: '', border: [false, false, false, false] },
-			{ text: '', border: [false, false, false, false] },
-			{ text: 'TOTAL DUE', style: 'totalLabelBold' },
-			{ text: formatCurrency(totals.total, currency), style: 'totalValueBold' }
-		]);
 
 		return {
 			content: [
@@ -79,29 +46,33 @@ export const classicTemplate: TemplateDefinition = {
 							: {},
 						{
 							text: 'INVOICE',
-							fontSize: 10,
+							fontSize: 9,
 							bold: true,
 							color: '#64748b',
-							characterSpacing: 2
+							characterSpacing: 2,
+							margin: [0, 0, 0, 8]
 						},
 						{
 							text: invoice.number || 'INV-001',
-							fontSize: 24,
+							fontSize: 26,
 							bold: true,
-							margin: [0, 2, 0, 0]
+							margin: [0, 0, 0, 0],
+							color: '#0f172a'
 						}
-					]
-				},
-				// Double Border Separator
-				{
-					canvas: [
-						{ type: 'line', x1: 0, y1: 5, x2: 515, y2: 5, lineWidth: 1, lineColor: '#e2e8f0' },
-						{ type: 'line', x1: 0, y1: 8, x2: 515, y2: 8, lineWidth: 1, lineColor: '#e2e8f0' }
 					],
-					margin: [0, 20, 0, 20]
+					margin: [0, 0, 0, 10]
 				},
 
-				// Boxed Info Section (From / To)
+				// Double Line Separator
+				{
+					canvas: [
+						{ type: 'line', x1: 0, y1: 5, x2: 515, y2: 5, lineWidth: 1, lineColor: '#cbd5e1' },
+						{ type: 'line', x1: 0, y1: 10, x2: 515, y2: 10, lineWidth: 1, lineColor: '#cbd5e1' }
+					],
+					margin: [0, 0, 0, 10]
+				},
+
+				// Boxed Info Section (From / To) - Better spacing
 				{
 					table: {
 						widths: ['*'],
@@ -110,23 +81,26 @@ export const classicTemplate: TemplateDefinition = {
 								{
 									columns: [
 										{
+											width: '50%',
 											stack: [
 												{ text: 'FROM', style: 'sectionLabel' },
 												{
 													text: senderData?.businessName || 'Your Business',
 													style: 'companyName'
 												},
-												{ text: senderData?.address || '', margin: [0, 2, 0, 0] },
-												{ text: senderData?.email || '', color: '#666' },
+												{ text: senderData?.address || '', margin: [0, 8, 0, 0], lineHeight: 1.5 },
+												{ text: senderData?.email || '', color: '#666', margin: [0, 6, 0, 0] },
 												{ text: senderData?.phone || '', color: '#666' },
 												{
 													text: senderData?.taxId ? `Tax ID: ${senderData.taxId}` : '',
 													fontSize: 9,
-													color: '#666'
+													color: '#9ca3af',
+													margin: [0, 6, 0, 0]
 												}
 											]
 										},
 										{
+											width: '50%',
 											stack: [
 												{ text: 'BILL TO', style: 'sectionLabel' },
 												{
@@ -134,31 +108,36 @@ export const classicTemplate: TemplateDefinition = {
 													style: 'companyName'
 												},
 												{ text: clientSnapshot?.company || '', margin: [0, 2, 0, 0] },
-												{ text: clientSnapshot?.address || '', margin: [0, 2, 0, 0] },
-												{ text: clientSnapshot?.email || '', color: '#666' },
+												{
+													text: clientSnapshot?.address || '',
+													margin: [0, 8, 0, 0],
+													lineHeight: 1.5
+												},
+												{ text: clientSnapshot?.email || '', color: '#666', margin: [0, 6, 0, 0] },
 												{
 													text: clientSnapshot?.taxId ? `Tax ID: ${clientSnapshot.taxId}` : '',
 													fontSize: 9,
-													color: '#666'
+													color: '#9ca3af',
+													margin: [0, 6, 0, 0]
 												}
 											]
 										}
 									],
-									margin: [10, 10, 10, 10]
+									margin: [15, 15, 15, 15]
 								}
 							]
 						]
 					},
 					layout: {
-						hLineWidth: () => 1,
-						vLineWidth: () => 1,
-						hLineColor: '#e2e8f0',
-						vLineColor: '#e2e8f0'
+						hLineWidth: () => 1.5,
+						vLineWidth: () => 1.5,
+						hLineColor: '#cbd5e1',
+						vLineColor: '#cbd5e1'
 					},
-					margin: [0, 0, 0, 20]
+					margin: [0, 0, 0, 10]
 				},
 
-				// Dates Bar (Grey, 4 columns)
+				// Dates Bar (Grey, 4 columns) - Better spacing
 				{
 					table: {
 						widths: ['25%', '25%', '25%', '25%'],
@@ -167,39 +146,45 @@ export const classicTemplate: TemplateDefinition = {
 								{
 									stack: [
 										{ text: 'ISSUE DATE', style: 'dateLabel' },
-										{ text: formatDate(invoice.issueDate), style: 'dateValue' }
+										{
+											text: formatDate(invoice.issueDate),
+											style: 'dateValue',
+											margin: [0, 6, 0, 0]
+										}
 									]
 								},
 								{
 									stack: [
 										{ text: 'DUE DATE', style: 'dateLabel' },
-										{ text: formatDate(invoice.dueDate), style: 'dateValue' }
+										{ text: formatDate(invoice.dueDate), style: 'dateValue', margin: [0, 6, 0, 0] }
 									]
 								},
 								{
 									stack: [
 										{ text: 'CURRENCY', style: 'dateLabel' },
-										{ text: invoice.currency, style: 'dateValue' }
+										{ text: invoice.currency, style: 'dateValue', margin: [0, 6, 0, 0] }
 									]
 								},
 								{
 									stack: [
 										{ text: 'TAX ID', style: 'dateLabel' },
-										{ text: senderData?.taxId || '-', style: 'dateValue' }
+										{ text: senderData?.taxId || '-', style: 'dateValue', margin: [0, 6, 0, 0] }
 									]
 								}
 							]
 						]
 					},
 					layout: {
-						hLineWidth: (i: number) => (i === 0 || i === 1 ? 1 : 0),
+						hLineWidth: (i: number) => (i === 0 || i === 1 ? 1.5 : 0),
 						vLineWidth: () => 0,
-						hLineColor: '#e2e8f0',
+						hLineColor: '#cbd5e1',
 						fillColor: '#f8fafc',
-						paddingTop: () => 10,
-						paddingBottom: () => 10
+						paddingTop: () => 5,
+						paddingBottom: () => 5,
+						paddingLeft: () => 8,
+						paddingRight: () => 12
 					},
-					margin: [0, 0, 0, 20]
+					margin: [0, 0, 0, 12]
 				},
 
 				// Items Table
@@ -210,68 +195,148 @@ export const classicTemplate: TemplateDefinition = {
 						body: tableBody
 					},
 					layout: {
-						hLineWidth: () => 1,
+						hLineWidth: (i: number, node: any) =>
+							i === 0 || i === 1 || i === node.table.body.length ? 1.5 : 0,
 						vLineWidth: () => 0,
-						hLineColor: '#e2e8f0',
-						paddingTop: () => 8,
-						paddingBottom: () => 8
-					}
+						hLineColor: '#cbd5e1',
+						paddingTop: () => 5,
+						paddingBottom: () => 6
+					},
+					margin: [0, 0, 0, 12]
+				},
+
+				// Totals Section
+				{
+					columns: [
+						{ width: '*', text: '' },
+						{
+							width: 200,
+							stack: [
+								{
+									columns: [
+										{ text: 'Subtotal', style: 'totalLabel' },
+										{ text: formatCurrency(totals.subtotal, currency), style: 'totalValue' }
+									],
+									margin: [0, 0, 0, 8]
+								},
+								totals.taxTotal > 0
+									? {
+											columns: [
+												{ text: 'Tax', style: 'totalLabel' },
+												{ text: formatCurrency(totals.taxTotal, currency), style: 'totalValue' }
+											],
+											margin: [0, 0, 0, 8]
+										}
+									: {},
+								totals.discountAmount > 0
+									? {
+											columns: [
+												{ text: 'Discount', style: 'totalLabel', color: '#16a34a' },
+												{
+													text: `-${formatCurrency(totals.discountAmount, currency)}`,
+													style: 'totalValue',
+													color: '#16a34a'
+												}
+											],
+											margin: [0, 0, 0, 8]
+										}
+									: {},
+								{
+									canvas: [
+										{
+											type: 'line',
+											x1: 0,
+											y1: 0,
+											x2: 200,
+											y2: 0,
+											lineWidth: 1.5,
+											lineColor: '#0f172a'
+										}
+									],
+									margin: [0, 6, 0, 10]
+								},
+								{
+									columns: [
+										{ text: 'TOTAL DUE', style: 'totalLabelBold' },
+										{ text: formatCurrency(totals.total, currency), style: 'totalValueBold' }
+									]
+								}
+							]
+						}
+					],
+					margin: [0, 0, 0, 12]
 				},
 
 				// Footer Notes
 				invoice.notes
 					? {
-							text: ['Notes: ', { text: invoice.notes, italics: true }],
-							margin: [0, 30, 0, 5],
-							color: '#666'
+							stack: [
+								{ text: 'NOTES', style: 'sectionLabel' },
+								{ text: invoice.notes, color: '#666', lineHeight: 1.5, margin: [0, 8, 0, 0] }
+							],
+							margin: [0, 0, 0, 12]
 						}
 					: {},
 				invoice.terms
 					? {
-							text: ['Terms: ', { text: invoice.terms, italics: true }],
-							fontSize: 9,
-							color: '#666'
+							stack: [
+								{ text: 'TERMS & CONDITIONS', style: 'sectionLabel' },
+								{
+									text: invoice.terms,
+									color: '#666',
+									fontSize: 9,
+									lineHeight: 1.5,
+									margin: [0, 8, 0, 0]
+								}
+							]
 						}
 					: {}
 			],
 			styles: {
 				sectionLabel: {
-					fontSize: 10,
-					bold: true,
-					margin: [0, 0, 0, 5],
-					color: '#64748b'
-				},
-				companyName: {
-					fontSize: 14,
-					bold: true,
-					italics: true, // Classic touch
-					margin: [0, 0, 0, 5],
-					color: '#1e293b'
-				},
-				dateLabel: {
 					fontSize: 9,
 					bold: true,
-					color: '#64748b',
-					margin: [0, 0, 0, 2]
+					margin: [0, 0, 0, 5],
+					color: '#9ca3af',
+					characterSpacing: 0.5
+				},
+				companyName: {
+					fontSize: 13,
+					bold: true,
+					margin: [0, 2, 0, 0],
+					color: '#0f172a'
+				},
+				dateLabel: {
+					fontSize: 8,
+					bold: true,
+					color: '#9ca3af',
+					margin: [0, 0, 0, 2],
+					characterSpacing: 0.5
 				},
 				dateValue: {
 					fontSize: 11,
-					color: '#1e293b'
+					bold: true,
+					color: '#0f172a'
 				},
 				tableHeader: {
 					bold: true,
-					fontSize: 10,
-					color: '#1e293b',
-					alignment: 'left'
+					fontSize: 9,
+					color: '#666',
+					fillColor: '#f8fafc',
+					alignment: 'left',
+					characterSpacing: 0.5
 				},
 				totalLabel: {
 					bold: true,
 					alignment: 'right',
-					color: '#64748b'
+					color: '#666',
+					fontSize: 10
 				},
 				totalValue: {
 					alignment: 'right',
-					color: '#1e293b'
+					color: '#0f172a',
+					fontSize: 10,
+					bold: true
 				},
 				totalLabelBold: {
 					bold: true,
@@ -282,13 +347,13 @@ export const classicTemplate: TemplateDefinition = {
 				totalValueBold: {
 					bold: true,
 					alignment: 'right',
-					fontSize: 11,
+					fontSize: 12,
 					color: '#0f172a'
 				}
 			},
 			defaultStyle: {
 				fontSize: 10,
-				font: 'Times' // Will fallback to Roboto if properly aliased in pdf-generator
+				color: '#475569'
 			}
 		};
 	}
