@@ -8,7 +8,11 @@
 		Github,
 		Zap,
 		FilePlus,
-		Clock
+		Clock,
+		Sparkles,
+		Shield,
+		Smartphone,
+		FileText
 	} from '@lucide/svelte';
 	import { MediaQuery } from 'svelte/reactivity';
 	import { invoiceStore } from '$lib/stores/invoice.svelte';
@@ -16,19 +20,21 @@
 	import { Badge } from '$lib/components/ui/badge';
 	import { Separator } from '$lib/components/ui/separator';
 	import * as Sheet from '$lib/components/ui/sheet';
+	import * as NavigationMenu from '$lib/components/ui/navigation-menu';
+	import { navigationMenuTriggerStyle } from '$lib/components/ui/navigation-menu/navigation-menu-trigger.svelte';
 	import ModeToggle from './mode-toggle.svelte';
+	import { cn } from '$lib/utils';
+	import { onMount } from 'svelte';
 
 	let isOpen = $state(false);
 	let scrolled = $state(false);
 
-	// Use MediaQuery to detect mobile breakpoint (md breakpoint is 768px)
+	// Use MediaQuery to detect mobile breakpoint
 	const isMobileQuery = new MediaQuery('max-width: 767px');
 	let isMobile = $derived(isMobileQuery.current);
-
-	// Show sheet content only when open and on mobile
 	let show = $derived(isOpen && isMobile);
 
-	// Track scroll for enhanced navbar styling
+	// Track scroll
 	$effect(() => {
 		const handleScroll = () => {
 			scrolled = window.scrollY > 10;
@@ -37,24 +43,10 @@
 		return () => window.removeEventListener('scroll', handleScroll);
 	});
 
-	// Close sheet when transitioning to desktop
+	// Close sheet on desktop transition
 	$effect(() => {
-		if (!isMobile) {
-			isOpen = false;
-		}
+		if (!isMobile) isOpen = false;
 	});
-
-	const links: Array<{
-		href: string;
-		label: string;
-		external?: boolean;
-		badge?: string;
-		icon?: typeof Github;
-	}> = [
-		{ href: '/', label: 'Home' },
-		{ href: '/pricing', label: 'Pricing', badge: 'Free' },
-		{ href: 'https://github.com/Michael-Obele/tif', label: 'GitHub', external: true, icon: Github }
-	];
 
 	function closeMenu() {
 		isOpen = false;
@@ -64,7 +56,39 @@
 		if (href === '/') return page.url.pathname === '/';
 		return page.url.pathname.startsWith(href);
 	}
+
+	// ListItem component for Navigation Menu
+	import { type Snippet } from 'svelte';
+
+	interface ListItemProps {
+		class?: string;
+		title?: string;
+		href?: string;
+		children?: Snippet;
+		[key: string]: any;
+	}
+
+	// We can't define component inside component easily in Svelte 5 with snippets yet without extraction
+	// But we can just inline the markup in the menu for simplicity or use a render snippet.
 </script>
+
+{#snippet listItem({ className, title, href, children, ...props }: ListItemProps)}
+	<li>
+		<NavigationMenu.Link
+			{href}
+			class={cn(
+				'block space-y-1 rounded-md p-3 leading-none no-underline transition-colors outline-none select-none hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground',
+				className
+			)}
+			{...props}
+		>
+			<div class="text-sm leading-none font-medium">{title}</div>
+			<p class="line-clamp-2 text-sm leading-snug text-muted-foreground">
+				{@render children?.()}
+			</p>
+		</NavigationMenu.Link>
+	</li>
+{/snippet}
 
 <nav
 	class="navbar-glass sticky top-0 z-50 w-full border-b transition-all duration-300 {scrolled
@@ -89,37 +113,95 @@
 			</span>
 		</a>
 
-		<!-- Desktop Navigation -->
-		<div class="hidden items-center gap-1 md:flex">
-			<Separator orientation="vertical" class="mx-4 h-6" />
+		<!-- Desktop Navigation Menu -->
+		<div class="hidden flex-1 justify-center md:flex">
+			<NavigationMenu.Root>
+				<NavigationMenu.List>
+					<NavigationMenu.Item>
+						<NavigationMenu.Trigger>Product</NavigationMenu.Trigger>
+						<NavigationMenu.Content>
+							<ul class="grid gap-3 p-4 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
+								<li class="row-span-3">
+									<NavigationMenu.Link
+										href="/"
+										class="flex h-full w-full flex-col justify-end rounded-md bg-linear-to-b from-muted/50 to-muted p-6 no-underline outline-none select-none focus:shadow-md"
+									>
+										<Hammer class="mb-2 h-6 w-6 text-primary" />
+										<div class="mt-4 mb-2 text-lg font-medium">Tech Invoice Forge</div>
+										<p class="text-sm leading-tight text-muted-foreground">
+											Offline-first invoice generator for modern developers.
+										</p>
+									</NavigationMenu.Link>
+								</li>
+								{@render listItem({ href: '/#features', title: 'Features', children: featureDesc })}
+								{@render listItem({ href: '/pricing', title: 'Pricing', children: pricingDesc })}
+								{@render listItem({ href: '/invoice/new', title: 'Live Demo', children: demoDesc })}
+							</ul>
+						</NavigationMenu.Content>
+					</NavigationMenu.Item>
 
-			<nav class="flex items-center gap-1" aria-label="Main navigation">
-				{#each links as link}
-					<a
-						href={link.href}
-						class="link-underline flex items-center gap-1.5 rounded-md px-3 py-2 text-sm font-medium transition-colors {isActive(
-							link.href
-						)
-							? 'link-active text-foreground'
-							: 'text-muted-foreground hover:text-foreground'}"
-						target={link.external ? '_blank' : undefined}
-						rel={link.external ? 'noopener noreferrer' : undefined}
-					>
-						{#if link.icon}
-							<link.icon class="h-4 w-4" />
-						{/if}
-						{link.label}
-						{#if link.badge}
-							<Badge variant="secondary" class="ml-1 px-1.5 py-0 text-[10px]">
-								{link.badge}
-							</Badge>
-						{/if}
-						{#if link.external}
-							<ExternalLink class="h-3 w-3 opacity-50" />
-						{/if}
-					</a>
-				{/each}
-			</nav>
+					<NavigationMenu.Item>
+						<NavigationMenu.Trigger>Resources</NavigationMenu.Trigger>
+						<NavigationMenu.Content>
+							<ul class="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
+								{@render listItem({
+									href: 'https://github.com/Michael-Obele/tif',
+									title: 'GitHub',
+									children: githubDesc,
+									target: '_blank'
+								})}
+								{@render listItem({
+									href: 'https://github.com/Michael-Obele/tif/blob/main/README.md',
+									title: 'Documentation',
+									children: docsDesc,
+									target: '_blank'
+								})}
+								{@render listItem({
+									href: 'https://github.com/Michael-Obele/tif/issues',
+									title: 'Report Issue',
+									children: itemsDesc,
+									target: '_blank'
+								})}
+								{@render listItem({
+									href: '/privacy',
+									title: 'Privacy Policy',
+									children: privacyDesc
+								})}
+							</ul>
+						</NavigationMenu.Content>
+					</NavigationMenu.Item>
+
+					<NavigationMenu.Item>
+						<NavigationMenu.Link
+							href="/invoice/new"
+							class={cn(
+								navigationMenuTriggerStyle(),
+								isActive('/invoice/new') && 'bg-accent text-accent-foreground'
+							)}
+						>
+							App
+						</NavigationMenu.Link>
+					</NavigationMenu.Item>
+
+					<NavigationMenu.Item>
+						<NavigationMenu.Link
+							href="/invoices"
+							class={cn(
+								navigationMenuTriggerStyle(),
+								isActive('/invoices') && 'bg-accent text-accent-foreground'
+							)}
+						>
+							History
+						</NavigationMenu.Link>
+					</NavigationMenu.Item>
+
+					<NavigationMenu.Item>
+						<NavigationMenu.Link href="/pricing" class={navigationMenuTriggerStyle()}>
+							Pricing
+						</NavigationMenu.Link>
+					</NavigationMenu.Item>
+				</NavigationMenu.List>
+			</NavigationMenu.Root>
 		</div>
 
 		<!-- Actions Section -->
@@ -127,28 +209,8 @@
 			<ModeToggle />
 
 			<!-- Desktop CTA -->
-			{#if isActive('/app')}
+			{#if isActive('/invoice/new') || isActive('/invoices')}
 				<div class="hidden items-center gap-2 md:flex">
-					<Button
-						variant={isActive('/app/history') ? 'secondary' : 'ghost'}
-						size="sm"
-						href="/app/history"
-						aria-label="View Invoice History"
-					>
-						<Clock class="mr-1 h-4 w-4" />
-						History
-					</Button>
-
-					<Button
-						variant="ghost"
-						size="sm"
-						href="https://github.com/Michael-Obele/tif"
-						target="_blank"
-						aria-label="GitHub Repository"
-					>
-						<Github class="h-4 w-4" />
-					</Button>
-
 					<Button
 						variant="secondary"
 						size="sm"
@@ -160,7 +222,7 @@
 					</Button>
 				</div>
 			{:else}
-				<Button href="/app" class="group hidden gap-2 md:inline-flex">
+				<Button href="/invoice/new" class="group hidden gap-2 md:inline-flex">
 					<Zap class="h-4 w-4" />
 					<span>Launch App</span>
 					<ArrowRight class="btn-arrow h-4 w-4" />
@@ -188,47 +250,54 @@
 							</Sheet.Header>
 
 							<div class="mt-6 flex flex-col gap-1">
-								{#each links as link}
-									<a
-										href={link.href}
-										class="flex items-center justify-between rounded-lg px-3 py-3 text-sm font-medium transition-colors {isActive(
-											link.href
-										)
-											? 'bg-primary/10 text-primary'
-											: 'text-muted-foreground hover:bg-muted hover:text-foreground'}"
-										target={link.external ? '_blank' : undefined}
-										rel={link.external ? 'noopener noreferrer' : undefined}
-										onclick={closeMenu}
-									>
-										<span class="flex items-center gap-2">
-											{#if link.icon}
-												<link.icon class="h-4 w-4" />
-											{/if}
-											{link.label}
-											{#if link.badge}
-												<Badge variant="secondary" class="px-1.5 py-0 text-[10px]">
-													{link.badge}
-												</Badge>
-											{/if}
-										</span>
-										{#if link.external}
-											<ExternalLink class="h-3.5 w-3.5 opacity-50" />
-										{/if}
-									</a>
-								{/each}
+								<a
+									href="/"
+									class="flex items-center rounded-lg px-3 py-3 text-sm font-medium transition-colors hover:bg-muted"
+									onclick={closeMenu}
+								>
+									Home
+								</a>
+								<a
+									href="/pricing"
+									class="flex items-center rounded-lg px-3 py-3 text-sm font-medium transition-colors hover:bg-muted"
+									onclick={closeMenu}
+								>
+									Pricing
+								</a>
+								<a
+									href="https://github.com/Michael-Obele/tif"
+									target="_blank"
+									class="flex items-center rounded-lg px-3 py-3 text-sm font-medium transition-colors hover:bg-muted"
+									onclick={closeMenu}
+								>
+									GitHub
+								</a>
+
+								<a
+									href="/invoice/new"
+									class={cn(
+										'flex items-center rounded-lg px-3 py-3 text-sm font-medium transition-colors hover:bg-muted',
+										isActive('/invoice/new') && 'bg-accent/50 text-accent-foreground'
+									)}
+									onclick={closeMenu}
+								>
+									App
+								</a>
+
+								<a
+									href="/invoices"
+									class={cn(
+										'flex items-center rounded-lg px-3 py-3 text-sm font-medium transition-colors hover:bg-muted',
+										isActive('/invoices') && 'bg-accent/50 text-accent-foreground'
+									)}
+									onclick={closeMenu}
+								>
+									History
+								</a>
 
 								<Separator class="my-4" />
 
-								{#if isActive('/app')}
-									<a
-										href="/app/history"
-										class="flex items-center rounded-lg px-3 py-3 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-										onclick={closeMenu}
-									>
-										<Clock class="mr-2 h-4 w-4" />
-										History
-									</a>
-
+								{#if isActive('/invoice/new') || isActive('/invoices')}
 									<Button
 										variant="secondary"
 										class="mb-2 w-full justify-start gap-2"
@@ -250,7 +319,7 @@
 										Exit App
 									</a>
 								{:else}
-									<Button href="/app" class="group w-full gap-2" onclick={closeMenu}>
+									<Button href="/invoice/new" class="group w-full gap-2" onclick={closeMenu}>
 										<Zap class="h-4 w-4" />
 										<span>Launch App</span>
 										<ArrowRight class="btn-arrow h-4 w-4" />
@@ -264,3 +333,31 @@
 		</div>
 	</div>
 </nav>
+
+{#snippet featureDesc()}
+	Explore privacy-first, client-side PDF generation.
+{/snippet}
+
+{#snippet pricingDesc()}
+	Free forever for freelancers. No hidden fees.
+{/snippet}
+
+{#snippet demoDesc()}
+	Try the editor instantly. No signup required.
+{/snippet}
+
+{#snippet githubDesc()}
+	View the source code, star the repo, and contribute.
+{/snippet}
+
+{#snippet docsDesc()}
+	Read the full documentation and setup guide.
+{/snippet}
+
+{#snippet itemsDesc()}
+	Found a bug? Let us know on GitHub.
+{/snippet}
+
+{#snippet privacyDesc()}
+	Learn how we protect your data (by not collecting it).
+{/snippet}
