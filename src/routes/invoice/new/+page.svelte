@@ -56,7 +56,7 @@
 			toast.success('Invoice saved to history', {
 				action: {
 					label: 'View',
-					onClick: () => goto('/app/history')
+					onClick: () => goto('/invoices')
 				}
 			});
 		} catch (error) {

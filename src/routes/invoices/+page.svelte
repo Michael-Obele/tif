@@ -127,7 +127,7 @@
 		if (!invoiceId) return;
 		const success = await invoiceStore.loadInvoiceFromHistory(invoiceId);
 		if (success) {
-			goto('/app');
+			goto('/invoice/new');
 		}
 	}
 
@@ -179,7 +179,7 @@
 			invoiceStore.invoice.issueDate = new Date();
 			invoiceStore.invoice.isDraft = true;
 			invoiceStore.invoice.status = 'draft';
-			goto('/app');
+			goto('/invoice/new');
 		}
 	}
 </script>
@@ -203,7 +203,7 @@
 			<h1 class="text-3xl font-bold tracking-tight">Invoice History</h1>
 			<p class="mt-1 text-muted-foreground">Manage and track your generated invoices.</p>
 		</div>
-		<Button onclick={() => goto('/app')}>
+		<Button onclick={() => goto('/invoice/new')}>
 			<Plus class="mr-2 h-4 w-4" />
 			New Invoice
 		</Button>
@@ -276,7 +276,7 @@
 					: 'Create your first invoice to get started.'}
 			</p>
 			{#if !searchQuery && statusFilter === 'all'}
-				<Button onclick={() => goto('/app')}>Create Invoice</Button>
+				<Button onclick={() => goto('/invoice/new')}>Create Invoice</Button>
 			{/if}
 		</div>
 	{:else}
