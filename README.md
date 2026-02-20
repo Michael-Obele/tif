@@ -5,6 +5,7 @@
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-v4-38bdf8.svg)](https://tailwindcss.com/)
 [![Bun](https://img.shields.io/badge/Bun-Fast-black.svg)](https://bun.sh/)
 [![Offline First](https://img.shields.io/badge/Architecture-Offline--First-indigo.svg)](#-architecture)
+[![GitHub stars](https://img.shields.io/github/stars/Michael-Obele/tif?style=social)](https://github.com/Michael-Obele/tif)
 
 **Tech Invoice Forge** is a professional-grade, offline-first invoice and receipt generator designed specifically for tech professionals. Unlike bloated SaaS solutions, TIF runs entirely in your browser, providing instant PDF generation without accounts, subscriptions, or backend dependencies.
 
@@ -12,31 +13,45 @@
 
 ---
 
-![Dashboard Preview](./static/dashboard-preview.png)
+<div align="center">
+  <img src="./static/dashboard-preview.png" alt="Dashboard Preview" width="100%" />
+</div>
 
-## ✨ Why Tech Invoice Forge?
+## 🆚 Why Tech Invoice Forge?
 
-In a world of account-mandated SaaS, TIF takes a different path: **Zero Friction, Maximum Privacy.**
-
-- **⚡ Zero Setup**: No accounts. No logins. Landing to invoice in under 30 seconds.
-- **🛡️ Privacy First**: Your financial data never leaves your machine. 100% client-side.
-- **🎨 Slate Professional**: A mature, high-contrast dark theme (no gradients) designed for focus.
-- **🏗️ Tech-Tailored**: Pre-configured for software development, consulting, and DevOps services.
+| Feature           | Tech Invoice Forge        | Invoice Ninja         | Wave                  | FreshBooks            |
+| ----------------- | ------------------------- | --------------------- | --------------------- | --------------------- |
+| **Offline-First** | ✅ **100% Client-Side**   | ❌ Cloud Required     | ❌ Cloud Only         | ❌ Cloud Only         |
+| **Privacy**       | ✅ **Local IndexedDB**    | ⚠️ Cloud Storage      | ⚠️ Cloud Storage      | ⚠️ Cloud Storage      |
+| **No Account**    | ✅ **Zero Signup**        | ❌ Account Required   | ❌ Account Required   | ❌ Account Required   |
+| **Cost**          | ✅ **Free & Open Source** | 💰 Paid Tiers         | 💰 Paid Features      | 💰 Subscription       |
+| **Instant PDF**   | ✅ **Real-time (<100ms)** | ⚠️ Delayed Generation | ⚠️ Delayed Generation | ⚠️ Delayed Generation |
 
 ---
 
 ## 🚀 Key Features
 
-- **Real-time Forge**: Watch your PDF update instantly as you type with our side-by-side preview.
-- **Local Persistence**: All invoices and client data are stored in your browser's IndexedDB using native Web APIs.
-- **Smart Line Items**: Automatic calculations for taxes, discounts, and currency handling.
-- **PDF Crafting**: Professional, high-precision PDF generation powered by `pdfmake`.
-- **Client Management**: Save and manage your client roster for one-click billing.
-- **Responsive Interface**: Built with Tailwind CSS v4 for a seamless experience across all devices.
+- **⚡ Real-time Forge**: Watch your PDF update instantly as you type.
+- **🛡️ Local Persistence**: All data stored in your browser's IndexedDB. Zero server tracking.
+- **💰 Smart Calculations**: Automatic handling of taxes, discounts, and currencies.
+- **📄 Professional PDFs**: High-precision vector PDFs powered by `pdfmake`.
+- **👥 Client Management**: Save and manage your client roster for one-click billing.
+- **📱 Responsive**: Built with Tailwind CSS v4 for mobile, tablet, and desktop.
+- **🌙 Dark Mode**: "Slate Professional" theme designed for eye comfort.
 
 ### Invoice History
+
 ![Invoice History](./static/history-preview.png)
-*All your invoices are stored locally in your browser.*
+_All your invoices are stored locally in your browser._
+
+---
+
+## 🏗️ How It Works
+
+1.  **Create Invoice**: Fill in client details, line items, and payment terms.
+2.  **Live Preview**: See the PDF update instantly as you type.
+3.  **Save Locally**: Your invoice is auto-saved to your browser.
+4.  **Export**: Download the PDF or JSON data anytime.
 
 ---
 
@@ -79,6 +94,44 @@ bun install
 ### Development
 
 Start the development server with hot-reloading:
+❓ Frequently Asked Questions
+
+<details>
+<summary><b>Is my data really private?</b></summary>
+Yes! TIF uses IndexedDB which stores data ONLY in your browser. No data is ever transmitted to any server. You have complete control and ownership.
+</details>
+
+<details>
+<summary><b>Can I export my data?</b></summary>
+Absolutely. You can export invoices as PDFs and client data as JSON. Use the Export button in the invoice history view.
+</details>
+
+<details>
+<summary><b>Does it work offline?</b></summary>
+Yes! Once loaded, TIF works completely offline.
+</details>
+
+---
+
+## 🔧 Troubleshooting
+
+<details>
+We welcome contributions! Please see our guidelines below:
+
+- [Contributing Guide](CONTRIBUTING.md)
+- [Code of Conduct](CODE_OF_CONDUCT.md)
+- [Security Policy](SECURITY.md)
+
+1.  Fork the Project
+2.  Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3.  Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4.  Push to the Branch (`git push origin feature/AmazingFeature`)
+5.  eck if your browser is in Private/Incognito mode, which doesn't persist IndexedDB data. Use regular browsing mode.
+</details>
+
+---
+
+##
 
 ```bash
 bun dev
@@ -114,6 +167,7 @@ Contributions are what make the open-source community an amazing place to learn,
 ## 👤 Author
 
 **Michael Obele**
+
 - [GitHub](https://github.com/Michael-Obele)
 
 ---
