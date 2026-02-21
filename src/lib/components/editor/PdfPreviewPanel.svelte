@@ -174,7 +174,7 @@
 				class={cn(
 					'mb-6 grid grid-cols-2 gap-4 rounded-lg bg-muted/50 p-4 sm:grid-cols-4',
 					isTech && 'border-y border-dashed border-emerald-500 bg-transparent',
-					isClassic && 'rounded-none border-y border-slate-200 bg-slate-50'
+					isClassic && 'rounded-none border-y border-slate-200 '
 				)}
 			>
 				<div>
@@ -208,7 +208,7 @@
 						<tr
 							class={cn(
 								'border-b border-border text-left',
-								isBold && 'bg-slate-50',
+								isBold && '',
 								isTech && 'border-emerald-500'
 							)}
 						>

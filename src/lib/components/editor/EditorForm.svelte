@@ -1,4 +1,7 @@
 <script lang="ts">
+	import { MarkdownEditor } from '$lib/components/ui/markdown-editor';
+	import { profileStore } from '$lib/stores/profile.svelte';
+	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
 	import { invoiceStore } from '$lib/stores/invoice.svelte';
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
@@ -97,6 +100,58 @@
 		return d.toISOString().split('T')[0];
 	}
 
+	let notesEditorRef = $state<HTMLTextAreaElement | null>(null);
+	let termsEditorRef = $state<HTMLTextAreaElement | null>(null);
+
+	function insertText(field: 'notes' | 'terms', text: string) {
+		const ref = field === 'notes' ? notesEditorRef : termsEditorRef;
+		if (!ref) {
+			// Fallback if ref is missing
+			if (field === 'notes') {
+				invoiceStore.invoice.notes = (invoiceStore.invoice.notes || '') + text;
+			} else {
+				invoiceStore.invoice.terms = (invoiceStore.invoice.terms || '') + text;
+			}
+			invoiceStore.triggerSave();
+			return;
+		}
+
+		const start = ref.selectionStart;
+		const end = ref.selectionEnd;
+		const currentVal = ref.value;
+		const before = currentVal.substring(0, start);
+		const after = currentVal.substring(end);
+
+		const newValue = before + text + after;
+
+		// Update store
+		if (field === 'notes') invoiceStore.invoice.notes = newValue;
+		else invoiceStore.invoice.terms = newValue;
+
+		invoiceStore.triggerSave();
+
+		// Restore focus and cursor
+		requestAnimationFrame(() => {
+			if (ref) {
+				ref.focus();
+				const newCursorPos = start + text.length;
+				ref.setSelectionRange(newCursorPos, newCursorPos);
+			}
+		});
+	}
+
+	const variableOptions = [
+		{ label: 'Invoice Number', value: () => invoiceStore.invoice.number },
+		{ label: 'Issue Date', value: () => invoiceStore.invoice.issueDate.toLocaleDateString() },
+		{ label: 'Due Date', value: () => invoiceStore.invoice.dueDate?.toLocaleDateString() || '' },
+		{
+			label: 'Total',
+			value: () => `${invoiceStore.invoice.currency} ${invoiceStore.total.toFixed(2)}`
+		},
+		{ label: 'Client Name', value: () => invoiceStore.invoice.clientSnapshot?.name || '' },
+		{ label: 'My Business', value: () => invoiceStore.invoice.senderData?.businessName || '' }
+	];
+
 	// Handle date changes
 	function handleIssueDateChange(e: Event) {
 		const target = e.target as HTMLInputElement;
@@ -144,8 +199,10 @@
 	{#if invoiceStore.isDirty}
 		<Tooltip.Root>
 			<Tooltip.Trigger>
-				<div class="flex items-center gap-2 rounded-lg bg-amber-50 p-3 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 cursor-help">
-					<Dot class="h-2 w-2 fill-amber-600 text-amber-600 animate-pulse" />
+				<div
+					class="flex cursor-help items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 p-3 dark:border-amber-800 dark:bg-amber-950/20"
+				>
+					<Dot class="h-2 w-2 animate-pulse fill-amber-600 text-amber-600" />
 					<span class="text-sm font-medium text-amber-700 dark:text-amber-400">
 						Unsaved changes
 					</span>
@@ -652,21 +709,87 @@
 			<Collapsible.Content>
 				<Card.Content class="grid gap-4 pt-0">
 					<div class="space-y-2">
-						<Label for="notes">Notes</Label>
-						<Textarea
+						<div class="flex items-center justify-between">
+							<Label for="notes">Notes</Label>
+							<div class="flex items-center gap-1">
+								<DropdownMenu.Root>
+									<DropdownMenu.Trigger>
+										{#snippet child({ props })}
+											<Button variant="outline" size="sm" class="h-6 text-xs" {...props}>
+												<Sparkles class="mr-1 h-3 w-3" />
+												Insert Variable
+											</Button>
+										{/snippet}
+									</DropdownMenu.Trigger>
+									<DropdownMenu.Content>
+										{#each variableOptions as option}
+											<DropdownMenu.Item onclick={() => insertText('notes', option.value())}>
+												{option.label}
+											</DropdownMenu.Item>
+										{/each}
+									</DropdownMenu.Content>
+								</DropdownMenu.Root>
+								{#if profileStore.sender.bankAccounts && profileStore.sender.bankAccounts.length > 0}
+									<DropdownMenu.Root>
+										<DropdownMenu.Trigger>
+											{#snippet child({ props })}
+												<Button variant="ghost" size="sm" class="h-6 text-xs" {...props}>
+													<Plus class="mr-1 h-3 w-3" />
+													Bank Details
+												</Button>
+											{/snippet}
+										</DropdownMenu.Trigger>
+										<DropdownMenu.Content>
+											{#each profileStore.sender.bankAccounts as account}
+												<DropdownMenu.Item
+													onclick={() => {
+														const details = `**Bank Details:**\n- Bank: ${account.bankName}\n- Account Name: ${account.accountName}\n- Account Number: ${account.accountNumber}${account.routingNumber ? `\n- Routing/SWIFT: ${account.routingNumber}` : ''}${account.iban ? `\n- IBAN: ${account.iban}` : ''}`;
+														insertText('notes', details);
+													}}
+												>
+													{account.bankName} - {account.currency}
+												</DropdownMenu.Item>
+											{/each}
+										</DropdownMenu.Content>
+									</DropdownMenu.Root>
+								{/if}
+							</div>
+						</div>
+						<MarkdownEditor
 							id="notes"
-							placeholder="Thank you for your business!"
-							rows={3}
+							placeholder="Payment instructions, thank you notes, etc."
+							rows={4}
 							bind:value={invoiceStore.invoice.notes}
+							bind:ref={notesEditorRef}
 						/>
 					</div>
 					<div class="space-y-2">
-						<Label for="terms">Terms & Conditions</Label>
-						<Textarea
+						<div class="flex items-center justify-between">
+							<Label for="terms">Terms & Conditions</Label>
+							<DropdownMenu.Root>
+								<DropdownMenu.Trigger>
+									{#snippet child({ props })}
+										<Button variant="outline" size="sm" class="h-6 text-xs" {...props}>
+											<Sparkles class="mr-1 h-3 w-3" />
+											Insert Variable
+										</Button>
+									{/snippet}
+								</DropdownMenu.Trigger>
+								<DropdownMenu.Content>
+									{#each variableOptions as option}
+										<DropdownMenu.Item onclick={() => insertText('terms', option.value())}>
+											{option.label}
+										</DropdownMenu.Item>
+									{/each}
+								</DropdownMenu.Content>
+							</DropdownMenu.Root>
+						</div>
+						<MarkdownEditor
 							id="terms"
 							placeholder="Payment is due within 30 days..."
-							rows={3}
+							rows={4}
 							bind:value={invoiceStore.invoice.terms}
+							bind:ref={termsEditorRef}
 						/>
 					</div>
 				</Card.Content>
