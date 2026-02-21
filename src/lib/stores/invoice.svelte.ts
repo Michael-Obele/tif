@@ -53,42 +53,42 @@ function serializeInvoiceForStorage(invoice: Invoice): Invoice {
 		// Nested objects - clean serialization
 		senderData: snapshot.senderData
 			? {
-				businessName: snapshot.senderData.businessName || '',
-				address: snapshot.senderData.address || '',
-				email: snapshot.senderData.email || '',
-				phone: snapshot.senderData.phone,
-				taxId: snapshot.senderData.taxId,
-				isDefault: snapshot.senderData.isDefault || false,
-				createdAt:
-					snapshot.senderData.createdAt instanceof Date
-						? snapshot.senderData.createdAt
-						: new Date(snapshot.senderData.createdAt || Date.now()),
-				updatedAt:
-					snapshot.senderData.updatedAt instanceof Date
-						? snapshot.senderData.updatedAt
-						: new Date(snapshot.senderData.updatedAt || Date.now()),
-				logo: snapshot.senderData.logo || null
-			}
+					businessName: snapshot.senderData.businessName || '',
+					address: snapshot.senderData.address || '',
+					email: snapshot.senderData.email || '',
+					phone: snapshot.senderData.phone,
+					taxId: snapshot.senderData.taxId,
+					isDefault: snapshot.senderData.isDefault || false,
+					createdAt:
+						snapshot.senderData.createdAt instanceof Date
+							? snapshot.senderData.createdAt
+							: new Date(snapshot.senderData.createdAt || Date.now()),
+					updatedAt:
+						snapshot.senderData.updatedAt instanceof Date
+							? snapshot.senderData.updatedAt
+							: new Date(snapshot.senderData.updatedAt || Date.now()),
+					logo: snapshot.senderData.logo || null
+				}
 			: undefined,
 
 		clientSnapshot: snapshot.clientSnapshot
 			? {
-				name: snapshot.clientSnapshot.name || '',
-				company: snapshot.clientSnapshot.company,
-				address: snapshot.clientSnapshot.address || '',
-				email: snapshot.clientSnapshot.email || '',
-				phone: snapshot.clientSnapshot.phone,
-				taxId: snapshot.clientSnapshot.taxId,
-				notes: snapshot.clientSnapshot.notes,
-				createdAt:
-					snapshot.clientSnapshot.createdAt instanceof Date
-						? snapshot.clientSnapshot.createdAt
-						: new Date(snapshot.clientSnapshot.createdAt || Date.now()),
-				updatedAt:
-					snapshot.clientSnapshot.updatedAt instanceof Date
-						? snapshot.clientSnapshot.updatedAt
-						: new Date(snapshot.clientSnapshot.updatedAt || Date.now())
-			}
+					name: snapshot.clientSnapshot.name || '',
+					company: snapshot.clientSnapshot.company,
+					address: snapshot.clientSnapshot.address || '',
+					email: snapshot.clientSnapshot.email || '',
+					phone: snapshot.clientSnapshot.phone,
+					taxId: snapshot.clientSnapshot.taxId,
+					notes: snapshot.clientSnapshot.notes,
+					createdAt:
+						snapshot.clientSnapshot.createdAt instanceof Date
+							? snapshot.clientSnapshot.createdAt
+							: new Date(snapshot.clientSnapshot.createdAt || Date.now()),
+					updatedAt:
+						snapshot.clientSnapshot.updatedAt instanceof Date
+							? snapshot.clientSnapshot.updatedAt
+							: new Date(snapshot.clientSnapshot.updatedAt || Date.now())
+				}
 			: undefined,
 
 		// Other fields
@@ -380,10 +380,10 @@ export class InvoiceStore {
 			// Reset dirty tracking for new invoice
 			this.lastSavedSnapshot = null;
 			this.lastSaved = new Date();
-			
+
 			// Refresh history
 			await this.getHistory();
-			
+
 			console.log('[InvoiceStore] New draft created, ready for next invoice');
 			console.log('[InvoiceStore] === SAVE TO HISTORY & CREATE NEW COMPLETE ===');
 		} catch (error) {
@@ -394,8 +394,6 @@ export class InvoiceStore {
 			this.isSaving = false;
 		}
 	}
-
-
 
 	/**
 	 * Load current draft from IndexedDB
@@ -546,7 +544,10 @@ export class InvoiceStore {
 					isDraft: true,
 					updatedAt: new Date()
 				};
-				console.log('[InvoiceStore] Loaded invoice from history as new draft (original preserved):', id);
+				console.log(
+					'[InvoiceStore] Loaded invoice from history as new draft (original preserved):',
+					id
+				);
 				return true;
 			}
 			return false;

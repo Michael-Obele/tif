@@ -56,5 +56,6 @@ export const defaultInvoice: Invoice = {
 	createdAt: new Date(),
 	updatedAt: new Date(),
 	notes: '',
-	terms: 'Payment due within 30 days.\n\nBank Details:\nBank: [Bank Name]\nAccount: [Account Number]\nRouting: [Routing Number]'
+	terms:
+		'Payment due within 30 days.\n\nBank Details:\nBank: [Bank Name]\nAccount: [Account Number]\nRouting: [Routing Number]'
 };

@@ -28,14 +28,14 @@ A generic class that wraps IndexedDB object store operations:
 
 ```typescript
 class NativeStore<T> {
-  async add(value: T): Promise<IDBValidKey>
-  async put(value: T): Promise<IDBValidKey>
-  async get(key: number | string): Promise<T | undefined>
-  async getAll(): Promise<T[]>
-  async getAllFromIndex(indexName: string, query?: IDBValidKey): Promise<T[]>
-  async delete(key: number | string): Promise<void>
-  async clear(): Promise<void>
-  async count(): Promise<number>
+	async add(value: T): Promise<IDBValidKey>;
+	async put(value: T): Promise<IDBValidKey>;
+	async get(key: number | string): Promise<T | undefined>;
+	async getAll(): Promise<T[]>;
+	async getAllFromIndex(indexName: string, query?: IDBValidKey): Promise<T[]>;
+	async delete(key: number | string): Promise<void>;
+	async clear(): Promise<void>;
+	async count(): Promise<number>;
 }
 ```
 
@@ -45,11 +45,11 @@ The main database class with typed store accessors:
 
 ```typescript
 class TechInvoiceForgeNativeDB {
-  senders: NativeStore<Sender>
-  clients: NativeStore<Client>
-  serviceItems: NativeStore<ServiceItem>
-  invoices: NativeStore<Invoice>
-  settings: NativeStore<AppSettings>
+	senders: NativeStore<Sender>;
+	clients: NativeStore<Client>;
+	serviceItems: NativeStore<ServiceItem>;
+	invoices: NativeStore<Invoice>;
+	settings: NativeStore<AppSettings>;
 }
 ```
 
@@ -105,9 +105,9 @@ The implementation is SSR-safe. On the server, `dbPromise` is set to a never-res
 
 ```typescript
 if (!browser) {
-  this.dbPromise = new Promise(() => {}); // Never resolves on server
+	this.dbPromise = new Promise(() => {}); // Never resolves on server
 } else {
-  this.dbPromise = this.openDatabase();
+	this.dbPromise = this.openDatabase();
 }
 ```
 
