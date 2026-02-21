@@ -5,8 +5,10 @@
 	import * as Accordion from '$lib/components/ui/accordion';
 	import { Separator } from '$lib/components/ui/separator';
 	import { slide } from 'svelte/transition';
+	import FeatureCard from '$lib/components/blocks/FeatureCard.svelte';
 	import {
 		Zap,
+		ShieldCheck,
 		Shield,
 		ArrowRight,
 		Check,
@@ -24,10 +26,27 @@
 		LayoutTemplate,
 		FileText,
 		Database,
-		Lock
+		Lock,
+		Cpu,
+		Infinity,
+		Sparkles
 	} from '@lucide/svelte';
 	import { gsap } from 'gsap';
 	import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+	const saasDrawbacks = [
+		'Watermarks on free plan',
+		'Requires user account',
+		'Sells your client data',
+		'Slow server processing'
+	];
+
+	const tifBenefits = [
+		'Pristine Vector PDFs',
+		'Offline By Default',
+		'Absolute Ledger Privacy',
+		'Instant Client-Side Generation'
+	];
 
 	const faqs = [
 		{
@@ -52,6 +71,41 @@
 		}
 	];
 
+	const coreCapabilities = [
+		{
+			title: 'Infinite Local Ledger',
+			description:
+				'We integrated a fully operational IndexedDB instance right into your browser. Drafts, sent invoices, and client lists are auto-saved in a persistent local vault. You maintain absolute ledger sovereignty without external dependencies.',
+			icon: History,
+			iconColor: 'text-primary',
+			blurColor: 'bg-primary/5'
+		},
+		{
+			title: 'Memory Synced',
+			description:
+				'Configure your personal and banking details once. The engine automatically injects your preferred profile into every new draft indefinitely.',
+			icon: User,
+			iconColor: 'text-indigo-500',
+			blurColor: 'bg-indigo-500/5'
+		},
+		{
+			title: 'Mathematical Vectors',
+			description:
+				'Compiled natively. Pdfmake transforms your data points into mathematically perfect vector documents directly inside the client execution environment, zero latency included.',
+			icon: Layers,
+			iconColor: 'text-emerald-500',
+			blurColor: 'bg-emerald-500/5'
+		},
+		{
+			title: 'Optical Sync',
+			description:
+				'An architectural dual-pane viewport provides real-time optical feedback. Change a digit on the left workspace; watch the vector rebuild on the right instantaneously.',
+			icon: Eye,
+			iconColor: 'text-amber-500',
+			blurColor: 'bg-amber-500/5'
+		}
+	];
+
 	const features = [
 		{
 			title: 'Local Vault',
@@ -61,7 +115,7 @@
 		{
 			title: 'Vector Engine',
 			description: 'Client-side PDF generation via pdfmake.',
-			icon: Layers
+			icon: Cpu
 		},
 		{
 			title: 'Smart Templates',
@@ -76,13 +130,20 @@
 		{
 			title: 'Profile Sync',
 			description: 'Auto-fill banking & business details.',
-			icon: User
+			icon: Zap
 		},
 		{
 			title: 'Offline First',
 			description: 'Zero latency, works without internet.',
-			icon: Lock
+			icon: ShieldCheck
 		}
+	];
+
+	const audiences = [
+		{ label: 'Freelancers', color: 'bg-primary/60' },
+		{ label: 'Agencies', color: 'bg-emerald-500/60' },
+		{ label: 'Solo Devs', color: 'bg-indigo-500/60' },
+		{ label: 'Creators', color: 'bg-amber-500/60' }
 	];
 
 	$effect(() => {
@@ -177,9 +238,9 @@
 	class="flex min-h-screen flex-col overflow-clip bg-background text-foreground selection:bg-zinc-200 selection:text-black"
 >
 	<!-- Hero Section -->
-	<section class="hero-section relative z-10 pt-32 pb-24 md:pt-48 md:pb-32">
+	<section class="hero-section relative pt-32 pb-24 md:pt-48 md:pb-32">
 		<!-- Minimal Ambient Light -->
-		<div class="ambient-light pointer-events-none absolute inset-0 z-0 overflow-hidden">
+		<div class="ambient-light pointer-events-none absolute inset-0 overflow-hidden">
 			<div
 				class="absolute -top-[20%] -left-[10%] h-[70vw] w-[70vw] rounded-full bg-zinc-200/40 opacity-40 blur-[120px] dark:bg-zinc-800/20"
 			></div>
@@ -188,7 +249,7 @@
 			></div>
 		</div>
 
-		<div class="relative z-10 container mx-auto px-6 lg:px-12">
+		<div class="relative container mx-auto px-6 lg:px-12">
 			<div class="mx-auto flex max-w-5xl flex-col items-center space-y-10 text-center">
 				<!-- Headline -->
 				<h1
@@ -210,12 +271,10 @@
 					<Button
 						size="lg"
 						href="/invoice/new"
-						class="group relative h-14 overflow-hidden rounded-full bg-foreground px-8 text-base font-medium text-background transition-all duration-300 hover:scale-[1.02] hover:bg-foreground/90 active:scale-[0.98]"
+						class="group h-14 rounded-full bg-foreground px-8 text-base font-medium text-background shadow-sm transition-all duration-200 hover:bg-foreground/90 hover:ring-4 hover:ring-foreground/10"
 					>
-						<span class="relative z-10 flex items-center">
-							Deploy Generator
-							<MoveRight class="ml-3 h-4 w-4 transition-transform group-hover:translate-x-1" />
-						</span>
+						Access Generator
+						<ArrowRight class="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
 					</Button>
 				</div>
 
@@ -225,22 +284,12 @@
 				>
 					<p class="mb-4 text-[10px] opacity-60">Engineered Specifically For</p>
 					<div class="flex flex-wrap justify-center gap-6 opacity-80">
-						<span class="flex items-center gap-2"
-							><div class="h-1.5 w-1.5 rounded-full bg-primary/60"></div>
-							Freelancers</span
-						>
-						<span class="flex items-center gap-2"
-							><div class="h-1.5 w-1.5 rounded-full bg-emerald-500/60"></div>
-							Agencies</span
-						>
-						<span class="flex items-center gap-2"
-							><div class="h-1.5 w-1.5 rounded-full bg-indigo-500/60"></div>
-							Solo Devs</span
-						>
-						<span class="flex items-center gap-2"
-							><div class="h-1.5 w-1.5 rounded-full bg-amber-500/60"></div>
-							Creators</span
-						>
+						{#each audiences as audience}
+							<span class="flex items-center gap-2">
+								<div class="h-1.5 w-1.5 rounded-full {audience.color}"></div>
+								{audience.label}
+							</span>
+						{/each}
 					</div>
 				</div>
 			</div>
@@ -352,7 +401,7 @@
 	</section>
 
 	<!-- Capabilities Stack -->
-	<section class="relative z-20 bg-muted/5 py-24 md:py-32" id="features">
+	<section class="relative bg-muted/5 py-24 md:py-32" id="features">
 		<div class="container mx-auto px-6 lg:px-12">
 			<div class="glass-panel mx-auto mb-20 max-w-3xl space-y-6 md:text-center">
 				<h2 class="font-sans text-4xl font-extrabold tracking-tight md:text-5xl">
@@ -365,106 +414,31 @@
 			</div>
 
 			<div class="mx-auto flex max-w-4xl flex-col gap-[35vh] pb-[30vh]">
-				<!-- Persistent History (Sticky Card 1) -->
-				<div
-					class="glass-panel group sticky top-[15vh] z-10 h-112.5 w-full overflow-hidden rounded-[2.5rem] border border-border/30 bg-background p-1 shadow-2xl ring-1 ring-white/5 transition-all duration-500 hover:border-border/60"
-				>
-					<div
-						class="relative z-10 flex h-full flex-col overflow-hidden rounded-[2.3rem] bg-card/95 p-10 md:p-14"
-					>
-						<div
-							class="mb-8 flex h-20 w-20 items-center justify-center rounded-[1.8rem] border border-border/40 bg-primary/5 shadow-inner transition-transform duration-700 ease-out group-hover:scale-110"
-						>
-							<History class="h-10 w-10 text-primary" />
-						</div>
-						<h3 class="mb-4 font-sans text-3xl font-bold">Infinite Local Ledger</h3>
-						<p class="mb-4 max-w-2xl flex-1 text-xl leading-relaxed text-muted-foreground">
-							We integrated a fully operational <strong>IndexedDB</strong> instance right into your browser.
-							Drafts, sent invoices, and client lists are auto-saved in a persistent local vault. You
-							maintain absolute ledger sovereignty without external dependencies.
-						</p>
-						<div
-							class="absolute right-[-10%] bottom-[-50%] h-140 w-140 rounded-full bg-primary/5 blur-[120px] transition-colors duration-700 group-hover:bg-primary/10"
-						></div>
-					</div>
-				</div>
-
-				<!-- Default Senders (Sticky Card 2) -->
-				<div
-					class="glass-panel group sticky top-[15vh] z-20 h-112.5 w-full overflow-hidden rounded-[2.5rem] border border-border/30 bg-background p-1 shadow-2xl ring-1 ring-white/5 transition-all duration-500 hover:border-border/60"
-				>
-					<div
-						class="relative z-10 flex h-full flex-col overflow-hidden rounded-[2.3rem] bg-card/95 p-10 md:p-14"
-					>
-						<div
-							class="mb-8 flex h-20 w-20 items-center justify-center rounded-[1.8rem] border border-border/40 bg-indigo-500/5 shadow-inner transition-transform duration-700 ease-out group-hover:-rotate-12"
-						>
-							<User class="h-10 w-10 text-indigo-500" />
-						</div>
-						<h3 class="mb-4 text-3xl font-bold">Memory Synced</h3>
-						<p class="flex-1 text-xl leading-relaxed text-muted-foreground">
-							Configure your personal and banking details once. The engine automatically injects
-							your preferred profile into every new draft indefinitely.
-						</p>
-						<div
-							class="absolute right-[0%] bottom-[-50%] h-140 w-140 rounded-full bg-indigo-500/5 blur-[120px] transition-colors duration-700 group-hover:bg-indigo-500/10"
-						></div>
-					</div>
-				</div>
-
-				<!-- Vector PDFs (Sticky Card 3) -->
-				<div
-					class="glass-panel group sticky top-[15vh] z-30 h-112.5 w-full overflow-hidden rounded-[2.5rem] border border-border/30 bg-background p-1 shadow-2xl ring-1 ring-white/5 transition-all duration-500 hover:border-border/60"
-				>
-					<div
-						class="relative z-10 flex h-full flex-col overflow-hidden rounded-[2.3rem] bg-card/95 p-10 md:p-14"
-					>
-						<div
-							class="mb-8 flex h-20 w-20 items-center justify-center rounded-[1.8rem] border border-border/40 bg-emerald-500/5 shadow-inner transition-transform duration-700 ease-out group-hover:scale-110"
-						>
-							<Layers class="h-10 w-10 text-emerald-500" />
-						</div>
-						<h3 class="mb-4 text-3xl font-bold">Mathematical Vectors</h3>
-						<p class="flex-1 text-xl leading-relaxed text-muted-foreground">
-							Compiled natively. Pdfmake transforms your data points into mathematically perfect
-							vector documents directly inside the client execution environment, zero latency
-							included.
-						</p>
-						<div
-							class="absolute right-[-10%] bottom-[-50%] h-140 w-140 rounded-full bg-emerald-500/5 blur-[120px] transition-colors duration-700 group-hover:bg-emerald-500/10"
-						></div>
-					</div>
-				</div>
-
-				<!-- Live Preview (Sticky Card 4) -->
-				<div
-					class="glass-panel group sticky top-[15vh] z-40 h-112.5 w-full overflow-hidden rounded-[2.5rem] border border-border/30 bg-background p-1 shadow-2xl ring-1 ring-white/5 transition-all duration-500 hover:border-border/60"
-				>
-					<div
-						class="relative z-10 flex h-full flex-col overflow-hidden rounded-[2.3rem] bg-card/95 p-10 md:p-14"
-					>
-						<div
-							class="mb-8 flex h-20 w-20 items-center justify-center rounded-[1.8rem] border border-border/40 bg-amber-500/5 shadow-inner transition-transform duration-700 ease-out group-hover:rotate-12"
-						>
-							<Eye class="h-10 w-10 text-amber-500" />
-						</div>
-						<h3 class="mb-4 text-3xl font-bold">Optical Sync</h3>
-						<p class="flex-1 text-xl leading-relaxed text-muted-foreground">
-							An architectural dual-pane viewport provides real-time optical feedback. Change a
-							digit on the left workspace; watch the vector rebuild on the right instantaneously.
-						</p>
-						<div
-							class="absolute top-[-20%] right-[-20%] h-140 w-140 rounded-full bg-amber-500/5 blur-[120px] transition-colors duration-700 group-hover:bg-amber-500/10"
-						></div>
-					</div>
-				</div>
+				{#each coreCapabilities as capability (capability.title)}
+					<FeatureCard
+						icon={capability.icon}
+						title={capability.title}
+						description={capability.description}
+						iconColor={capability.iconColor}
+						blurColor={capability.blurColor}
+					/>
+				{/each}
 			</div>
 		</div>
 	</section>
 
 	<!-- Pricing Comparison -->
-	<section class="relative z-20 py-24 md:py-32">
+	<section class="relative py-24 md:py-32">
 		<div class="container mx-auto px-6 lg:px-12">
+			<div class="mb-16 text-center">
+				<h2 class="font-sans text-4xl font-extrabold tracking-tight md:text-5xl">
+					The Cost of Renting.
+				</h2>
+				<p class="mt-4 text-xl text-muted-foreground">
+					Why pay a monthly premium to access your own financial data?
+				</p>
+			</div>
+
 			<div
 				class="glass-panel mx-auto flex max-w-5xl flex-col overflow-hidden rounded-[3rem] border border-border/30 bg-background/50 shadow-2xl ring-1 ring-white/10 backdrop-blur-3xl md:flex-row dark:ring-white/5"
 			>
@@ -480,24 +454,31 @@
 							Typical SaaS
 						</h3>
 					</div>
-					<div class="mb-8">
-						<span class="text-5xl font-extrabold text-foreground/80">$20</span>
-						<span class="text-lg text-muted-foreground">/ month</span>
+					<p class="mb-6 text-sm leading-relaxed text-muted-foreground">
+						Cloud-dependent subscriptions that hold your financial data hostage behind recurring
+						paywalls and arbitrary limits.
+					</p>
+					<div class="mb-8 flex items-baseline gap-2">
+						<span class="text-5xl font-extrabold tracking-tight text-foreground/80">$20</span>
+						<span
+							class="font-mono text-xs font-medium tracking-widest text-muted-foreground uppercase"
+							>/ month</span
+						>
 					</div>
-					<ul class="space-y-4 text-muted-foreground">
-						<li class="flex items-center gap-3">
-							<Minus class="h-4 w-4 opacity-50" /> Watermarks on free plan
-						</li>
-						<li class="flex items-center gap-3">
-							<Minus class="h-4 w-4 opacity-50" /> Requires user account
-						</li>
-						<li class="flex items-center gap-3">
-							<Minus class="h-4 w-4 opacity-50" /> Sells your client data
-						</li>
-						<li class="flex items-center gap-3">
-							<Minus class="h-4 w-4 opacity-50" /> Slow server processing
-						</li>
+					<div class="mb-6 h-px w-full bg-border/40"></div>
+					<ul class="space-y-4 text-sm text-muted-foreground">
+						{#each saasDrawbacks as drawback}
+							<li class="flex items-center gap-3">
+								<Minus class="h-4 w-4 shrink-0 opacity-50" />
+								<span>{drawback}</span>
+							</li>
+						{/each}
 					</ul>
+					<div
+						class="mt-10 inline-flex items-center gap-2 rounded-full border border-border/40 bg-background/50 px-3 py-1.5 font-mono text-[10px] tracking-widest text-muted-foreground uppercase"
+					>
+						<Database class="h-3 w-3" /> Remote Server
+					</div>
 				</div>
 
 				<!-- TIF Alternative -->
@@ -505,7 +486,7 @@
 					<div
 						class="absolute top-0 right-0 h-full w-1/2 bg-linear-to-l from-primary/5 to-transparent"
 					></div>
-					<div class="relative z-10">
+					<div class="relative">
 						<div class="mb-6 flex items-center gap-3">
 							<div
 								class="flex h-10 w-10 items-center justify-center rounded-xl border border-primary/20 bg-primary/10 text-primary"
@@ -516,24 +497,30 @@
 								Tech Invoice Forge
 							</h3>
 						</div>
-						<div class="mb-8">
-							<span class="text-5xl font-extrabold text-foreground">$0</span>
-							<span class="text-lg text-muted-foreground">/ forever</span>
+						<p class="mb-6 text-sm leading-relaxed text-foreground/80">
+							A local-first, zero-latency engine. Your data never leaves your device, and you never
+							pay a cent for access.
+						</p>
+						<div class="mb-8 flex items-baseline gap-2">
+							<span class="text-5xl font-extrabold tracking-tight text-foreground">$0</span>
+							<span class="font-mono text-xs font-medium tracking-widest text-primary uppercase"
+								>/ forever</span
+							>
 						</div>
-						<ul class="space-y-4 text-foreground/80">
-							<li class="flex items-center gap-3">
-								<Check class="h-4 w-4 text-primary" /> Pristine Vector PDFs
-							</li>
-							<li class="flex items-center gap-3">
-								<Check class="h-4 w-4 text-primary" /> Offline By Default
-							</li>
-							<li class="flex items-center gap-3">
-								<Check class="h-4 w-4 text-primary" /> Absolute Ledger Privacy
-							</li>
-							<li class="flex items-center gap-3">
-								<Check class="h-4 w-4 text-primary" /> Instant Client-Side Generation
-							</li>
+						<div class="mb-6 h-px w-full bg-primary/10"></div>
+						<ul class="space-y-4 text-sm text-foreground/90">
+							{#each tifBenefits as benefit}
+								<li class="flex items-center gap-3">
+									<Check class="h-4 w-4 shrink-0 text-primary" />
+									<span class="font-medium">{benefit}</span>
+								</li>
+							{/each}
 						</ul>
+						<div
+							class="mt-10 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1.5 font-mono text-[10px] tracking-widest text-primary uppercase"
+						>
+							<Cpu class="h-3 w-3" /> Local Execution
+						</div>
 					</div>
 				</div>
 			</div>
@@ -543,7 +530,7 @@
 	<!-- System Capabilities -->
 	<section class="steps-section border-t border-border/40 bg-muted/5 py-24 md:py-32">
 		<div class="container mx-auto px-6 lg:px-12">
-			<div class="mx-auto max-w-4xl">
+			<div class="max-w-8xl mx-auto">
 				<div class="mb-20 text-center">
 					<h2 class="font-sans text-4xl font-extrabold tracking-tight md:text-5xl">
 						System Capabilities.
@@ -556,11 +543,11 @@
 				<div class="flex flex-col border-t border-border/40">
 					{#each features as feature, i}
 						<div
-							class="step-item group flex flex-col items-start justify-between border-b border-border/40 py-12 transition-colors hover:bg-muted/20 md:flex-row md:items-center"
+							class="step-item group flex flex-col items-start justify-between border-b border-border/40 py-12 transition-all duration-500 hover:bg-muted/20 hover:px-6 md:flex-row md:items-center"
 						>
 							<div class="flex items-center gap-8 md:w-1/2">
 								<span
-									class="font-mono text-2xl text-muted-foreground/30 transition-colors group-hover:text-primary"
+									class="font-mono text-2xl text-muted-foreground/30 transition-colors duration-500 group-hover:text-primary"
 									>0{i + 1}</span
 								>
 								<h3
@@ -571,11 +558,13 @@
 							</div>
 							<div class="mt-6 flex items-center gap-6 md:mt-0 md:w-1/3">
 								<div
-									class="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-muted text-foreground transition-colors duration-500 group-hover:bg-primary group-hover:text-primary-foreground"
+									class="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-muted text-foreground shadow-sm ring-1 ring-border/50 transition-all duration-500 group-hover:scale-110 group-hover:bg-primary group-hover:text-primary-foreground group-hover:shadow-md group-hover:ring-primary/50"
 								>
 									<feature.icon class="h-6 w-6" />
 								</div>
-								<p class="text-lg leading-relaxed text-muted-foreground">
+								<p
+									class="text-lg leading-relaxed text-muted-foreground transition-colors duration-500 group-hover:text-foreground"
+								>
 									{feature.description}
 								</p>
 							</div>
@@ -587,9 +576,9 @@
 	</section>
 
 	<!-- FAQ -->
-	<section class="relative z-20 border-t border-border/40 bg-background py-24 md:py-32">
+	<section class="relative border-t border-border/40 bg-background py-24 md:py-32">
 		<div class="container mx-auto px-6 lg:px-12">
-			<div class="mx-auto max-w-3xl">
+			<div class="mx-auto max-w-4xl">
 				<div class="mb-16 text-center">
 					<h2 class="font-sans text-4xl font-extrabold tracking-tight md:text-5xl">
 						Engine Specifications.
@@ -603,14 +592,14 @@
 					{#each faqs as faq, i}
 						<Accordion.Item
 							value="item-{i}"
-							class="rounded-2xl border border-b-0 border-border/40 bg-muted/20 px-6 py-2 transition-all hover:bg-muted/40"
+							class="rounded-2xl border border-border/40 bg-muted/10 px-6 py-2 shadow-sm transition-all duration-300 hover:bg-muted/30 hover:shadow-md data-[state=open]:bg-muted/20"
 						>
 							<Accordion.Trigger
-								class="text-left text-lg font-medium hover:no-underline data-[state=open]:text-primary"
+								class="text-left text-lg font-medium transition-colors hover:no-underline data-[state=open]:text-primary"
 							>
 								{faq.question}
 							</Accordion.Trigger>
-							<Accordion.Content class="text-base leading-relaxed text-muted-foreground">
+							<Accordion.Content class="pb-4 text-base leading-relaxed text-muted-foreground">
 								{faq.answer}
 							</Accordion.Content>
 						</Accordion.Item>
@@ -629,7 +618,7 @@
 			class="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,var(--tw-gradient-stops))] from-zinc-900 via-transparent to-transparent opacity-40"
 		></div>
 
-		<div class="relative z-10 container mx-auto px-6 text-center">
+		<div class="relative container mx-auto px-6 text-center">
 			<div class="mx-auto max-w-4xl space-y-10">
 				<h2
 					class="font-serif text-6xl leading-none font-light tracking-tight text-white italic md:text-[6.5rem]"
@@ -640,14 +629,19 @@
 					NO DATABASES. NO ACCOUNTS. JUST TOOLS.
 				</p>
 				<div class="flex flex-col justify-center gap-4 pt-10 sm:flex-row">
-					<Button
-						size="lg"
-						href="/invoice/new"
-						class="group h-16 rounded-full bg-white px-20 text-lg font-bold text-black shadow-2xl transition-all duration-300 hover:scale-[1.02] hover:bg-zinc-200 sm:h-20 sm:px-16 sm:text-xl"
-					>
-						Access Generator
-						<ArrowRight class="ml-4 h-6 w-6 transition-transform group-hover:translate-x-3" />
-					</Button>
+					<div class="group relative">
+						<div
+							class="absolute -inset-1 rounded-full bg-white/20 blur-lg transition-all duration-500 group-hover:bg-white/40 group-hover:blur-xl"
+						></div>
+						<Button
+							size="lg"
+							href="/invoice/new"
+							class="relative h-16 w-full rounded-full bg-white px-20 text-lg font-bold text-black shadow-2xl transition-all duration-300 hover:scale-[1.02] hover:bg-zinc-200 sm:h-20 sm:w-auto sm:px-16 sm:text-xl"
+						>
+							Access Generator
+							<ArrowRight class="ml-4 h-6 w-6 transition-transform group-hover:translate-x-3" />
+						</Button>
+					</div>
 				</div>
 			</div>
 		</div>
