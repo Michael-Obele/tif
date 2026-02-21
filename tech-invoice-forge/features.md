@@ -68,13 +68,13 @@ This document provides detailed specifications for all features in Tech Invoice 
 
 ```typescript
 const PAYMENT_TERMS = [
-  { value: 'due_on_receipt', label: 'Due on Receipt', days: 0 },
-  { value: 'net_7', label: 'Net 7', days: 7 },
-  { value: 'net_15', label: 'Net 15', days: 15 },
-  { value: 'net_30', label: 'Net 30', days: 30 },
-  { value: 'net_45', label: 'Net 45', days: 45 },
-  { value: 'net_60', label: 'Net 60', days: 60 },
-  { value: 'custom', label: 'Custom', days: null }
+	{ value: 'due_on_receipt', label: 'Due on Receipt', days: 0 },
+	{ value: 'net_7', label: 'Net 7', days: 7 },
+	{ value: 'net_15', label: 'Net 15', days: 15 },
+	{ value: 'net_30', label: 'Net 30', days: 30 },
+	{ value: 'net_45', label: 'Net 45', days: 45 },
+	{ value: 'net_60', label: 'Net 60', days: 60 },
+	{ value: 'custom', label: 'Custom', days: null }
 ];
 ```
 
@@ -96,14 +96,14 @@ const PAYMENT_TERMS = [
 
 ```typescript
 const UNITS = [
-  { value: 'hour', label: 'Hour', plural: 'Hours' },
-  { value: 'day', label: 'Day', plural: 'Days' },
-  { value: 'unit', label: 'Unit', plural: 'Units' },
-  { value: 'flat', label: 'Flat', plural: 'Flat' },
-  { value: 'project', label: 'Project', plural: 'Projects' },
-  { value: 'month', label: 'Month', plural: 'Months' },
-  { value: 'word', label: 'Word', plural: 'Words' },
-  { value: 'page', label: 'Page', plural: 'Pages' }
+	{ value: 'hour', label: 'Hour', plural: 'Hours' },
+	{ value: 'day', label: 'Day', plural: 'Days' },
+	{ value: 'unit', label: 'Unit', plural: 'Units' },
+	{ value: 'flat', label: 'Flat', plural: 'Flat' },
+	{ value: 'project', label: 'Project', plural: 'Projects' },
+	{ value: 'month', label: 'Month', plural: 'Months' },
+	{ value: 'word', label: 'Word', plural: 'Words' },
+	{ value: 'page', label: 'Page', plural: 'Pages' }
 ];
 ```
 
@@ -209,17 +209,15 @@ const UNITS = [
 ```typescript
 // On new invoice creation
 async function getNextNumber(): Promise<string> {
-  const year = new Date().getFullYear();
-  const lastInvoice = await db.invoices
-    .where('issueDate')
-    .between(new Date(year, 0, 1), new Date(year, 11, 31))
-    .last();
+	const year = new Date().getFullYear();
+	const lastInvoice = await db.invoices
+		.where('issueDate')
+		.between(new Date(year, 0, 1), new Date(year, 11, 31))
+		.last();
 
-  const lastSeq = lastInvoice
-    ? parseInt(lastInvoice.number.split('-').pop() || '0')
-    : 0;
+	const lastSeq = lastInvoice ? parseInt(lastInvoice.number.split('-').pop() || '0') : 0;
 
-  return formatInvoiceNumber(lastSeq + 1);
+	return formatInvoiceNumber(lastSeq + 1);
 }
 ```
 

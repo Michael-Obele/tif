@@ -274,50 +274,50 @@ App
 ```typescript
 // $lib/stores/invoice.svelte.ts
 class InvoiceState {
-  // Sender info (persisted)
-  sender = $state<Sender>({
-    businessName: '',
-    address: '',
-    email: '',
-    phone: '',
-    taxId: '',
-    logo: null
-  });
+	// Sender info (persisted)
+	sender = $state<Sender>({
+		businessName: '',
+		address: '',
+		email: '',
+		phone: '',
+		taxId: '',
+		logo: null
+	});
 
-  // Current invoice (working document)
-  invoice = $state<Invoice>({
-    id: null,
-    number: '',
-    issueDate: new Date(),
-    dueDate: null,
-    currency: 'USD',
-    client: null,
-    lineItems: [],
-    discount: { type: 'percentage', value: 0 },
-    notes: '',
-    terms: '',
-    status: 'draft'
-  });
+	// Current invoice (working document)
+	invoice = $state<Invoice>({
+		id: null,
+		number: '',
+		issueDate: new Date(),
+		dueDate: null,
+		currency: 'USD',
+		client: null,
+		lineItems: [],
+		discount: { type: 'percentage', value: 0 },
+		notes: '',
+		terms: '',
+		status: 'draft'
+	});
 
-  // Computed totals
-  subtotal = $derived(() => {
-    return this.invoice.lineItems.reduce((sum, item) =>
-      sum + (item.quantity * item.rate), 0
-    );
-  });
+	// Computed totals
+	subtotal = $derived(() => {
+		return this.invoice.lineItems.reduce((sum, item) => sum + item.quantity * item.rate, 0);
+	});
 
-  taxTotal = $derived(() => {
-    return this.invoice.lineItems.reduce((sum, item) =>
-      sum + (item.quantity * item.rate * (item.taxRate / 100)), 0
-    );
-  });
+	taxTotal = $derived(() => {
+		return this.invoice.lineItems.reduce(
+			(sum, item) => sum + item.quantity * item.rate * (item.taxRate / 100),
+			0
+		);
+	});
 
-  total = $derived(() => {
-    const discount = this.invoice.discount.type === 'percentage'
-      ? this.subtotal * (this.invoice.discount.value / 100)
-      : this.invoice.discount.value;
-    return this.subtotal + this.taxTotal - discount;
-  });
+	total = $derived(() => {
+		const discount =
+			this.invoice.discount.type === 'percentage'
+				? this.subtotal * (this.invoice.discount.value / 100)
+				: this.invoice.discount.value;
+		return this.subtotal + this.taxTotal - discount;
+	});
 }
 
 export const invoiceState = new InvoiceState();
@@ -358,113 +358,115 @@ import pdfFonts from 'pdfmake/build/vfs_fonts';
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
 export function generateInvoicePDF(invoice: Invoice, template: Template): void {
-  const docDefinition = {
-    pageSize: 'A4',
-    pageMargins: [40, 60, 40, 60],
+	const docDefinition = {
+		pageSize: 'A4',
+		pageMargins: [40, 60, 40, 60],
 
-    content: [
-      // Header with logo and invoice number
-      {
-        columns: [
-          { image: invoice.sender.logo, width: 120 },
-          {
-            text: [
-              { text: 'INVOICE\n', style: 'documentTitle' },
-              { text: invoice.number, style: 'invoiceNumber' }
-            ],
-            alignment: 'right'
-          }
-        ]
-      },
+		content: [
+			// Header with logo and invoice number
+			{
+				columns: [
+					{ image: invoice.sender.logo, width: 120 },
+					{
+						text: [
+							{ text: 'INVOICE\n', style: 'documentTitle' },
+							{ text: invoice.number, style: 'invoiceNumber' }
+						],
+						alignment: 'right'
+					}
+				]
+			},
 
-      // Sender and Client info
-      {
-        columns: [
-          {
-            text: [
-              { text: 'From\n', style: 'sectionLabel' },
-              { text: invoice.sender.businessName + '\n', style: 'bold' },
-              invoice.sender.address + '\n',
-              invoice.sender.email
-            ]
-          },
-          {
-            text: [
-              { text: 'Bill To\n', style: 'sectionLabel' },
-              { text: invoice.client.name + '\n', style: 'bold' },
-              invoice.client.company ? invoice.client.company + '\n' : '',
-              invoice.client.address + '\n',
-              invoice.client.email
-            ]
-          }
-        ],
-        margin: [0, 30, 0, 30]
-      },
+			// Sender and Client info
+			{
+				columns: [
+					{
+						text: [
+							{ text: 'From\n', style: 'sectionLabel' },
+							{ text: invoice.sender.businessName + '\n', style: 'bold' },
+							invoice.sender.address + '\n',
+							invoice.sender.email
+						]
+					},
+					{
+						text: [
+							{ text: 'Bill To\n', style: 'sectionLabel' },
+							{ text: invoice.client.name + '\n', style: 'bold' },
+							invoice.client.company ? invoice.client.company + '\n' : '',
+							invoice.client.address + '\n',
+							invoice.client.email
+						]
+					}
+				],
+				margin: [0, 30, 0, 30]
+			},
 
-      // Invoice details row
-      {
-        columns: [
-          { text: ['Issue Date: ', formatDate(invoice.issueDate)] },
-          { text: ['Due Date: ', formatDate(invoice.dueDate)] },
-          { text: ['Currency: ', invoice.currency] }
-        ],
-        margin: [0, 0, 0, 20]
-      },
+			// Invoice details row
+			{
+				columns: [
+					{ text: ['Issue Date: ', formatDate(invoice.issueDate)] },
+					{ text: ['Due Date: ', formatDate(invoice.dueDate)] },
+					{ text: ['Currency: ', invoice.currency] }
+				],
+				margin: [0, 0, 0, 20]
+			},
 
-      // Line items table
-      {
-        table: {
-          headerRows: 1,
-          widths: ['*', 50, 50, 60, 40, 70],
-          body: [
-            ['Description', 'Qty', 'Unit', 'Rate', 'Tax', 'Amount'],
-            ...invoice.lineItems.map(item => [
-              item.description,
-              item.quantity.toString(),
-              item.unit,
-              formatCurrency(item.rate, invoice.currency),
-              item.taxRate + '%',
-              formatCurrency(item.quantity * item.rate, invoice.currency)
-            ])
-          ]
-        }
-      },
+			// Line items table
+			{
+				table: {
+					headerRows: 1,
+					widths: ['*', 50, 50, 60, 40, 70],
+					body: [
+						['Description', 'Qty', 'Unit', 'Rate', 'Tax', 'Amount'],
+						...invoice.lineItems.map((item) => [
+							item.description,
+							item.quantity.toString(),
+							item.unit,
+							formatCurrency(item.rate, invoice.currency),
+							item.taxRate + '%',
+							formatCurrency(item.quantity * item.rate, invoice.currency)
+						])
+					]
+				}
+			},
 
-      // Totals
-      {
-        columns: [
-          { width: '*', text: '' },
-          {
-            width: 200,
-            table: {
-              body: [
-                ['Subtotal', formatCurrency(subtotal, invoice.currency)],
-                ['Tax', formatCurrency(taxTotal, invoice.currency)],
-                ['Discount', '-' + formatCurrency(discount, invoice.currency)],
-                [{ text: 'Total Due', bold: true },
-                 { text: formatCurrency(total, invoice.currency), bold: true }]
-              ]
-            },
-            layout: 'noBorders'
-          }
-        ],
-        margin: [0, 20, 0, 30]
-      },
+			// Totals
+			{
+				columns: [
+					{ width: '*', text: '' },
+					{
+						width: 200,
+						table: {
+							body: [
+								['Subtotal', formatCurrency(subtotal, invoice.currency)],
+								['Tax', formatCurrency(taxTotal, invoice.currency)],
+								['Discount', '-' + formatCurrency(discount, invoice.currency)],
+								[
+									{ text: 'Total Due', bold: true },
+									{ text: formatCurrency(total, invoice.currency), bold: true }
+								]
+							]
+						},
+						layout: 'noBorders'
+					}
+				],
+				margin: [0, 20, 0, 30]
+			},
 
-      // Notes and terms
-      invoice.notes ? { text: ['Notes\n', invoice.notes], margin: [0, 0, 0, 15] } : {},
-      invoice.terms ? { text: ['Terms & Conditions\n', invoice.terms] } : {}
-    ],
+			// Notes and terms
+			invoice.notes ? { text: ['Notes\n', invoice.notes], margin: [0, 0, 0, 15] } : {},
+			invoice.terms ? { text: ['Terms & Conditions\n', invoice.terms] } : {}
+		],
 
-    styles: {
-      documentTitle: { fontSize: 28, bold: true, color: '#4F46E5' },
-      invoiceNumber: { fontSize: 14, color: '#64748B' },
-      sectionLabel: { fontSize: 10, color: '#94A3B8', margin: [0, 0, 0, 5] },
-      bold: { bold: true }
-    }
-  };
+		styles: {
+			documentTitle: { fontSize: 28, bold: true, color: '#4F46E5' },
+			invoiceNumber: { fontSize: 14, color: '#64748B' },
+			sectionLabel: { fontSize: 10, color: '#94A3B8', margin: [0, 0, 0, 5] },
+			bold: { bold: true }
+		}
+	};
 
-  pdfMake.createPdf(docDefinition).download(`${invoice.number}.pdf`);
+	pdfMake.createPdf(docDefinition).download(`${invoice.number}.pdf`);
 }
 ```
 
@@ -479,28 +481,28 @@ Using Intl.NumberFormat for automatic formatting based on locale:
 ```typescript
 // $lib/utils/currency.ts
 export const CURRENCIES = [
-  { code: 'USD', name: 'US Dollar', symbol: '$', locale: 'en-US' },
-  { code: 'EUR', name: 'Euro', symbol: '€', locale: 'de-DE' },
-  { code: 'GBP', name: 'British Pound', symbol: '£', locale: 'en-GB' },
-  { code: 'CAD', name: 'Canadian Dollar', symbol: 'CA$', locale: 'en-CA' },
-  { code: 'AUD', name: 'Australian Dollar', symbol: 'A$', locale: 'en-AU' },
-  { code: 'JPY', name: 'Japanese Yen', symbol: '¥', locale: 'ja-JP' },
-  { code: 'INR', name: 'Indian Rupee', symbol: '₹', locale: 'en-IN' },
-  { code: 'NGN', name: 'Nigerian Naira', symbol: '₦', locale: 'en-NG' },
-  { code: 'CHF', name: 'Swiss Franc', symbol: 'CHF', locale: 'de-CH' },
-  { code: 'BRL', name: 'Brazilian Real', symbol: 'R$', locale: 'pt-BR' },
-  // ... add more as needed
+	{ code: 'USD', name: 'US Dollar', symbol: '$', locale: 'en-US' },
+	{ code: 'EUR', name: 'Euro', symbol: '€', locale: 'de-DE' },
+	{ code: 'GBP', name: 'British Pound', symbol: '£', locale: 'en-GB' },
+	{ code: 'CAD', name: 'Canadian Dollar', symbol: 'CA$', locale: 'en-CA' },
+	{ code: 'AUD', name: 'Australian Dollar', symbol: 'A$', locale: 'en-AU' },
+	{ code: 'JPY', name: 'Japanese Yen', symbol: '¥', locale: 'ja-JP' },
+	{ code: 'INR', name: 'Indian Rupee', symbol: '₹', locale: 'en-IN' },
+	{ code: 'NGN', name: 'Nigerian Naira', symbol: '₦', locale: 'en-NG' },
+	{ code: 'CHF', name: 'Swiss Franc', symbol: 'CHF', locale: 'de-CH' },
+	{ code: 'BRL', name: 'Brazilian Real', symbol: 'R$', locale: 'pt-BR' }
+	// ... add more as needed
 ] as const;
 
 export function formatCurrency(amount: number, currencyCode: string): string {
-  const currency = CURRENCIES.find(c => c.code === currencyCode) || CURRENCIES[0];
+	const currency = CURRENCIES.find((c) => c.code === currencyCode) || CURRENCIES[0];
 
-  return new Intl.NumberFormat(currency.locale, {
-    style: 'currency',
-    currency: currency.code,
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2
-  }).format(amount);
+	return new Intl.NumberFormat(currency.locale, {
+		style: 'currency',
+		currency: currency.code,
+		minimumFractionDigits: 2,
+		maximumFractionDigits: 2
+	}).format(amount);
 }
 ```
 
@@ -513,42 +515,42 @@ export function formatCurrency(amount: number, currencyCode: string): string {
 ```typescript
 // $lib/utils/invoice-number.ts
 interface NumberConfig {
-  prefix: string;      // e.g., "INV", "REC"
-  includeYear: boolean;
-  includeMonth: boolean;
-  separator: string;   // e.g., "-", "/"
-  padLength: number;   // e.g., 3 for "001"
+	prefix: string; // e.g., "INV", "REC"
+	includeYear: boolean;
+	includeMonth: boolean;
+	separator: string; // e.g., "-", "/"
+	padLength: number; // e.g., 3 for "001"
 }
 
 const defaultConfig: NumberConfig = {
-  prefix: 'INV',
-  includeYear: true,
-  includeMonth: false,
-  separator: '-',
-  padLength: 4
+	prefix: 'INV',
+	includeYear: true,
+	includeMonth: false,
+	separator: '-',
+	padLength: 4
 };
 
 export async function generateInvoiceNumber(config = defaultConfig): Promise<string> {
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, '0');
+	const now = new Date();
+	const year = now.getFullYear();
+	const month = String(now.getMonth() + 1).padStart(2, '0');
 
-  // Get last invoice number from DB
-  const lastInvoice = await db.invoices
-    .where('issueDate')
-    .between(new Date(year, 0, 1), new Date(year, 11, 31))
-    .last();
+	// Get last invoice number from DB
+	const lastInvoice = await db.invoices
+		.where('issueDate')
+		.between(new Date(year, 0, 1), new Date(year, 11, 31))
+		.last();
 
-  const sequence = lastInvoice
-    ? parseInt(lastInvoice.number.split(config.separator).pop() || '0') + 1
-    : 1;
+	const sequence = lastInvoice
+		? parseInt(lastInvoice.number.split(config.separator).pop() || '0') + 1
+		: 1;
 
-  const parts = [config.prefix];
-  if (config.includeYear) parts.push(String(year));
-  if (config.includeMonth) parts.push(month);
-  parts.push(String(sequence).padStart(config.padLength, '0'));
+	const parts = [config.prefix];
+	if (config.includeYear) parts.push(String(year));
+	if (config.includeMonth) parts.push(month);
+	parts.push(String(sequence).padStart(config.padLength, '0'));
 
-  return parts.join(config.separator);
+	return parts.join(config.separator);
 }
 
 // Examples:

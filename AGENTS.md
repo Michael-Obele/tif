@@ -54,4 +54,3 @@ You are an expert Svelte 5 developer. This project is an offline-first, client-s
 
 - **Context**: Use `mcp_svelte_get-documentation` for latest Svelte 5 logic.
 - **Validation**: Use `mcp_svelte_svelte-autofixer` to validate components before finishing.
-

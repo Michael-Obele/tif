@@ -216,111 +216,100 @@ Using class-based stores with `$state` and `$derived` runes for reactive state m
 
 ```typescript
 // src/lib/stores/invoice.svelte.ts
-import type {
-  Invoice,
-  LineItem,
-  Sender,
-  Client,
-  Discount,
-} from "$lib/db/schema";
+import type { Invoice, LineItem, Sender, Client, Discount } from '$lib/db/schema';
 
 class InvoiceStore {
-  // Current working invoice
-  invoice = $state<Invoice>({
-    id: undefined,
-    number: "",
-    type: "invoice",
-    status: "draft",
-    issueDate: new Date(),
-    dueDate: null,
-    currency: "USD",
-    lineItems: [],
-    discount: { type: "percentage", value: 0 },
-    notes: "",
-    terms: "",
-  });
+	// Current working invoice
+	invoice = $state<Invoice>({
+		id: undefined,
+		number: '',
+		type: 'invoice',
+		status: 'draft',
+		issueDate: new Date(),
+		dueDate: null,
+		currency: 'USD',
+		lineItems: [],
+		discount: { type: 'percentage', value: 0 },
+		notes: '',
+		terms: ''
+	});
 
-  // Sender info (persisted separately)
-  sender = $state<Sender>({
-    businessName: "",
-    address: "",
-    email: "",
-    phone: "",
-    taxId: "",
-    logo: null,
-  });
+	// Sender info (persisted separately)
+	sender = $state<Sender>({
+		businessName: '',
+		address: '',
+		email: '',
+		phone: '',
+		taxId: '',
+		logo: null
+	});
 
-  // Selected client
-  client = $state<Client | null>(null);
+	// Selected client
+	client = $state<Client | null>(null);
 
-  // Derived calculations
-  subtotal = $derived.by(() => {
-    return this.invoice.lineItems.reduce(
-      (sum, item) => sum + item.quantity * item.rate,
-      0,
-    );
-  });
+	// Derived calculations
+	subtotal = $derived.by(() => {
+		return this.invoice.lineItems.reduce((sum, item) => sum + item.quantity * item.rate, 0);
+	});
 
-  taxTotal = $derived.by(() => {
-    return this.invoice.lineItems.reduce(
-      (sum, item) => sum + item.quantity * item.rate * (item.taxRate / 100),
-      0,
-    );
-  });
+	taxTotal = $derived.by(() => {
+		return this.invoice.lineItems.reduce(
+			(sum, item) => sum + item.quantity * item.rate * (item.taxRate / 100),
+			0
+		);
+	});
 
-  discountAmount = $derived.by(() => {
-    if (this.invoice.discount.type === "percentage") {
-      return this.subtotal * (this.invoice.discount.value / 100);
-    }
-    return this.invoice.discount.value;
-  });
+	discountAmount = $derived.by(() => {
+		if (this.invoice.discount.type === 'percentage') {
+			return this.subtotal * (this.invoice.discount.value / 100);
+		}
+		return this.invoice.discount.value;
+	});
 
-  total = $derived.by(() => {
-    return this.subtotal + this.taxTotal - this.discountAmount;
-  });
+	total = $derived.by(() => {
+		return this.subtotal + this.taxTotal - this.discountAmount;
+	});
 
-  // Actions
-  addLineItem(item: Partial<LineItem> = {}) {
-    this.invoice.lineItems = [
-      ...this.invoice.lineItems,
-      {
-        description: item.description ?? "",
-        quantity: item.quantity ?? 1,
-        unit: item.unit ?? "unit",
-        rate: item.rate ?? 0,
-        taxRate: item.taxRate ?? 0,
-      },
-    ];
-  }
+	// Actions
+	addLineItem(item: Partial<LineItem> = {}) {
+		this.invoice.lineItems = [
+			...this.invoice.lineItems,
+			{
+				description: item.description ?? '',
+				quantity: item.quantity ?? 1,
+				unit: item.unit ?? 'unit',
+				rate: item.rate ?? 0,
+				taxRate: item.taxRate ?? 0
+			}
+		];
+	}
 
-  removeLineItem(index: number) {
-    this.invoice.lineItems = this.invoice.lineItems.filter(
-      (_, i) => i !== index,
-    );
-  }
+	removeLineItem(index: number) {
+		this.invoice.lineItems = this.invoice.lineItems.filter((_, i) => i !== index);
+	}
 
-  updateLineItem(index: number, updates: Partial<LineItem>) {
-    this.invoice.lineItems = this.invoice.lineItems.map((item, i) =>
-      i === index ? { ...item, ...updates } : item,
-    );
-  }
+	updateLineItem(index: number, updates: Partial<LineItem>) {
+		this.invoice.lineItems = this.invoice.lineItems.map((item, i) =>
+			i === index ? { ...item, ...updates } : item
+		);
+	}
 
-  reset() {
-    this.invoice = {
-      id: undefined,
-      number: "",
-      type: "invoice",
-      status: "draft",
-      issueDate: new Date(),
-      dueDate: null,
-      currency: "USD",
-      lineItems: [],
-      discount: { type: "percentage", value: 0 },
-      notes: "",
-      terms: "",
-    };
-    this.client = null;
-  }
+	reset() {
+		this.invoice = {
+			id: undefined,
+			number: '',
+			type: 'invoice',
+			status: 'draft',
+			issueDate: new Date(),
+			dueDate: null,
+			currency: 'USD',
+			lineItems: [],
+			discount: { type: 'percentage', value: 0 },
+			notes: '',
+			terms: ''
+		};
+		this.client = null;
+	}
 }
 
 export const invoiceStore = new InvoiceStore();
@@ -331,35 +320,32 @@ export const invoiceStore = new InvoiceStore();
 ```typescript
 // src/lib/stores/settings.svelte.ts
 class SettingsStore {
-  settings = $state({
-    theme: "dark" as "light" | "dark",
-    defaultCurrency: "USD",
-    defaultTemplate: "modern",
-    invoicePrefix: "INV",
-    dateFormat: "YYYY-MM-DD",
-    taxRate: 0,
-    paymentTerms: "net30",
-    lastInvoiceNumber: 0,
-  });
+	settings = $state({
+		theme: 'dark' as 'light' | 'dark',
+		defaultCurrency: 'USD',
+		defaultTemplate: 'modern',
+		invoicePrefix: 'INV',
+		dateFormat: 'YYYY-MM-DD',
+		taxRate: 0,
+		paymentTerms: 'net30',
+		lastInvoiceNumber: 0
+	});
 
-  // Persist to localStorage
-  save() {
-    if (typeof window !== "undefined") {
-      localStorage.setItem(
-        "invoice-forge-settings",
-        JSON.stringify(this.settings),
-      );
-    }
-  }
+	// Persist to localStorage
+	save() {
+		if (typeof window !== 'undefined') {
+			localStorage.setItem('invoice-forge-settings', JSON.stringify(this.settings));
+		}
+	}
 
-  load() {
-    if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("invoice-forge-settings");
-      if (saved) {
-        this.settings = { ...this.settings, ...JSON.parse(saved) };
-      }
-    }
-  }
+	load() {
+		if (typeof window !== 'undefined') {
+			const saved = localStorage.getItem('invoice-forge-settings');
+			if (saved) {
+				this.settings = { ...this.settings, ...JSON.parse(saved) };
+			}
+		}
+	}
 }
 
 export const settingsStore = new SettingsStore();
@@ -375,66 +361,56 @@ Remote functions use SvelteKit's built-in `form()` and `query()` from `$app/serv
 
 ```typescript
 // src/lib/remote/client.remote.ts
-import { form, query, getRequestEvent } from "$app/server";
-import * as v from "valibot";
-import { db } from "$lib/db";
+import { form, query, getRequestEvent } from '$app/server';
+import * as v from 'valibot';
+import { db } from '$lib/db';
 
 // Validation schema
 const createClientSchema = v.object({
-  name: v.pipe(v.string(), v.nonEmpty("Name is required"), v.maxLength(100)),
-  company: v.optional(v.pipe(v.string(), v.maxLength(100))),
-  address: v.pipe(
-    v.string(),
-    v.nonEmpty("Address is required"),
-    v.maxLength(500),
-  ),
-  email: v.pipe(v.string(), v.email("Invalid email format")),
+	name: v.pipe(v.string(), v.nonEmpty('Name is required'), v.maxLength(100)),
+	company: v.optional(v.pipe(v.string(), v.maxLength(100))),
+	address: v.pipe(v.string(), v.nonEmpty('Address is required'), v.maxLength(500)),
+	email: v.pipe(v.string(), v.email('Invalid email format'))
 });
 
 // Create client form handler
-export const createClientForm = form(
-  createClientSchema,
-  async (data, issue) => {
-    try {
-      const id = await db.clients.add({
-        ...data,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      });
+export const createClientForm = form(createClientSchema, async (data, issue) => {
+	try {
+		const id = await db.clients.add({
+			...data,
+			createdAt: new Date(),
+			updatedAt: new Date()
+		});
 
-      return { success: true, id };
-    } catch (error: any) {
-      issue(error.message || "Failed to create client");
-    }
-  },
-);
+		return { success: true, id };
+	} catch (error: any) {
+		issue(error.message || 'Failed to create client');
+	}
+});
 
 // Update client form handler
 const updateClientSchema = v.object({
-  id: v.number(),
-  name: v.pipe(v.string(), v.nonEmpty("Name is required")),
-  company: v.optional(v.string()),
-  address: v.pipe(v.string(), v.nonEmpty("Address is required")),
-  email: v.pipe(v.string(), v.email("Invalid email format")),
+	id: v.number(),
+	name: v.pipe(v.string(), v.nonEmpty('Name is required')),
+	company: v.optional(v.string()),
+	address: v.pipe(v.string(), v.nonEmpty('Address is required')),
+	email: v.pipe(v.string(), v.email('Invalid email format'))
 });
 
-export const updateClientForm = form(
-  updateClientSchema,
-  async (data, issue) => {
-    const { id, ...updates } = data;
+export const updateClientForm = form(updateClientSchema, async (data, issue) => {
+	const { id, ...updates } = data;
 
-    try {
-      await db.clients.update(id, {
-        ...updates,
-        updatedAt: new Date(),
-      });
+	try {
+		await db.clients.update(id, {
+			...updates,
+			updatedAt: new Date()
+		});
 
-      return { success: true };
-    } catch (error: any) {
-      issue(error.message || "Failed to update client");
-    }
-  },
-);
+		return { success: true };
+	} catch (error: any) {
+		issue(error.message || 'Failed to update client');
+	}
+});
 ```
 
 ### Query Function Example
@@ -444,23 +420,23 @@ export const updateClientForm = form(
 
 // Get all clients
 export const getClients = query(async () => {
-  return await db.clients.orderBy("name").toArray();
+	return await db.clients.orderBy('name').toArray();
 });
 
 // Get single client by ID
 export const getClient = query(async (id: number) => {
-  return await db.clients.get(id);
+	return await db.clients.get(id);
 });
 
 // Search clients
 export const searchClients = query(async (searchTerm: string) => {
-  return await db.clients
-    .filter(
-      (client) =>
-        client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        client.email.toLowerCase().includes(searchTerm.toLowerCase()),
-    )
-    .toArray();
+	return await db.clients
+		.filter(
+			(client) =>
+				client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+				client.email.toLowerCase().includes(searchTerm.toLowerCase())
+		)
+		.toArray();
 });
 ```
 
@@ -535,10 +511,10 @@ export const searchClients = query(async (searchTerm: string) => {
 
 ```typescript
 // src/lib/remote/index.ts
-export * from "./client.remote";
-export * from "./invoice.remote";
-export * from "./service.remote";
-export * from "./settings.remote";
+export * from './client.remote';
+export * from './invoice.remote';
+export * from './service.remote';
+export * from './settings.remote';
 ```
 
 ---
@@ -549,32 +525,32 @@ export * from "./settings.remote";
 
 ```typescript
 // src/lib/db/index.ts
-import Dexie, { type Table } from "dexie";
-import type { Sender, Client, ServiceItem, Invoice } from "./schema";
+import Dexie, { type Table } from 'dexie';
+import type { Sender, Client, ServiceItem, Invoice } from './schema';
 
 class InvoiceForgeDB extends Dexie {
-  senders!: Table<Sender>;
-  clients!: Table<Client>;
-  services!: Table<ServiceItem>;
-  invoices!: Table<Invoice>;
+	senders!: Table<Sender>;
+	clients!: Table<Client>;
+	services!: Table<ServiceItem>;
+	invoices!: Table<Invoice>;
 
-  constructor() {
-    super("InvoiceForgeDB");
+	constructor() {
+		super('InvoiceForgeDB');
 
-    this.version(1).stores({
-      senders: "++id, businessName, isDefault",
-      clients: "++id, name, company, email, createdAt",
-      services: "++id, name, category, createdAt",
-      invoices: "++id, number, type, status, clientId, issueDate, createdAt",
-    });
-  }
+		this.version(1).stores({
+			senders: '++id, businessName, isDefault',
+			clients: '++id, name, company, email, createdAt',
+			services: '++id, name, category, createdAt',
+			invoices: '++id, number, type, status, clientId, issueDate, createdAt'
+		});
+	}
 }
 
 export const db = new InvoiceForgeDB();
 
 // Initialize with error handling
 db.open().catch((err) => {
-  console.error("Failed to open database:", err);
+	console.error('Failed to open database:', err);
 });
 ```
 
@@ -582,60 +558,50 @@ db.open().catch((err) => {
 
 ```typescript
 // src/lib/db/invoices.ts
-import { db } from "./index";
-import type { Invoice } from "./schema";
+import { db } from './index';
+import type { Invoice } from './schema';
 
 export async function createInvoice(
-  invoice: Omit<Invoice, "id" | "createdAt" | "updatedAt">,
+	invoice: Omit<Invoice, 'id' | 'createdAt' | 'updatedAt'>
 ): Promise<number> {
-  const now = new Date();
-  return await db.invoices.add({
-    ...invoice,
-    createdAt: now,
-    updatedAt: now,
-  });
+	const now = new Date();
+	return await db.invoices.add({
+		...invoice,
+		createdAt: now,
+		updatedAt: now
+	});
 }
 
 export async function getInvoice(id: number): Promise<Invoice | undefined> {
-  return await db.invoices.get(id);
+	return await db.invoices.get(id);
 }
 
-export async function updateInvoice(
-  id: number,
-  updates: Partial<Invoice>,
-): Promise<number> {
-  return await db.invoices.update(id, {
-    ...updates,
-    updatedAt: new Date(),
-  });
+export async function updateInvoice(id: number, updates: Partial<Invoice>): Promise<number> {
+	return await db.invoices.update(id, {
+		...updates,
+		updatedAt: new Date()
+	});
 }
 
 export async function deleteInvoice(id: number): Promise<void> {
-  await db.invoices.delete(id);
+	await db.invoices.delete(id);
 }
 
 export async function getAllInvoices(): Promise<Invoice[]> {
-  return await db.invoices.orderBy("createdAt").reverse().toArray();
+	return await db.invoices.orderBy('createdAt').reverse().toArray();
 }
 
-export async function getInvoicesByStatus(
-  status: Invoice["status"],
-): Promise<Invoice[]> {
-  return await db.invoices.where("status").equals(status).toArray();
+export async function getInvoicesByStatus(status: Invoice['status']): Promise<Invoice[]> {
+	return await db.invoices.where('status').equals(status).toArray();
 }
 
-export async function getLastInvoiceNumber(
-  year: number,
-): Promise<string | null> {
-  const startOfYear = new Date(year, 0, 1);
-  const endOfYear = new Date(year, 11, 31, 23, 59, 59);
+export async function getLastInvoiceNumber(year: number): Promise<string | null> {
+	const startOfYear = new Date(year, 0, 1);
+	const endOfYear = new Date(year, 11, 31, 23, 59, 59);
 
-  const invoice = await db.invoices
-    .where("issueDate")
-    .between(startOfYear, endOfYear)
-    .last();
+	const invoice = await db.invoices.where('issueDate').between(startOfYear, endOfYear).last();
 
-  return invoice?.number ?? null;
+	return invoice?.number ?? null;
 }
 ```
 
@@ -649,224 +615,215 @@ Each template is a function that returns a pdfmake document definition:
 
 ```typescript
 // src/lib/pdf/templates/modern.ts
-import type { Invoice, Sender, Client } from "$lib/db/schema";
-import { formatCurrency } from "$lib/utils/currency";
-import { formatDate } from "$lib/utils/date";
-import { pdfStyles } from "../styles";
+import type { Invoice, Sender, Client } from '$lib/db/schema';
+import { formatCurrency } from '$lib/utils/currency';
+import { formatDate } from '$lib/utils/date';
+import { pdfStyles } from '../styles';
 
 interface TemplateContext {
-  invoice: Invoice;
-  sender: Sender;
-  client: Client;
-  subtotal: number;
-  taxTotal: number;
-  discountAmount: number;
-  total: number;
+	invoice: Invoice;
+	sender: Sender;
+	client: Client;
+	subtotal: number;
+	taxTotal: number;
+	discountAmount: number;
+	total: number;
 }
 
 export function modernTemplate(ctx: TemplateContext) {
-  const { invoice, sender, client, subtotal, taxTotal, discountAmount, total } =
-    ctx;
+	const { invoice, sender, client, subtotal, taxTotal, discountAmount, total } = ctx;
 
-  return {
-    pageSize: "A4" as const,
-    pageMargins: [40, 60, 40, 60] as [number, number, number, number],
-    defaultStyle: {
-      font: "Helvetica",
-      fontSize: 10,
-      color: "#334155",
-    },
-    content: [
-      // Header
-      {
-        columns: [
-          sender.logo
-            ? { image: sender.logo, width: 100 }
-            : { text: sender.businessName, style: "businessName" },
-          {
-            stack: [
-              { text: "INVOICE", style: "documentTitle" },
-              { text: invoice.number, style: "invoiceNumber" },
-            ],
-            alignment: "right",
-          },
-        ],
-        margin: [0, 0, 0, 30],
-      },
+	return {
+		pageSize: 'A4' as const,
+		pageMargins: [40, 60, 40, 60] as [number, number, number, number],
+		defaultStyle: {
+			font: 'Helvetica',
+			fontSize: 10,
+			color: '#334155'
+		},
+		content: [
+			// Header
+			{
+				columns: [
+					sender.logo
+						? { image: sender.logo, width: 100 }
+						: { text: sender.businessName, style: 'businessName' },
+					{
+						stack: [
+							{ text: 'INVOICE', style: 'documentTitle' },
+							{ text: invoice.number, style: 'invoiceNumber' }
+						],
+						alignment: 'right'
+					}
+				],
+				margin: [0, 0, 0, 30]
+			},
 
-      // From / To
-      {
-        columns: [
-          {
-            width: "50%",
-            stack: [
-              { text: "FROM", style: "sectionLabel" },
-              { text: sender.businessName, style: "bold" },
-              { text: sender.address },
-              { text: sender.email, style: "link" },
-              sender.phone ? { text: sender.phone } : null,
-              sender.taxId ? { text: `Tax ID: ${sender.taxId}` } : null,
-            ].filter(Boolean),
-          },
-          {
-            width: "50%",
-            stack: [
-              { text: "BILL TO", style: "sectionLabel" },
-              { text: client.name, style: "bold" },
-              client.company ? { text: client.company } : null,
-              { text: client.address },
-              { text: client.email, style: "link" },
-            ].filter(Boolean),
-          },
-        ],
-        margin: [0, 0, 0, 30],
-      },
+			// From / To
+			{
+				columns: [
+					{
+						width: '50%',
+						stack: [
+							{ text: 'FROM', style: 'sectionLabel' },
+							{ text: sender.businessName, style: 'bold' },
+							{ text: sender.address },
+							{ text: sender.email, style: 'link' },
+							sender.phone ? { text: sender.phone } : null,
+							sender.taxId ? { text: `Tax ID: ${sender.taxId}` } : null
+						].filter(Boolean)
+					},
+					{
+						width: '50%',
+						stack: [
+							{ text: 'BILL TO', style: 'sectionLabel' },
+							{ text: client.name, style: 'bold' },
+							client.company ? { text: client.company } : null,
+							{ text: client.address },
+							{ text: client.email, style: 'link' }
+						].filter(Boolean)
+					}
+				],
+				margin: [0, 0, 0, 30]
+			},
 
-      // Invoice meta
-      {
-        columns: [
-          { text: `Issue Date: ${formatDate(invoice.issueDate)}` },
-          invoice.dueDate
-            ? { text: `Due Date: ${formatDate(invoice.dueDate)}` }
-            : {},
-          { text: `Currency: ${invoice.currency}`, alignment: "right" },
-        ],
-        margin: [0, 0, 0, 20],
-        style: "meta",
-      },
+			// Invoice meta
+			{
+				columns: [
+					{ text: `Issue Date: ${formatDate(invoice.issueDate)}` },
+					invoice.dueDate ? { text: `Due Date: ${formatDate(invoice.dueDate)}` } : {},
+					{ text: `Currency: ${invoice.currency}`, alignment: 'right' }
+				],
+				margin: [0, 0, 0, 20],
+				style: 'meta'
+			},
 
-      // Line items table
-      {
-        table: {
-          headerRows: 1,
-          widths: ["*", 50, 50, 70, 45, 80],
-          body: [
-            [
-              { text: "Description", style: "tableHeader" },
-              { text: "Qty", style: "tableHeader" },
-              { text: "Unit", style: "tableHeader" },
-              { text: "Rate", style: "tableHeader" },
-              { text: "Tax", style: "tableHeader" },
-              { text: "Amount", style: "tableHeader", alignment: "right" },
-            ],
-            ...invoice.lineItems.map((item) => [
-              item.description,
-              item.quantity.toString(),
-              item.unit,
-              formatCurrency(item.rate, invoice.currency),
-              `${item.taxRate}%`,
-              {
-                text: formatCurrency(
-                  item.quantity * item.rate,
-                  invoice.currency,
-                ),
-                alignment: "right",
-              },
-            ]),
-          ],
-        },
-        layout: {
-          hLineWidth: (i: number, node: any) =>
-            i === 0 || i === 1 || i === node.table.body.length ? 1 : 0,
-          vLineWidth: () => 0,
-          hLineColor: () => "#E2E8F0",
-          paddingTop: () => 8,
-          paddingBottom: () => 8,
-        },
-      },
+			// Line items table
+			{
+				table: {
+					headerRows: 1,
+					widths: ['*', 50, 50, 70, 45, 80],
+					body: [
+						[
+							{ text: 'Description', style: 'tableHeader' },
+							{ text: 'Qty', style: 'tableHeader' },
+							{ text: 'Unit', style: 'tableHeader' },
+							{ text: 'Rate', style: 'tableHeader' },
+							{ text: 'Tax', style: 'tableHeader' },
+							{ text: 'Amount', style: 'tableHeader', alignment: 'right' }
+						],
+						...invoice.lineItems.map((item) => [
+							item.description,
+							item.quantity.toString(),
+							item.unit,
+							formatCurrency(item.rate, invoice.currency),
+							`${item.taxRate}%`,
+							{
+								text: formatCurrency(item.quantity * item.rate, invoice.currency),
+								alignment: 'right'
+							}
+						])
+					]
+				},
+				layout: {
+					hLineWidth: (i: number, node: any) =>
+						i === 0 || i === 1 || i === node.table.body.length ? 1 : 0,
+					vLineWidth: () => 0,
+					hLineColor: () => '#E2E8F0',
+					paddingTop: () => 8,
+					paddingBottom: () => 8
+				}
+			},
 
-      // Totals
-      {
-        columns: [
-          { width: "*", text: "" },
-          {
-            width: 200,
-            stack: [
-              {
-                columns: [
-                  { text: "Subtotal", width: "*" },
-                  {
-                    text: formatCurrency(subtotal, invoice.currency),
-                    alignment: "right",
-                  },
-                ],
-              },
-              taxTotal > 0
-                ? {
-                    columns: [
-                      { text: "Tax", width: "*" },
-                      {
-                        text: formatCurrency(taxTotal, invoice.currency),
-                        alignment: "right",
-                      },
-                    ],
-                  }
-                : null,
-              discountAmount > 0
-                ? {
-                    columns: [
-                      { text: "Discount", width: "*" },
-                      {
-                        text: `-${formatCurrency(discountAmount, invoice.currency)}`,
-                        alignment: "right",
-                      },
-                    ],
-                  }
-                : null,
-              {
-                canvas: [
-                  {
-                    type: "line",
-                    x1: 0,
-                    y1: 5,
-                    x2: 200,
-                    y2: 5,
-                    lineWidth: 1,
-                    lineColor: "#E2E8F0",
-                  },
-                ],
-              },
-              {
-                columns: [
-                  { text: "Total Due", width: "*", style: "bold" },
-                  {
-                    text: formatCurrency(total, invoice.currency),
-                    alignment: "right",
-                    style: "totalAmount",
-                  },
-                ],
-                margin: [0, 5, 0, 0],
-              },
-            ].filter(Boolean),
-          },
-        ],
-        margin: [0, 20, 0, 30],
-      },
+			// Totals
+			{
+				columns: [
+					{ width: '*', text: '' },
+					{
+						width: 200,
+						stack: [
+							{
+								columns: [
+									{ text: 'Subtotal', width: '*' },
+									{
+										text: formatCurrency(subtotal, invoice.currency),
+										alignment: 'right'
+									}
+								]
+							},
+							taxTotal > 0
+								? {
+										columns: [
+											{ text: 'Tax', width: '*' },
+											{
+												text: formatCurrency(taxTotal, invoice.currency),
+												alignment: 'right'
+											}
+										]
+									}
+								: null,
+							discountAmount > 0
+								? {
+										columns: [
+											{ text: 'Discount', width: '*' },
+											{
+												text: `-${formatCurrency(discountAmount, invoice.currency)}`,
+												alignment: 'right'
+											}
+										]
+									}
+								: null,
+							{
+								canvas: [
+									{
+										type: 'line',
+										x1: 0,
+										y1: 5,
+										x2: 200,
+										y2: 5,
+										lineWidth: 1,
+										lineColor: '#E2E8F0'
+									}
+								]
+							},
+							{
+								columns: [
+									{ text: 'Total Due', width: '*', style: 'bold' },
+									{
+										text: formatCurrency(total, invoice.currency),
+										alignment: 'right',
+										style: 'totalAmount'
+									}
+								],
+								margin: [0, 5, 0, 0]
+							}
+						].filter(Boolean)
+					}
+				],
+				margin: [0, 20, 0, 30]
+			},
 
-      // Notes
-      invoice.notes
-        ? {
-            stack: [
-              { text: "Notes", style: "sectionLabel" },
-              { text: invoice.notes },
-            ],
-            margin: [0, 0, 0, 15],
-          }
-        : null,
+			// Notes
+			invoice.notes
+				? {
+						stack: [{ text: 'Notes', style: 'sectionLabel' }, { text: invoice.notes }],
+						margin: [0, 0, 0, 15]
+					}
+				: null,
 
-      // Terms
-      invoice.terms
-        ? {
-            stack: [
-              { text: "Terms & Conditions", style: "sectionLabel" },
-              { text: invoice.terms, style: "small" },
-            ],
-          }
-        : null,
-    ].filter(Boolean),
+			// Terms
+			invoice.terms
+				? {
+						stack: [
+							{ text: 'Terms & Conditions', style: 'sectionLabel' },
+							{ text: invoice.terms, style: 'small' }
+						]
+					}
+				: null
+		].filter(Boolean),
 
-    styles: pdfStyles,
-  };
+		styles: pdfStyles
+	};
 }
 ```
 
@@ -874,91 +831,79 @@ export function modernTemplate(ctx: TemplateContext) {
 
 ```typescript
 // src/lib/pdf/generator.ts
-import pdfMake from "pdfmake/build/pdfmake";
-import type { TDocumentDefinitions } from "pdfmake/interfaces";
-import { classicTemplate } from "./templates/classic";
-import { modernTemplate } from "./templates/modern";
-import { techTemplate } from "./templates/tech";
-import { compactTemplate } from "./templates/compact";
-import type { Invoice, Sender, Client } from "$lib/db/schema";
+import pdfMake from 'pdfmake/build/pdfmake';
+import type { TDocumentDefinitions } from 'pdfmake/interfaces';
+import { classicTemplate } from './templates/classic';
+import { modernTemplate } from './templates/modern';
+import { techTemplate } from './templates/tech';
+import { compactTemplate } from './templates/compact';
+import type { Invoice, Sender, Client } from '$lib/db/schema';
 
 // Dynamically import fonts to optimize bundle
 let fontsLoaded = false;
 async function loadFonts() {
-  if (fontsLoaded) return;
-  const pdfFonts = await import("pdfmake/build/vfs_fonts");
-  pdfMake.vfs = pdfFonts.pdfMake.vfs;
-  fontsLoaded = true;
+	if (fontsLoaded) return;
+	const pdfFonts = await import('pdfmake/build/vfs_fonts');
+	pdfMake.vfs = pdfFonts.pdfMake.vfs;
+	fontsLoaded = true;
 }
 
 const templates = {
-  classic: classicTemplate,
-  modern: modernTemplate,
-  tech: techTemplate,
-  compact: compactTemplate,
+	classic: classicTemplate,
+	modern: modernTemplate,
+	tech: techTemplate,
+	compact: compactTemplate
 } as const;
 
 type TemplateName = keyof typeof templates;
 
 interface GenerateOptions {
-  invoice: Invoice;
-  sender: Sender;
-  client: Client;
-  template?: TemplateName;
-  calculations: {
-    subtotal: number;
-    taxTotal: number;
-    discountAmount: number;
-    total: number;
-  };
+	invoice: Invoice;
+	sender: Sender;
+	client: Client;
+	template?: TemplateName;
+	calculations: {
+		subtotal: number;
+		taxTotal: number;
+		discountAmount: number;
+		total: number;
+	};
 }
 
 export async function generatePDF(options: GenerateOptions): Promise<void> {
-  await loadFonts();
+	await loadFonts();
 
-  const {
-    invoice,
-    sender,
-    client,
-    template = "modern",
-    calculations,
-  } = options;
-  const templateFn = templates[template];
+	const { invoice, sender, client, template = 'modern', calculations } = options;
+	const templateFn = templates[template];
 
-  const docDefinition = templateFn({
-    invoice,
-    sender,
-    client,
-    ...calculations,
-  }) as TDocumentDefinitions;
+	const docDefinition = templateFn({
+		invoice,
+		sender,
+		client,
+		...calculations
+	}) as TDocumentDefinitions;
 
-  pdfMake.createPdf(docDefinition).download(`${invoice.number}.pdf`);
+	pdfMake.createPdf(docDefinition).download(`${invoice.number}.pdf`);
 }
 
 export async function previewPDF(options: GenerateOptions): Promise<Blob> {
-  await loadFonts();
+	await loadFonts();
 
-  const {
-    invoice,
-    sender,
-    client,
-    template = "modern",
-    calculations,
-  } = options;
-  const templateFn = templates[template];
+	const { invoice, sender, client, template = 'modern', calculations } = options;
+	const templateFn = templates[template];
 
-  const docDefinition = templateFn({
-    invoice,
-    sender,
-    client,
-    ...calculations,
-  }) as TDocumentDefinitions;
+	const docDefinition = templateFn({
+		invoice,
+		sender,
+		client,
+		...calculations
+	}) as TDocumentDefinitions;
 
-  return new Promise((resolve, reject) => {
-    pdfMake.createPdf(docDefinition).getBlob((blob) => {
-      resolve(blob);
-    });
-  });
+	return new Promise((resolve, reject) => {
+		pdfMake.createPdf(docDefinition).getBlob((blob) => {
+			resolve(blob);
+		});
+	});
 }
 ```
 
@@ -970,30 +915,30 @@ export async function previewPDF(options: GenerateOptions): Promise<Blob> {
 
 ```javascript
 // svelte.config.js
-import adapter from "@sveltejs/adapter-static";
-import { vitePreprocess } from "@sveltejs/vite-plugin-svelte";
+import adapter from '@sveltejs/adapter-static';
+import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
-  preprocess: vitePreprocess(),
-  kit: {
-    adapter: adapter({
-      pages: "build",
-      assets: "build",
-      fallback: "index.html",
-      precompress: false,
-      strict: true,
-    }),
-    alias: {
-      $components: "src/lib/components",
-      $stores: "src/lib/stores",
-      $db: "src/lib/db",
-      $pdf: "src/lib/pdf",
-      $utils: "src/lib/utils",
-      $schemas: "src/lib/schemas",
-      $constants: "src/lib/constants",
-    },
-  },
+	preprocess: vitePreprocess(),
+	kit: {
+		adapter: adapter({
+			pages: 'build',
+			assets: 'build',
+			fallback: 'index.html',
+			precompress: false,
+			strict: true
+		}),
+		alias: {
+			$components: 'src/lib/components',
+			$stores: 'src/lib/stores',
+			$db: 'src/lib/db',
+			$pdf: 'src/lib/pdf',
+			$utils: 'src/lib/utils',
+			$schemas: 'src/lib/schemas',
+			$constants: 'src/lib/constants'
+		}
+	}
 };
 
 export default config;
@@ -1003,23 +948,23 @@ export default config;
 
 ```typescript
 // vite.config.ts
-import { sveltekit } from "@sveltejs/kit/vite";
-import { defineConfig } from "vite";
+import { sveltekit } from '@sveltejs/kit/vite';
+import { defineConfig } from 'vite';
 
 export default defineConfig({
-  plugins: [sveltekit()],
-  optimizeDeps: {
-    include: ["pdfmake/build/pdfmake", "pdfmake/build/vfs_fonts"],
-  },
-  build: {
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          pdfmake: ["pdfmake/build/pdfmake", "pdfmake/build/vfs_fonts"],
-        },
-      },
-    },
-  },
+	plugins: [sveltekit()],
+	optimizeDeps: {
+		include: ['pdfmake/build/pdfmake', 'pdfmake/build/vfs_fonts']
+	},
+	build: {
+		rollupOptions: {
+			output: {
+				manualChunks: {
+					pdfmake: ['pdfmake/build/pdfmake', 'pdfmake/build/vfs_fonts']
+				}
+			}
+		}
+	}
 });
 ```
 
@@ -1027,46 +972,46 @@ export default defineConfig({
 
 ```javascript
 // tailwind.config.js
-import { fontFamily } from "tailwindcss/defaultTheme";
+import { fontFamily } from 'tailwindcss/defaultTheme';
 
 /** @type {import('tailwindcss').Config} */
 const config = {
-  darkMode: ["class"],
-  content: ["./src/**/*.{html,js,svelte,ts}"],
-  safelist: ["dark"],
-  theme: {
-    extend: {
-      colors: {
-        // Brand colors - NO GRADIENTS
-        brand: {
-          primary: "#4F46E5", // Indigo
-          secondary: "#10B981", // Emerald
-          accent: "#F59E0B", // Amber
-        },
-        // Surface colors
-        surface: {
-          base: "#0F172A", // Slate-900
-          elevated: "#1E293B", // Slate-800
-          overlay: "#334155", // Slate-700
-        },
-        // Semantic colors
-        success: "#10B981",
-        warning: "#F59E0B",
-        error: "#EF4444",
-        info: "#3B82F6",
-      },
-      fontFamily: {
-        sans: ["Inter Variable", ...fontFamily.sans],
-        mono: ["JetBrains Mono Variable", ...fontFamily.mono],
-      },
-      borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
-      },
-    },
-  },
-  plugins: [require("tailwindcss-animate")],
+	darkMode: ['class'],
+	content: ['./src/**/*.{html,js,svelte,ts}'],
+	safelist: ['dark'],
+	theme: {
+		extend: {
+			colors: {
+				// Brand colors - NO GRADIENTS
+				brand: {
+					primary: '#4F46E5', // Indigo
+					secondary: '#10B981', // Emerald
+					accent: '#F59E0B' // Amber
+				},
+				// Surface colors
+				surface: {
+					base: '#0F172A', // Slate-900
+					elevated: '#1E293B', // Slate-800
+					overlay: '#334155' // Slate-700
+				},
+				// Semantic colors
+				success: '#10B981',
+				warning: '#F59E0B',
+				error: '#EF4444',
+				info: '#3B82F6'
+			},
+			fontFamily: {
+				sans: ['Inter Variable', ...fontFamily.sans],
+				mono: ['JetBrains Mono Variable', ...fontFamily.mono]
+			},
+			borderRadius: {
+				lg: 'var(--radius)',
+				md: 'calc(var(--radius) - 2px)',
+				sm: 'calc(var(--radius) - 4px)'
+			}
+		}
+	},
+	plugins: [require('tailwindcss-animate')]
 };
 
 export default config;

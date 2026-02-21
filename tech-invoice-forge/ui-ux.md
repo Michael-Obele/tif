@@ -114,39 +114,32 @@ Wrapper for each form section (Sender, Client, etc.).
 ```html
 <!-- SectionCard.svelte -->
 <script lang="ts">
-  interface Props {
-    title: string;
-    description?: string;
-    collapsible?: boolean;
-  }
-  let { title, description, collapsible = false, children } = $props<Props>();
-  let isOpen = $state(true);
+	interface Props {
+		title: string;
+		description?: string;
+		collapsible?: boolean;
+	}
+	let { title, description, collapsible = false, children } = $props<Props>();
+	let isOpen = $state(true);
 </script>
 
 <div class="rounded-lg border border-slate-700 bg-slate-800/50">
-  <button
-    class="flex w-full items-center justify-between p-4"
-    onclick="{()"
-    =""
-  >
-    collapsible && (isOpen = !isOpen)} >
-    <div>
-      <h2 class="text-lg font-semibold text-slate-50">{title}</h2>
-      {#if description}
-      <p class="text-sm text-slate-400">{description}</p>
-      {/if}
-    </div>
-    {#if collapsible}
-    <ChevronDown
-      class="h-5 w-5 text-slate-400 transition-transform"
-      class:rotate-180="{!isOpen}"
-    />
-    {/if}
-  </button>
+	<button class="flex w-full items-center justify-between p-4" onclick="{()" ="">
+		collapsible && (isOpen = !isOpen)} >
+		<div>
+			<h2 class="text-lg font-semibold text-slate-50">{title}</h2>
+			{#if description}
+			<p class="text-sm text-slate-400">{description}</p>
+			{/if}
+		</div>
+		{#if collapsible}
+		<ChevronDown class="h-5 w-5 text-slate-400 transition-transform" class:rotate-180="{!isOpen}" />
+		{/if}
+	</button>
 
-  {#if isOpen}
-  <div class="border-t border-slate-700 p-4">{@render children?.()}</div>
-  {/if}
+	{#if isOpen}
+	<div class="border-t border-slate-700 p-4">{@render children?.()}</div>
+	{/if}
 </div>
 ```
 
@@ -159,7 +152,7 @@ Two-column grid on desktop, single column on mobile.
 ```html
 <!-- FormGrid.svelte -->
 <div class="grid gap-4 sm:grid-cols-2">
-  <slot />
+	<slot />
 </div>
 ```
 
@@ -167,14 +160,14 @@ Two-column grid on desktop, single column on mobile.
 
 ```html
 <Form.Field {form} name="businessName">
-  <Form.Control let:attrs>
-    <Form.Label class="text-sm font-medium text-slate-300">
-      Business Name
-      <span class="text-red-400">*</span>
-    </Form.Label>
-    <input {...attrs} placeholder="Your business name" />
-    <Form.FieldErrors class="text-sm text-red-400" />
-  </Form.Control>
+	<Form.Control let:attrs>
+		<Form.Label class="text-sm font-medium text-slate-300">
+			Business Name
+			<span class="text-red-400">*</span>
+		</Form.Label>
+		<input {...attrs} placeholder="Your business name" />
+		<Form.FieldErrors class="text-sm text-red-400" />
+	</Form.Control>
 </Form.Field>
 ```
 
@@ -229,28 +222,28 @@ Two-column grid on desktop, single column on mobile.
 
 ```html
 <div class="flex justify-end">
-  <div class="w-64 space-y-2">
-    <div class="flex justify-between text-slate-300">
-      <span>Subtotal</span>
-      <span class="font-mono">{formatCurrency(subtotal, currency)}</span>
-    </div>
-    {#if taxTotal > 0}
-    <div class="flex justify-between text-slate-300">
-      <span>Tax</span>
-      <span class="font-mono">{formatCurrency(taxTotal, currency)}</span>
-    </div>
-    {/if} {#if discountAmount > 0}
-    <div class="flex justify-between text-emerald-400">
-      <span>Discount</span>
-      <span class="font-mono">-{formatCurrency(discountAmount, currency)}</span>
-    </div>
-    {/if}
-    <Separator />
-    <div class="flex justify-between text-lg font-bold text-slate-50">
-      <span>Total Due</span>
-      <span class="font-mono">{formatCurrency(total, currency)}</span>
-    </div>
-  </div>
+	<div class="w-64 space-y-2">
+		<div class="flex justify-between text-slate-300">
+			<span>Subtotal</span>
+			<span class="font-mono">{formatCurrency(subtotal, currency)}</span>
+		</div>
+		{#if taxTotal > 0}
+		<div class="flex justify-between text-slate-300">
+			<span>Tax</span>
+			<span class="font-mono">{formatCurrency(taxTotal, currency)}</span>
+		</div>
+		{/if} {#if discountAmount > 0}
+		<div class="flex justify-between text-emerald-400">
+			<span>Discount</span>
+			<span class="font-mono">-{formatCurrency(discountAmount, currency)}</span>
+		</div>
+		{/if}
+		<Separator />
+		<div class="flex justify-between text-lg font-bold text-slate-50">
+			<span>Total Due</span>
+			<span class="font-mono">{formatCurrency(total, currency)}</span>
+		</div>
+	</div>
 </div>
 ```
 
@@ -267,58 +260,55 @@ Two-column grid on desktop, single column on mobile.
 
 ```html
 <div class="sticky top-4 flex flex-col gap-4">
-  <!-- Toolbar -->
-  <div class="flex items-center justify-between">
-    <select onValueChange="{setTemplate}">
-      <SelectTrigger class="w-40">
-        <SelectValue placeholder="Template" />
-      </SelectTrigger>
-      <SelectContent>
-        <SelectItem value="modern">Modern</SelectItem>
-        <SelectItem value="classic">Classic</SelectItem>
-        <SelectItem value="tech">Tech</SelectItem>
-        <SelectItem value="compact">Compact</SelectItem>
-      </SelectContent>
-    </select>
+	<!-- Toolbar -->
+	<div class="flex items-center justify-between">
+		<select onValueChange="{setTemplate}">
+			<SelectTrigger class="w-40">
+				<SelectValue placeholder="Template" />
+			</SelectTrigger>
+			<SelectContent>
+				<SelectItem value="modern">Modern</SelectItem>
+				<SelectItem value="classic">Classic</SelectItem>
+				<SelectItem value="tech">Tech</SelectItem>
+				<SelectItem value="compact">Compact</SelectItem>
+			</SelectContent>
+		</select>
 
-    <div class="flex items-center gap-2">
-      <button variant="outline" size="icon" onclick="{zoomOut}">
-        <ZoomOut class="h-4 w-4" />
-      </button>
-      <span class="text-sm text-slate-400">{zoom}%</span>
-      <button variant="outline" size="icon" onclick="{zoomIn}">
-        <ZoomIn class="h-4 w-4" />
-      </button>
-    </div>
-  </div>
+		<div class="flex items-center gap-2">
+			<button variant="outline" size="icon" onclick="{zoomOut}">
+				<ZoomOut class="h-4 w-4" />
+			</button>
+			<span class="text-sm text-slate-400">{zoom}%</span>
+			<button variant="outline" size="icon" onclick="{zoomIn}">
+				<ZoomIn class="h-4 w-4" />
+			</button>
+		</div>
+	</div>
 
-  <!-- Preview Frame -->
-  <div
-    class="rounded-lg border border-slate-700 bg-white overflow-hidden"
-    style="height: calc(100vh - 200px);"
-  >
-    <iframe
-      src="{previewUrl}"
-      title="Invoice Preview"
-      class="h-full w-full"
-      style="transform: scale({zoom / 100}); transform-origin: top left;"
-    />
-  </div>
+	<!-- Preview Frame -->
+	<div
+		class="overflow-hidden rounded-lg border border-slate-700 bg-white"
+		style="height: calc(100vh - 200px);"
+	>
+		<iframe
+			src="{previewUrl}"
+			title="Invoice Preview"
+			class="h-full w-full"
+			style="transform: scale({zoom / 100}); transform-origin: top left;"
+		/>
+	</div>
 
-  <!-- Actions -->
-  <div class="flex gap-2">
-    <button variant="outline" class="flex-1" onclick="{saveDraft}">
-      <Save class="mr-2 h-4 w-4" />
-      Save Draft
-    </button>
-    <button
-      class="flex-1 bg-indigo-600 hover:bg-indigo-700"
-      onclick="{downloadPDF}"
-    >
-      <Download class="mr-2 h-4 w-4" />
-      Download PDF
-    </button>
-  </div>
+	<!-- Actions -->
+	<div class="flex gap-2">
+		<button variant="outline" class="flex-1" onclick="{saveDraft}">
+			<Save class="mr-2 h-4 w-4" />
+			Save Draft
+		</button>
+		<button class="flex-1 bg-indigo-600 hover:bg-indigo-700" onclick="{downloadPDF}">
+			<Download class="mr-2 h-4 w-4" />
+			Download PDF
+		</button>
+	</div>
 </div>
 ```
 
@@ -511,13 +501,13 @@ transition: all 150ms ease-in-out;
 
 ```html
 <Form.Field {form} name="email">
-  <Form.Control let:attrs>
-    <Form.Label>Email</Form.Label>
-    <input {...attrs} class="border-red-500 focus:ring-red-500" />
-    <Form.FieldErrors class="mt-1 text-sm text-red-400">
-      Please enter a valid email address
-    </Form.FieldErrors>
-  </Form.Control>
+	<Form.Control let:attrs>
+		<Form.Label>Email</Form.Label>
+		<input {...attrs} class="border-red-500 focus:ring-red-500" />
+		<Form.FieldErrors class="mt-1 text-sm text-red-400">
+			Please enter a valid email address
+		</Form.FieldErrors>
+	</Form.Control>
 </Form.Field>
 ```
 
@@ -525,12 +515,12 @@ transition: all 150ms ease-in-out;
 
 ```html
 <Alert variant="destructive">
-  <AlertCircle class="h-4 w-4" />
-  <AlertTitle>Error generating PDF</AlertTitle>
-  <AlertDescription>
-    There was a problem creating your invoice. Please check all required fields
-    are filled and try again.
-  </AlertDescription>
+	<AlertCircle class="h-4 w-4" />
+	<AlertTitle>Error generating PDF</AlertTitle>
+	<AlertDescription>
+		There was a problem creating your invoice. Please check all required fields are filled and try
+		again.
+	</AlertDescription>
 </Alert>
 ```
 
@@ -542,10 +532,10 @@ transition: all 150ms ease-in-out;
 
 ```html
 <div class="flex h-full items-center justify-center bg-slate-900">
-  <div class="text-center">
-    <Loader2 class="mx-auto h-8 w-8 animate-spin text-indigo-500" />
-    <p class="mt-2 text-sm text-slate-400">Generating preview...</p>
-  </div>
+	<div class="text-center">
+		<Loader2 class="mx-auto h-8 w-8 animate-spin text-indigo-500" />
+		<p class="mt-2 text-sm text-slate-400">Generating preview...</p>
+	</div>
 </div>
 ```
 
@@ -554,14 +544,12 @@ transition: all 150ms ease-in-out;
 ```html
 <!-- +layout.svelte -->
 <script>
-  import { navigating } from "$app/stores";
+	import { navigating } from '$app/stores';
 </script>
 
 {#if $navigating}
-<div
-  class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/80"
->
-  <Loader2 class="h-12 w-12 animate-spin text-indigo-500" />
+<div class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/80">
+	<Loader2 class="h-12 w-12 animate-spin text-indigo-500" />
 </div>
 {/if}
 ```
@@ -574,13 +562,11 @@ transition: all 150ms ease-in-out;
 
 ```html
 <button aria-label="Download invoice as PDF">
-  <Download class="h-4 w-4" />
+	<Download class="h-4 w-4" />
 </button>
 
 <input aria-label="Invoice number" aria-describedby="invoice-number-help" />
-<p id="invoice-number-help" class="sr-only">
-  Format: INV-YEAR-SEQUENCE, e.g., INV-2026-0001
-</p>
+<p id="invoice-number-help" class="sr-only">Format: INV-YEAR-SEQUENCE, e.g., INV-2026-0001</p>
 ```
 
 ### Focus Management

@@ -24,6 +24,7 @@ Tech Invoice Forge offers four professionally designed invoice templates. Each t
 ## 1. Modern Template (Default)
 
 ### Description
+
 Clean, contemporary design with generous whitespace and subtle typography hierarchy.
 
 ### Visual Structure
@@ -85,184 +86,215 @@ import type { TemplateContext } from '../types';
 import { formatCurrency, formatDate } from '$lib/utils';
 
 export function modernTemplate(ctx: TemplateContext): TDocumentDefinitions {
-  const { invoice, sender, client, subtotal, taxTotal, discountAmount, total } = ctx;
-  
-  return {
-    pageSize: 'A4',
-    pageMargins: [40, 50, 40, 50],
-    defaultStyle: {
-      font: 'Helvetica',
-      fontSize: 10,
-      color: '#334155'
-    },
-    content: [
-      // Header
-      {
-        columns: [
-          sender.logo 
-            ? { image: sender.logo, width: 100 }
-            : { text: sender.businessName, style: 'businessName' },
-          {
-            stack: [
-              { text: 'INVOICE', style: 'title' },
-              { text: invoice.number, style: 'invoiceNumber' }
-            ],
-            alignment: 'right'
-          }
-        ],
-        margin: [0, 0, 0, 30]
-      },
-      
-      // From / Bill To
-      {
-        columns: [
-          {
-            width: '50%',
-            stack: [
-              { text: 'FROM', style: 'label' },
-              { text: sender.businessName, style: 'bold', margin: [0, 5, 0, 0] },
-              { text: sender.address, margin: [0, 3, 0, 0] },
-              { text: sender.email, style: 'link', margin: [0, 3, 0, 0] },
-              sender.phone ? { text: sender.phone, margin: [0, 3, 0, 0] } : {},
-              sender.taxId ? { text: `Tax ID: ${sender.taxId}`, margin: [0, 3, 0, 0] } : {}
-            ]
-          },
-          {
-            width: '50%',
-            stack: [
-              { text: 'BILL TO', style: 'label' },
-              { text: client.name, style: 'bold', margin: [0, 5, 0, 0] },
-              client.company ? { text: client.company, margin: [0, 3, 0, 0] } : {},
-              { text: client.address, margin: [0, 3, 0, 0] },
-              { text: client.email, style: 'link', margin: [0, 3, 0, 0] }
-            ]
-          }
-        ],
-        margin: [0, 0, 0, 25]
-      },
-      
-      // Invoice details row
-      {
-        columns: [
-          { text: `Issue Date: ${formatDate(invoice.issueDate)}`, width: 'auto' },
-          invoice.dueDate 
-            ? { text: `Due Date: ${formatDate(invoice.dueDate)}`, width: 'auto', margin: [20, 0, 0, 0] }
-            : {},
-          { text: invoice.currency, alignment: 'right' }
-        ],
-        style: 'meta',
-        margin: [0, 0, 0, 20]
-      },
-      
-      // Line items table
-      {
-        table: {
-          headerRows: 1,
-          widths: ['*', 45, 45, 60, 40, 70],
-          body: [
-            [
-              { text: 'Description', style: 'tableHeader' },
-              { text: 'Qty', style: 'tableHeader', alignment: 'center' },
-              { text: 'Unit', style: 'tableHeader', alignment: 'center' },
-              { text: 'Rate', style: 'tableHeader', alignment: 'right' },
-              { text: 'Tax', style: 'tableHeader', alignment: 'center' },
-              { text: 'Amount', style: 'tableHeader', alignment: 'right' }
-            ],
-            ...invoice.lineItems.map(item => [
-              item.description,
-              { text: item.quantity.toString(), alignment: 'center' },
-              { text: item.unit, alignment: 'center' },
-              { text: formatCurrency(item.rate, invoice.currency), alignment: 'right' },
-              { text: `${item.taxRate}%`, alignment: 'center' },
-              { 
-                text: formatCurrency(item.quantity * item.rate, invoice.currency), 
-                alignment: 'right' 
-              }
-            ])
-          ]
-        },
-        layout: {
-          hLineWidth: (i, node) => (i === 1) ? 0.5 : 0,
-          vLineWidth: () => 0,
-          hLineColor: () => '#CBD5E1',
-          paddingTop: () => 8,
-          paddingBottom: () => 8
-        }
-      },
-      
-      // Totals
-      {
-        columns: [
-          { width: '*', text: '' },
-          {
-            width: 180,
-            stack: [
-              {
-                columns: [
-                  { text: 'Subtotal', width: '*' },
-                  { text: formatCurrency(subtotal, invoice.currency), alignment: 'right' }
-                ],
-                margin: [0, 0, 0, 5]
-              },
-              taxTotal > 0 ? {
-                columns: [
-                  { text: 'Tax', width: '*' },
-                  { text: formatCurrency(taxTotal, invoice.currency), alignment: 'right' }
-                ],
-                margin: [0, 0, 0, 5]
-              } : {},
-              discountAmount > 0 ? {
-                columns: [
-                  { text: 'Discount', width: '*' },
-                  { text: `-${formatCurrency(discountAmount, invoice.currency)}`, alignment: 'right', color: '#10B981' }
-                ],
-                margin: [0, 0, 0, 5]
-              } : {},
-              { 
-                canvas: [{ type: 'line', x1: 0, y1: 0, x2: 180, y2: 0, lineWidth: 0.5, lineColor: '#CBD5E1' }],
-                margin: [0, 5, 0, 5]
-              },
-              {
-                columns: [
-                  { text: 'Total Due', width: '*', style: 'bold', fontSize: 12 },
-                  { text: formatCurrency(total, invoice.currency), alignment: 'right', style: 'bold', fontSize: 12 }
-                ]
-              }
-            ]
-          }
-        ],
-        margin: [0, 25, 0, 30]
-      },
-      
-      // Notes
-      invoice.notes ? {
-        stack: [
-          { text: 'Notes', style: 'label' },
-          { text: invoice.notes, margin: [0, 5, 0, 0] }
-        ],
-        margin: [0, 0, 0, 15]
-      } : {},
-      
-      // Terms
-      invoice.terms ? {
-        stack: [
-          { text: 'Terms & Conditions', style: 'label' },
-          { text: invoice.terms, fontSize: 8, color: '#64748B', margin: [0, 5, 0, 0] }
-        ]
-      } : {}
-    ],
-    
-    styles: {
-      title: { fontSize: 28, bold: true, color: '#4F46E5' },
-      invoiceNumber: { fontSize: 12, color: '#64748B' },
-      businessName: { fontSize: 18, bold: true },
-      label: { fontSize: 9, color: '#94A3B8', characterSpacing: 1 },
-      bold: { bold: true },
-      link: { color: '#4F46E5' },
-      meta: { fontSize: 9, color: '#64748B' },
-      tableHeader: { fontSize: 9, bold: true, color: '#64748B' }
-    }
-  };
+	const { invoice, sender, client, subtotal, taxTotal, discountAmount, total } = ctx;
+
+	return {
+		pageSize: 'A4',
+		pageMargins: [40, 50, 40, 50],
+		defaultStyle: {
+			font: 'Helvetica',
+			fontSize: 10,
+			color: '#334155'
+		},
+		content: [
+			// Header
+			{
+				columns: [
+					sender.logo
+						? { image: sender.logo, width: 100 }
+						: { text: sender.businessName, style: 'businessName' },
+					{
+						stack: [
+							{ text: 'INVOICE', style: 'title' },
+							{ text: invoice.number, style: 'invoiceNumber' }
+						],
+						alignment: 'right'
+					}
+				],
+				margin: [0, 0, 0, 30]
+			},
+
+			// From / Bill To
+			{
+				columns: [
+					{
+						width: '50%',
+						stack: [
+							{ text: 'FROM', style: 'label' },
+							{ text: sender.businessName, style: 'bold', margin: [0, 5, 0, 0] },
+							{ text: sender.address, margin: [0, 3, 0, 0] },
+							{ text: sender.email, style: 'link', margin: [0, 3, 0, 0] },
+							sender.phone ? { text: sender.phone, margin: [0, 3, 0, 0] } : {},
+							sender.taxId ? { text: `Tax ID: ${sender.taxId}`, margin: [0, 3, 0, 0] } : {}
+						]
+					},
+					{
+						width: '50%',
+						stack: [
+							{ text: 'BILL TO', style: 'label' },
+							{ text: client.name, style: 'bold', margin: [0, 5, 0, 0] },
+							client.company ? { text: client.company, margin: [0, 3, 0, 0] } : {},
+							{ text: client.address, margin: [0, 3, 0, 0] },
+							{ text: client.email, style: 'link', margin: [0, 3, 0, 0] }
+						]
+					}
+				],
+				margin: [0, 0, 0, 25]
+			},
+
+			// Invoice details row
+			{
+				columns: [
+					{ text: `Issue Date: ${formatDate(invoice.issueDate)}`, width: 'auto' },
+					invoice.dueDate
+						? {
+								text: `Due Date: ${formatDate(invoice.dueDate)}`,
+								width: 'auto',
+								margin: [20, 0, 0, 0]
+							}
+						: {},
+					{ text: invoice.currency, alignment: 'right' }
+				],
+				style: 'meta',
+				margin: [0, 0, 0, 20]
+			},
+
+			// Line items table
+			{
+				table: {
+					headerRows: 1,
+					widths: ['*', 45, 45, 60, 40, 70],
+					body: [
+						[
+							{ text: 'Description', style: 'tableHeader' },
+							{ text: 'Qty', style: 'tableHeader', alignment: 'center' },
+							{ text: 'Unit', style: 'tableHeader', alignment: 'center' },
+							{ text: 'Rate', style: 'tableHeader', alignment: 'right' },
+							{ text: 'Tax', style: 'tableHeader', alignment: 'center' },
+							{ text: 'Amount', style: 'tableHeader', alignment: 'right' }
+						],
+						...invoice.lineItems.map((item) => [
+							item.description,
+							{ text: item.quantity.toString(), alignment: 'center' },
+							{ text: item.unit, alignment: 'center' },
+							{ text: formatCurrency(item.rate, invoice.currency), alignment: 'right' },
+							{ text: `${item.taxRate}%`, alignment: 'center' },
+							{
+								text: formatCurrency(item.quantity * item.rate, invoice.currency),
+								alignment: 'right'
+							}
+						])
+					]
+				},
+				layout: {
+					hLineWidth: (i, node) => (i === 1 ? 0.5 : 0),
+					vLineWidth: () => 0,
+					hLineColor: () => '#CBD5E1',
+					paddingTop: () => 8,
+					paddingBottom: () => 8
+				}
+			},
+
+			// Totals
+			{
+				columns: [
+					{ width: '*', text: '' },
+					{
+						width: 180,
+						stack: [
+							{
+								columns: [
+									{ text: 'Subtotal', width: '*' },
+									{ text: formatCurrency(subtotal, invoice.currency), alignment: 'right' }
+								],
+								margin: [0, 0, 0, 5]
+							},
+							taxTotal > 0
+								? {
+										columns: [
+											{ text: 'Tax', width: '*' },
+											{ text: formatCurrency(taxTotal, invoice.currency), alignment: 'right' }
+										],
+										margin: [0, 0, 0, 5]
+									}
+								: {},
+							discountAmount > 0
+								? {
+										columns: [
+											{ text: 'Discount', width: '*' },
+											{
+												text: `-${formatCurrency(discountAmount, invoice.currency)}`,
+												alignment: 'right',
+												color: '#10B981'
+											}
+										],
+										margin: [0, 0, 0, 5]
+									}
+								: {},
+							{
+								canvas: [
+									{
+										type: 'line',
+										x1: 0,
+										y1: 0,
+										x2: 180,
+										y2: 0,
+										lineWidth: 0.5,
+										lineColor: '#CBD5E1'
+									}
+								],
+								margin: [0, 5, 0, 5]
+							},
+							{
+								columns: [
+									{ text: 'Total Due', width: '*', style: 'bold', fontSize: 12 },
+									{
+										text: formatCurrency(total, invoice.currency),
+										alignment: 'right',
+										style: 'bold',
+										fontSize: 12
+									}
+								]
+							}
+						]
+					}
+				],
+				margin: [0, 25, 0, 30]
+			},
+
+			// Notes
+			invoice.notes
+				? {
+						stack: [
+							{ text: 'Notes', style: 'label' },
+							{ text: invoice.notes, margin: [0, 5, 0, 0] }
+						],
+						margin: [0, 0, 0, 15]
+					}
+				: {},
+
+			// Terms
+			invoice.terms
+				? {
+						stack: [
+							{ text: 'Terms & Conditions', style: 'label' },
+							{ text: invoice.terms, fontSize: 8, color: '#64748B', margin: [0, 5, 0, 0] }
+						]
+					}
+				: {}
+		],
+
+		styles: {
+			title: { fontSize: 28, bold: true, color: '#4F46E5' },
+			invoiceNumber: { fontSize: 12, color: '#64748B' },
+			businessName: { fontSize: 18, bold: true },
+			label: { fontSize: 9, color: '#94A3B8', characterSpacing: 1 },
+			bold: { bold: true },
+			link: { color: '#4F46E5' },
+			meta: { fontSize: 9, color: '#64748B' },
+			tableHeader: { fontSize: 9, bold: true, color: '#64748B' }
+		}
+	};
 }
 ```
 
@@ -271,6 +303,7 @@ export function modernTemplate(ctx: TemplateContext): TDocumentDefinitions {
 ## 2. Classic Template
 
 ### Description
+
 Traditional, formal design with boxed sections and visible borders.
 
 ### Visual Structure
@@ -323,6 +356,7 @@ Traditional, formal design with boxed sections and visible borders.
 ## 3. Tech Template
 
 ### Description
+
 Developer-focused design with monospace elements and code-inspired aesthetics.
 
 ### Visual Structure
@@ -374,6 +408,7 @@ Developer-focused design with monospace elements and code-inspired aesthetics.
 ## 4. Compact Template
 
 ### Description
+
 Dense layout maximizing information per page, ideal for detailed invoices.
 
 ### Visual Structure
@@ -418,49 +453,49 @@ Dense layout maximizing information per page, ideal for detailed invoices.
 // $lib/pdf/types.ts
 
 export interface TemplateContext {
-  invoice: Invoice;
-  sender: Sender;
-  client: Client;
-  subtotal: number;
-  taxTotal: number;
-  discountAmount: number;
-  total: number;
+	invoice: Invoice;
+	sender: Sender;
+	client: Client;
+	subtotal: number;
+	taxTotal: number;
+	discountAmount: number;
+	total: number;
 }
 
 export type TemplateGenerator = (ctx: TemplateContext) => TDocumentDefinitions;
 
 export interface TemplateInfo {
-  id: string;
-  name: string;
-  description: string;
-  preview: string; // Path to preview image
+	id: string;
+	name: string;
+	description: string;
+	preview: string; // Path to preview image
 }
 
 export const TEMPLATES: TemplateInfo[] = [
-  {
-    id: 'modern',
-    name: 'Modern',
-    description: 'Clean, minimal design with subtle typography',
-    preview: '/templates/modern-preview.png'
-  },
-  {
-    id: 'classic',
-    name: 'Classic',
-    description: 'Traditional formal layout with borders',
-    preview: '/templates/classic-preview.png'
-  },
-  {
-    id: 'tech',
-    name: 'Tech',
-    description: 'Developer-focused with monospace elements',
-    preview: '/templates/tech-preview.png'
-  },
-  {
-    id: 'compact',
-    name: 'Compact',
-    description: 'Dense layout for detailed invoices',
-    preview: '/templates/compact-preview.png'
-  }
+	{
+		id: 'modern',
+		name: 'Modern',
+		description: 'Clean, minimal design with subtle typography',
+		preview: '/templates/modern-preview.png'
+	},
+	{
+		id: 'classic',
+		name: 'Classic',
+		description: 'Traditional formal layout with borders',
+		preview: '/templates/classic-preview.png'
+	},
+	{
+		id: 'tech',
+		name: 'Tech',
+		description: 'Developer-focused with monospace elements',
+		preview: '/templates/tech-preview.png'
+	},
+	{
+		id: 'compact',
+		name: 'Compact',
+		description: 'Dense layout for detailed invoices',
+		preview: '/templates/compact-preview.png'
+	}
 ];
 ```
 
@@ -472,82 +507,82 @@ export const TEMPLATES: TemplateInfo[] = [
 // $lib/pdf/styles.ts
 
 export const pdfStyles = {
-  // Titles
-  title: { 
-    fontSize: 28, 
-    bold: true, 
-    color: '#4F46E5' 
-  },
-  subtitle: { 
-    fontSize: 18, 
-    bold: true, 
-    color: '#334155' 
-  },
-  
-  // Text
-  bold: { 
-    bold: true 
-  },
-  link: { 
-    color: '#4F46E5' 
-  },
-  muted: { 
-    color: '#64748B', 
-    fontSize: 9 
-  },
-  
-  // Labels
-  label: { 
-    fontSize: 9, 
-    color: '#94A3B8', 
-    characterSpacing: 1 
-  },
-  
-  // Table
-  tableHeader: { 
-    fontSize: 9, 
-    bold: true, 
-    color: '#64748B',
-    fillColor: '#F8FAFC'
-  },
-  
-  // Status
-  success: { 
-    color: '#10B981' 
-  },
-  warning: { 
-    color: '#F59E0B' 
-  },
-  error: { 
-    color: '#EF4444' 
-  }
+	// Titles
+	title: {
+		fontSize: 28,
+		bold: true,
+		color: '#4F46E5'
+	},
+	subtitle: {
+		fontSize: 18,
+		bold: true,
+		color: '#334155'
+	},
+
+	// Text
+	bold: {
+		bold: true
+	},
+	link: {
+		color: '#4F46E5'
+	},
+	muted: {
+		color: '#64748B',
+		fontSize: 9
+	},
+
+	// Labels
+	label: {
+		fontSize: 9,
+		color: '#94A3B8',
+		characterSpacing: 1
+	},
+
+	// Table
+	tableHeader: {
+		fontSize: 9,
+		bold: true,
+		color: '#64748B',
+		fillColor: '#F8FAFC'
+	},
+
+	// Status
+	success: {
+		color: '#10B981'
+	},
+	warning: {
+		color: '#F59E0B'
+	},
+	error: {
+		color: '#EF4444'
+	}
 };
 
 // Table layouts
 export const tableLayouts = {
-  modern: {
-    hLineWidth: (i: number, node: any) => (i === 1) ? 0.5 : 0,
-    vLineWidth: () => 0,
-    hLineColor: () => '#E2E8F0',
-    paddingTop: () => 8,
-    paddingBottom: () => 8
-  },
-  classic: {
-    hLineWidth: () => 0.5,
-    vLineWidth: () => 0.5,
-    hLineColor: () => '#94A3B8',
-    vLineColor: () => '#94A3B8',
-    paddingTop: () => 5,
-    paddingBottom: () => 5
-  },
-  bordered: {
-    hLineWidth: () => 1,
-    vLineWidth: () => 1,
-    hLineColor: () => '#334155',
-    vLineColor: () => '#334155',
-    paddingTop: () => 6,
-    paddingBottom: () => 6
-  }
+	modern: {
+		hLineWidth: (i: number, node: any) => (i === 1 ? 0.5 : 0),
+		vLineWidth: () => 0,
+		hLineColor: () => '#E2E8F0',
+		paddingTop: () => 8,
+		paddingBottom: () => 8
+	},
+	classic: {
+		hLineWidth: () => 0.5,
+		vLineWidth: () => 0.5,
+		hLineColor: () => '#94A3B8',
+		vLineColor: () => '#94A3B8',
+		paddingTop: () => 5,
+		paddingBottom: () => 5
+	},
+	bordered: {
+		hLineWidth: () => 1,
+		vLineWidth: () => 1,
+		hLineColor: () => '#334155',
+		vLineColor: () => '#334155',
+		paddingTop: () => 6,
+		paddingBottom: () => 6
+	}
 };
 ```
 
@@ -577,7 +612,7 @@ Receipts use a simplified version of the invoice templates:
   columns: [
     { text: `Paid Date: ${formatDate(invoice.paidDate)}` },
     { text: `Payment Method: ${invoice.paymentMethod}` },
-    invoice.transactionRef 
+    invoice.transactionRef
       ? { text: `Reference: ${invoice.transactionRef}` }
       : {}
   ]
@@ -611,16 +646,16 @@ import pdfMake from 'pdfmake/build/pdfmake';
 
 // Convert font files to base64 and add to VFS
 const fonts = {
-  Inter: {
-    normal: 'Inter-Regular.ttf',
-    bold: 'Inter-Bold.ttf',
-    italics: 'Inter-Italic.ttf',
-    bolditalics: 'Inter-BoldItalic.ttf'
-  },
-  JetBrainsMono: {
-    normal: 'JetBrainsMono-Regular.ttf',
-    bold: 'JetBrainsMono-Bold.ttf'
-  }
+	Inter: {
+		normal: 'Inter-Regular.ttf',
+		bold: 'Inter-Bold.ttf',
+		italics: 'Inter-Italic.ttf',
+		bolditalics: 'Inter-BoldItalic.ttf'
+	},
+	JetBrainsMono: {
+		normal: 'JetBrainsMono-Regular.ttf',
+		bold: 'JetBrainsMono-Bold.ttf'
+	}
 };
 
 pdfMake.fonts = fonts;

@@ -143,23 +143,19 @@ export const store = new InvoiceStore();
 **Best Practice: Use Intl.NumberFormat**
 
 ```typescript
-function formatCurrency(
-  amount: number,
-  currency: string,
-  locale?: string,
-): string {
-  return new Intl.NumberFormat(locale || "en-US", {
-    style: "currency",
-    currency: currency,
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(amount);
+function formatCurrency(amount: number, currency: string, locale?: string): string {
+	return new Intl.NumberFormat(locale || 'en-US', {
+		style: 'currency',
+		currency: currency,
+		minimumFractionDigits: 2,
+		maximumFractionDigits: 2
+	}).format(amount);
 }
 
 // Examples:
-formatCurrency(1234.56, "USD"); // "$1,234.56"
-formatCurrency(1234.56, "EUR", "de-DE"); // "1.234,56 €"
-formatCurrency(1234, "JPY", "ja-JP"); // "¥1,234"
+formatCurrency(1234.56, 'USD'); // "$1,234.56"
+formatCurrency(1234.56, 'EUR', 'de-DE'); // "1.234,56 €"
+formatCurrency(1234, 'JPY', 'ja-JP'); // "¥1,234"
 ```
 
 **Edge Cases:**
@@ -398,23 +394,23 @@ Allow users to optionally add their business logo to invoices. This enhances pro
 ```typescript
 // Logo compression utility
 async function compressLogo(file: File, maxSize = 500 * 1024): Promise<string> {
-  // If already small enough, just convert to base64
-  if (file.size <= maxSize) {
-    return await fileToBase64(file);
-  }
+	// If already small enough, just convert to base64
+	if (file.size <= maxSize) {
+		return await fileToBase64(file);
+	}
 
-  // Use canvas to resize/compress
-  const img = await loadImage(file);
-  const canvas = document.createElement("canvas");
-  // Resize to max 400px while maintaining aspect ratio
-  const scale = Math.min(400 / img.width, 400 / img.height);
-  canvas.width = img.width * scale;
-  canvas.height = img.height * scale;
+	// Use canvas to resize/compress
+	const img = await loadImage(file);
+	const canvas = document.createElement('canvas');
+	// Resize to max 400px while maintaining aspect ratio
+	const scale = Math.min(400 / img.width, 400 / img.height);
+	canvas.width = img.width * scale;
+	canvas.height = img.height * scale;
 
-  const ctx = canvas.getContext("2d")!;
-  ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+	const ctx = canvas.getContext('2d')!;
+	ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-  return canvas.toDataURL("image/png", 0.8);
+	return canvas.toDataURL('image/png', 0.8);
 }
 ```
 
@@ -423,12 +419,12 @@ async function compressLogo(file: File, maxSize = 500 * 1024): Promise<string> {
 ```typescript
 // In pdfmake template
 {
-  columns: [
-    sender.logo
-      ? { image: sender.logo, width: 80, height: 80, fit: [80, 80] }
-      : { text: sender.businessName, style: "businessName" },
-    // ... rest of header
-  ];
+	columns: [
+		sender.logo
+			? { image: sender.logo, width: 80, height: 80, fit: [80, 80] }
+			: { text: sender.businessName, style: 'businessName' }
+		// ... rest of header
+	];
 }
 ```
 

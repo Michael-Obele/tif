@@ -103,18 +103,21 @@ A mature, dark-first palette with professional undertones. Trustworthy, competen
 ### Why These Colors?
 
 **Primary - Indigo (#4F46E5)**
+
 - Associated with trust, professionalism, and competence
 - Widely used in fintech and business applications
 - High visibility on both dark and light backgrounds
 - Mature shade that doesn't feel playful
 
 **Secondary - Emerald (#10B981)**
+
 - Universal association with money and financial success
 - Perfect for "paid" status and success confirmations
 - Balances the cool indigo with warmth
 - Natural fit for invoicing context
 
 **Accent - Amber (#F59E0B)**
+
 - Draws attention without alarming
 - Perfect for "due soon" or "pending" states
 - Warm contrast to the cooler primary palette
@@ -179,12 +182,12 @@ All color combinations meet WCAG 2.1 AA standards:
 
 | Combination            | Contrast Ratio | Status |
 | :--------------------- | :------------- | :----- |
-| Indigo on Slate-900    | 6.1:1          | ✅ AA   |
-| Emerald on Slate-900   | 5.7:1          | ✅ AA   |
-| Amber on Slate-900     | 7.8:1          | ✅ AAA  |
-| Slate-50 on Slate-900  | 15.8:1         | ✅ AAA  |
-| Slate-400 on Slate-900 | 6.3:1          | ✅ AA   |
-| Red on Slate-900       | 5.4:1          | ✅ AA   |
+| Indigo on Slate-900    | 6.1:1          | ✅ AA  |
+| Emerald on Slate-900   | 5.7:1          | ✅ AA  |
+| Amber on Slate-900     | 7.8:1          | ✅ AAA |
+| Slate-50 on Slate-900  | 15.8:1         | ✅ AAA |
+| Slate-400 on Slate-900 | 6.3:1          | ✅ AA  |
+| Red on Slate-900       | 5.4:1          | ✅ AA  |
 
 ---
 
@@ -209,7 +212,10 @@ All color combinations meet WCAG 2.1 AA standards:
 <!-- In app.html -->
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link
+	href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+	rel="stylesheet"
+/>
 ```
 
 ---
@@ -219,6 +225,7 @@ All color combinations meet WCAG 2.1 AA standards:
 A minimal geometric logo combining an anvil silhouette with document/invoice lines.
 
 **Concept:**
+
 ```
      ╔═══════════╗
      ║  ▄▄▄▄▄▄▄  ║
@@ -233,11 +240,13 @@ Anvil shape with invoice lines inside
 ```
 
 **Files to create:**
+
 - `assets/logo.svg` - Full logo with text
 - `assets/icon.svg` - Icon-only for favicon
 - `assets/logo-light.svg` - For light backgrounds
 
 **Logo Colors:**
+
 - Icon: Primary Indigo (#4F46E5)
 - Text: White/Slate-50 on dark, Slate-900 on light
 
@@ -256,18 +265,23 @@ Anvil shape with invoice lines inside
 ### Example Messages
 
 **Success:**
+
 > "Invoice created successfully. PDF ready for download."
 
 **Error:**
+
 > "Please add at least one line item before creating your invoice."
 
 **Guidance:**
+
 > "Your sender details are saved for future invoices."
 
 **Empty State:**
+
 > "No invoices yet. Create your first one in seconds."
 
 **Confirmation:**
+
 > "Are you sure you want to delete this invoice? This cannot be undone."
 
 ---
@@ -302,35 +316,35 @@ Anvil shape with invoice lines inside
 ```javascript
 // tailwind.config.js
 module.exports = {
-  theme: {
-    extend: {
-      colors: {
-        // Brand colors
-        brand: {
-          primary: '#4F46E5',    // Indigo-600
-          secondary: '#10B981',  // Emerald-500
-          accent: '#F59E0B',     // Amber-500
-        },
-        // Surface colors
-        surface: {
-          base: '#0F172A',       // Slate-900
-          elevated: '#1E293B',   // Slate-800
-          overlay: '#334155',    // Slate-700
-        },
-        // Text colors
-        content: {
-          primary: '#F8FAFC',    // Slate-50
-          secondary: '#94A3B8',  // Slate-400
-          muted: '#64748B',      // Slate-500
-        },
-        // Semantic colors
-        success: '#10B981',      // Emerald-500
-        warning: '#F59E0B',      // Amber-500
-        error: '#EF4444',        // Red-500
-        info: '#3B82F6',         // Blue-500
-      },
-    },
-  },
+	theme: {
+		extend: {
+			colors: {
+				// Brand colors
+				brand: {
+					primary: '#4F46E5', // Indigo-600
+					secondary: '#10B981', // Emerald-500
+					accent: '#F59E0B' // Amber-500
+				},
+				// Surface colors
+				surface: {
+					base: '#0F172A', // Slate-900
+					elevated: '#1E293B', // Slate-800
+					overlay: '#334155' // Slate-700
+				},
+				// Text colors
+				content: {
+					primary: '#F8FAFC', // Slate-50
+					secondary: '#94A3B8', // Slate-400
+					muted: '#64748B' // Slate-500
+				},
+				// Semantic colors
+				success: '#10B981', // Emerald-500
+				warning: '#F59E0B', // Amber-500
+				error: '#EF4444', // Red-500
+				info: '#3B82F6' // Blue-500
+			}
+		}
+	}
 };
 ```
 
@@ -341,51 +355,51 @@ module.exports = {
 ```css
 /* app.css */
 :root {
-  /* Brand */
-  --brand-primary: #4F46E5;
-  --brand-secondary: #10B981;
-  --brand-accent: #F59E0B;
-  
-  /* Surfaces */
-  --surface-base: #0F172A;
-  --surface-elevated: #1E293B;
-  --surface-overlay: #334155;
-  
-  /* Text */
-  --text-primary: #F8FAFC;
-  --text-secondary: #94A3B8;
-  --text-muted: #64748B;
-  
-  /* Semantic */
-  --color-success: #10B981;
-  --color-warning: #F59E0B;
-  --color-error: #EF4444;
-  --color-info: #3B82F6;
-  
-  /* Borders */
-  --border-default: #334155;
-  --border-subtle: #1E293B;
-  
-  /* Radius */
-  --radius: 0.5rem;
-  --radius-sm: 0.25rem;
-  --radius-lg: 0.75rem;
-  
-  /* Shadows */
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.25);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.3);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.4);
+	/* Brand */
+	--brand-primary: #4f46e5;
+	--brand-secondary: #10b981;
+	--brand-accent: #f59e0b;
+
+	/* Surfaces */
+	--surface-base: #0f172a;
+	--surface-elevated: #1e293b;
+	--surface-overlay: #334155;
+
+	/* Text */
+	--text-primary: #f8fafc;
+	--text-secondary: #94a3b8;
+	--text-muted: #64748b;
+
+	/* Semantic */
+	--color-success: #10b981;
+	--color-warning: #f59e0b;
+	--color-error: #ef4444;
+	--color-info: #3b82f6;
+
+	/* Borders */
+	--border-default: #334155;
+	--border-subtle: #1e293b;
+
+	/* Radius */
+	--radius: 0.5rem;
+	--radius-sm: 0.25rem;
+	--radius-lg: 0.75rem;
+
+	/* Shadows */
+	--shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.25);
+	--shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.3);
+	--shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.4);
 }
 
-[data-theme="light"] {
-  --surface-base: #FFFFFF;
-  --surface-elevated: #F8FAFC;
-  --surface-overlay: #F1F5F9;
-  --text-primary: #0F172A;
-  --text-secondary: #64748B;
-  --text-muted: #94A3B8;
-  --border-default: #E2E8F0;
-  --border-subtle: #F1F5F9;
+[data-theme='light'] {
+	--surface-base: #ffffff;
+	--surface-elevated: #f8fafc;
+	--surface-overlay: #f1f5f9;
+	--text-primary: #0f172a;
+	--text-secondary: #64748b;
+	--text-muted: #94a3b8;
+	--border-default: #e2e8f0;
+	--border-subtle: #f1f5f9;
 }
 ```
 

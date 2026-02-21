@@ -241,8 +241,8 @@ bunx shadcn-svelte add alert
 
 ```typescript
 // Dynamic import to reduce initial bundle
-const pdfMake = await import("pdfmake/build/pdfmake");
-const pdfFonts = await import("pdfmake/build/vfs_fonts");
+const pdfMake = await import('pdfmake/build/pdfmake');
+const pdfFonts = await import('pdfmake/build/vfs_fonts');
 pdfMake.default.vfs = pdfFonts.default.pdfMake.vfs;
 ```
 
@@ -251,15 +251,15 @@ pdfMake.default.vfs = pdfFonts.default.pdfMake.vfs;
 ```typescript
 // vite.config.ts
 export default defineConfig({
-  build: {
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          pdfmake: ["pdfmake"],
-        },
-      },
-    },
-  },
+	build: {
+		rollupOptions: {
+			output: {
+				manualChunks: {
+					pdfmake: ['pdfmake']
+				}
+			}
+		}
+	}
 });
 ```
 
@@ -278,30 +278,30 @@ export default defineConfig({
 **Basic Usage:**
 
 ```typescript
-import Dexie, { type Table } from "dexie";
+import Dexie, { type Table } from 'dexie';
 
 interface Client {
-  id?: number;
-  name: string;
-  email: string;
+	id?: number;
+	name: string;
+	email: string;
 }
 
 class MyDB extends Dexie {
-  clients!: Table<Client>;
+	clients!: Table<Client>;
 
-  constructor() {
-    super("MyDatabase");
-    this.version(1).stores({
-      clients: "++id, name, email",
-    });
-  }
+	constructor() {
+		super('MyDatabase');
+		this.version(1).stores({
+			clients: '++id, name, email'
+		});
+	}
 }
 
 export const db = new MyDB();
 
 // Usage
-await db.clients.add({ name: "John", email: "john@example.com" });
-const clients = await db.clients.where("name").startsWith("J").toArray();
+await db.clients.add({ name: 'John', email: 'john@example.com' });
+const clients = await db.clients.where('name').startsWith('J').toArray();
 ```
 
 ---
@@ -320,38 +320,38 @@ const clients = await db.clients.where("name").startsWith("J").toArray();
 
 ```typescript
 // $lib/remote/invoice.remote.ts
-import { form, query, getRequestEvent } from "$app/server";
-import * as v from "valibot";
-import { db } from "$lib/db";
+import { form, query, getRequestEvent } from '$app/server';
+import * as v from 'valibot';
+import { db } from '$lib/db';
 
 // Define validation schema
 const createClientSchema = v.object({
-  name: v.pipe(v.string(), v.nonEmpty("Name is required"), v.maxLength(100)),
-  company: v.optional(v.string()),
-  address: v.pipe(v.string(), v.nonEmpty("Address is required")),
-  email: v.pipe(v.string(), v.email("Invalid email format")),
+	name: v.pipe(v.string(), v.nonEmpty('Name is required'), v.maxLength(100)),
+	company: v.optional(v.string()),
+	address: v.pipe(v.string(), v.nonEmpty('Address is required')),
+	email: v.pipe(v.string(), v.email('Invalid email format'))
 });
 
 // Create a remote form function
 export const createClient = form(createClientSchema, async (data, issue) => {
-  try {
-    // Save to IndexedDB (or server DB if authenticated)
-    const id = await db.clients.add({
-      ...data,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    });
+	try {
+		// Save to IndexedDB (or server DB if authenticated)
+		const id = await db.clients.add({
+			...data,
+			createdAt: new Date(),
+			updatedAt: new Date()
+		});
 
-    return { success: true, id };
-  } catch (error: any) {
-    // Use issue() for validation errors
-    issue(error.message || "Failed to create client");
-  }
+		return { success: true, id };
+	} catch (error: any) {
+		// Use issue() for validation errors
+		issue(error.message || 'Failed to create client');
+	}
 });
 
 // Query function for reading data
 export const getClients = query(async () => {
-  return await db.clients.orderBy("name").toArray();
+	return await db.clients.orderBy('name').toArray();
 });
 ```
 
