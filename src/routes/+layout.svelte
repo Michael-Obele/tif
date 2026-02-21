@@ -1,8 +1,8 @@
 <script lang="ts">
 	import './layout.css';
 	import favicon from '$lib/assets/favicon.svg';
-	import Navbar from '$lib/components/Navbar.svelte';
-	import Footer from '$lib/components/Footer.svelte';
+	import Navbar from '$lib/components/blocks/Navbar.svelte';
+	import Footer from '$lib/components/blocks/Footer.svelte';
 	import { ModeWatcher } from 'mode-watcher';
 	import { invoiceStore } from '$lib/stores/invoice.svelte';
 	import { browser } from '$app/environment';
@@ -49,7 +49,7 @@
 
 <div class="relative flex min-h-screen flex-col">
 	<Navbar />
-	<main class="min-h-screen flex-1">
+	<main class="flex-1">
 		<Tooltip.Provider>
 			{@render children()}
 		</Tooltip.Provider>

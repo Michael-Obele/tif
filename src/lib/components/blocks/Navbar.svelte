@@ -181,6 +181,18 @@
 					</NavigationMenu.Item>
 
 					<NavigationMenu.Item>
+						<NavigationMenu.Link
+							href="/profile"
+							class={cn(
+								navigationMenuTriggerStyle(),
+								isActive('/profile') && 'bg-accent text-accent-foreground'
+							)}
+						>
+							Profile
+						</NavigationMenu.Link>
+					</NavigationMenu.Item>
+
+					<NavigationMenu.Item>
 						<NavigationMenu.Link href="/pricing" class={navigationMenuTriggerStyle()}>
 							Pricing
 						</NavigationMenu.Link>
@@ -278,6 +290,17 @@
 									onclick={closeMenu}
 								>
 									History
+								</a>
+
+								<a
+									href="/profile"
+									class={cn(
+										'flex items-center rounded-lg px-3 py-3 text-sm font-medium transition-colors hover:bg-muted',
+										isActive('/profile') && 'bg-accent/50 text-accent-foreground'
+									)}
+									onclick={closeMenu}
+								>
+									Profile
 								</a>
 
 								<Separator class="my-4" />
