@@ -39,6 +39,7 @@
 		"vite-plugin-devtools-json": "^1.0.0"
 	},
 	"dependencies": {
+		"gsap": "^3.14.2",
 		"mode-watcher": "^1.1.0",
 		"pdfmake": "^0.3.3",
 		"runed": "^0.37.1",
