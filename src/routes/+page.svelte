@@ -2,221 +2,348 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Badge } from '$lib/components/ui/badge';
 	import * as Card from '$lib/components/ui/card';
+	import * as Accordion from '$lib/components/ui/accordion';
 	import { Separator } from '$lib/components/ui/separator';
+	import { slide } from 'svelte/transition';
 	import {
 		Zap,
 		Shield,
-		FileText,
-		Smartphone,
 		ArrowRight,
 		Check,
-		PenLine,
+		User,
 		Eye,
 		Download,
-		Globe,
-		Clock,
-		Lock,
-		Sparkles,
+		History,
 		Layers,
-		Cpu,
-		Fingerprint,
-		Rocket,
+		MoveRight,
 		CreditCard,
-		MoveRight
+		Plus,
+		Minus,
+		MessageSquare,
+		Star,
+		LayoutTemplate,
+		FileText,
+		Database,
+		Lock
 	} from '@lucide/svelte';
+	import { gsap } from 'gsap';
+	import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+	const faqs = [
+		{
+			question: 'Is my financial data secure?',
+			answer:
+				'Absolutely. We utilize IndexedDB to store your clients, profiles, and sent invoices exclusively on your local device. No data is ever transmitted to a remote server.'
+		},
+		{
+			question: 'How much does it cost?',
+			answer:
+				"TIF is $0 forever. We rejected the traditional SaaS model. You shouldn't have to pay a monthly subscription just to extract money you rightfully earned."
+		},
+		{
+			question: 'Can I generate PDFs offline?',
+			answer:
+				'Yes. The underlying vector engine (pdfmake) is bundled directly into the client application. Once loaded, you can generate pixel-perfect PDFs even inside a concrete bunker.'
+		},
+		{
+			question: 'Does it work seamlessly on mobile?',
+			answer:
+				'The entire interface is built mobile-first. You can tap out a complete invoice, preview the document, and download the PDF while waiting in line for coffee.'
+		}
+	];
+
+	const features = [
+		{
+			title: 'Local Vault',
+			description: 'IndexedDB storage for complete data sovereignty.',
+			icon: Database
+		},
+		{
+			title: 'Vector Engine',
+			description: 'Client-side PDF generation via pdfmake.',
+			icon: Layers
+		},
+		{
+			title: 'Smart Templates',
+			description: 'Professional layouts (Modern, Bold, Tech).',
+			icon: LayoutTemplate
+		},
+		{
+			title: 'Markdown Notes',
+			description: 'Rich text formatting for invoice terms.',
+			icon: FileText
+		},
+		{
+			title: 'Profile Sync',
+			description: 'Auto-fill banking & business details.',
+			icon: User
+		},
+		{
+			title: 'Offline First',
+			description: 'Zero latency, works without internet.',
+			icon: Lock
+		}
+	];
+
+	$effect(() => {
+		gsap.registerPlugin(ScrollTrigger);
+		let ctx = gsap.context(() => {
+			// Fluid Staggered Entrance
+			gsap.fromTo(
+				'.hero-element',
+				{ y: 50, opacity: 0 },
+				{ y: 0, opacity: 1, duration: 1.2, stagger: 0.1, ease: 'power3.out' }
+			);
+
+			// Abstract UI Mockup Bloom
+			gsap.fromTo(
+				'.hero-mockup',
+				{ y: 80, opacity: 0, scale: 0.95 },
+				{ y: 0, opacity: 1, scale: 1, duration: 1.4, ease: 'power3.out', delay: 0.3 }
+			);
+
+			// Floating Magnetic Cards
+			gsap.fromTo(
+				'.mockup-float',
+				{ y: 30, opacity: 0 },
+				{ y: 0, opacity: 1, duration: 1.2, stagger: 0.2, ease: 'back.out(1.4)', delay: 1 }
+			);
+
+			// Unified Scroll Triggered Glass Panels
+			gsap.utils.toArray('.glass-panel').forEach((panel) => {
+				gsap.fromTo(
+					panel as Element,
+					{ y: 60, opacity: 0 },
+					{
+						y: 0,
+						opacity: 1,
+						duration: 1.2,
+						ease: 'power3.out',
+						scrollTrigger: {
+							trigger: panel as Element,
+							start: 'top 85%'
+						}
+					}
+				);
+			});
+
+			// Protocol Steps Stagger
+			gsap.fromTo(
+				'.step-item',
+				{ y: 50, opacity: 0 },
+				{
+					y: 0,
+					opacity: 1,
+					duration: 1.2,
+					stagger: 0.2,
+					ease: 'power3.out',
+					scrollTrigger: {
+						trigger: '.steps-section',
+						start: 'top 80%'
+					}
+				}
+			);
+
+			// Parallax Ambient Light
+			gsap.to('.ambient-light', {
+				y: '30vh',
+				ease: 'none',
+				scrollTrigger: {
+					trigger: '.hero-section',
+					start: 'top top',
+					end: 'bottom top',
+					scrub: true
+				}
+			});
+		});
+
+		return () => ctx.revert();
+	});
 </script>
 
 <svelte:head>
-	<title>Tech Invoice Forge | The Future of Invoicing</title>
-	<meta
-		name="description"
-		content="Professional, offline-first invoice generator for tech freelancers. Aesthetic, private, and insanely fast."
-	/>
+	<title>Tech Invoice Forge | The Anti-SaaS Invoicing Engine</title>
 </svelte:head>
 
+<!-- Global Noise Texture -->
+<svg class="pointer-events-none fixed inset-0 z-50 h-full w-full opacity-[0.02] mix-blend-overlay">
+	<filter id="noise">
+		<feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" stitchTiles="stitch" />
+	</filter>
+	<rect width="100%" height="100%" filter="url(#noise)" />
+</svg>
+
 <div
-	class="flex min-h-screen flex-col overflow-x-hidden bg-background text-foreground selection:bg-primary/20 selection:text-primary"
+	class="flex min-h-screen flex-col overflow-clip bg-background text-foreground selection:bg-zinc-200 selection:text-black"
 >
-	<!-- Ambient Background Light -->
-	<div class="pointer-events-none fixed inset-0 z-0">
-		<div
-			class="absolute top-[-20%] left-[-10%] h-[50vw] w-[50vw] rounded-full bg-primary/5 blur-[120px]"
-		></div>
-		<div
-			class="absolute right-[-10%] bottom-[-20%] h-[50vw] w-[50vw] rounded-full bg-emerald-500/5 blur-[120px]"
-		></div>
-	</div>
-
 	<!-- Hero Section -->
-	<section class="relative z-10 pt-24 pb-32 md:pt-32 md:pb-48">
-		<div class="container mx-auto px-4">
-			<div class="mx-auto flex max-w-4xl flex-col items-center space-y-8 text-center">
-				<!-- Animated Pill Badge -->
-				<div class="animate-fade-in-up" style="animation-delay: 100ms;">
-					<Badge
-						variant="outline"
-						class="cursor-default rounded-full border-primary/20 bg-background/50 px-4 py-1.5 shadow-sm backdrop-blur-md transition-colors hover:border-primary/40"
-					>
-						<span class="relative mr-2 flex h-2 w-2">
-							<span
-								class="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"
-							></span>
-							<span class="relative inline-flex h-2 w-2 rounded-full bg-emerald-500"></span>
-						</span>
-						<span
-							class="bg-linear-to-r from-foreground to-foreground/70 bg-clip-text font-medium text-transparent"
-							>v1.0 Beta is Live</span
-						>
-					</Badge>
-				</div>
+	<section class="hero-section relative z-10 pt-32 pb-24 md:pt-48 md:pb-32">
+		<!-- Minimal Ambient Light -->
+		<div class="ambient-light pointer-events-none absolute inset-0 z-0 overflow-hidden">
+			<div
+				class="absolute -top-[20%] -left-[10%] h-[70vw] w-[70vw] rounded-full bg-zinc-200/40 opacity-40 blur-[120px] dark:bg-zinc-800/20"
+			></div>
+			<div
+				class="absolute top-[20%] right-[10%] h-[50vw] w-[50vw] rounded-full bg-slate-200/30 opacity-40 blur-[100px] dark:bg-slate-800/10"
+			></div>
+		</div>
 
-				<!-- Main Headline -->
+		<div class="relative z-10 container mx-auto px-6 lg:px-12">
+			<div class="mx-auto flex max-w-5xl flex-col items-center space-y-10 text-center">
+				<!-- Headline -->
 				<h1
-					class="animate-fade-in-up text-5xl leading-[1.1] font-bold tracking-tighter md:text-7xl lg:text-8xl"
-					style="animation-delay: 200ms;"
+					class="hero-element font-sans text-5xl leading-[1.05] font-extrabold tracking-tight text-primary md:text-7xl lg:text-[5.5rem]"
 				>
-					Start invoicing, <br class="hidden md:block" />
-					<span
-						class="bg-linear-to-br from-primary via-primary/90 to-emerald-500/80 bg-clip-text text-transparent"
-						>stop stressing.</span
-					>
+					Sovereign Invoicing,<br class="hidden md:block" />
+					<span class="font-serif font-light text-muted-foreground italic">zero friction.</span>
 				</h1>
 
-				<!-- Subheadline -->
-				<p
-					class="animate-fade-in-up max-w-2xl text-lg leading-relaxed text-balance text-muted-foreground/80 md:text-xl"
-					style="animation-delay: 300ms;"
-				>
-					The offline-first invoice generator that respects your privacy. Zero friction, zero fees,
-					100% client-side.
+				<p class="hero-element max-w-3xl text-lg leading-relaxed text-muted-foreground md:text-xl">
+					Stop paying $20/month just to send a PDF. A precision financial instrument built for the
+					modern edge. Featuring <strong class="text-foreground">persistent history</strong>,
+					<strong class="text-foreground">automated profile syncing</strong>, and mathematics
+					compiled locally on your device.
 				</p>
 
-				<!-- CTA Buttons -->
-				<div
-					class="animate-fade-in-up flex w-full flex-col items-center justify-center gap-4 pt-4 sm:flex-row"
-					style="animation-delay: 400ms;"
-				>
+				<!-- Magnetic CTA -->
+				<div class="hero-element flex w-full flex-col justify-center gap-4 pt-6 sm:flex-row">
 					<Button
 						size="lg"
 						href="/invoice/new"
-						class="group h-12 rounded-full bg-primary px-8 text-base font-semibold text-primary-foreground shadow-xl shadow-primary/20 transition-all hover:scale-105 hover:shadow-primary/30 active:scale-95"
+						class="group relative h-14 overflow-hidden rounded-full bg-foreground px-8 text-base font-medium text-background transition-all duration-300 hover:scale-[1.02] hover:bg-foreground/90 active:scale-[0.98]"
 					>
-						Create Invoice
-						<MoveRight class="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+						<span class="relative z-10 flex items-center">
+							Deploy Generator
+							<MoveRight class="ml-3 h-4 w-4 transition-transform group-hover:translate-x-1" />
+						</span>
 					</Button>
-					<Button
-						size="lg"
-						variant="outline"
-						href="https://github.com/Michael-Obele/tif"
-						target="_blank"
-						class="h-12 rounded-full border-border/50 bg-background/50 px-8 backdrop-blur-sm transition-all hover:bg-muted/50 hover:text-foreground"
-					>
-						<svg class="mr-2 h-4 w-4" viewBox="0 0 24 24" fill="currentColor"
-							><path
-								d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"
-							/></svg
+				</div>
+
+				<!-- Built For Marquee / Badges -->
+				<div
+					class="hero-element pt-12 font-mono text-sm tracking-widest text-muted-foreground uppercase"
+				>
+					<p class="mb-4 text-[10px] opacity-60">Engineered Specifically For</p>
+					<div class="flex flex-wrap justify-center gap-6 opacity-80">
+						<span class="flex items-center gap-2"
+							><div class="h-1.5 w-1.5 rounded-full bg-primary/60"></div>
+							Freelancers</span
 						>
-						Star on GitHub
-					</Button>
+						<span class="flex items-center gap-2"
+							><div class="h-1.5 w-1.5 rounded-full bg-emerald-500/60"></div>
+							Agencies</span
+						>
+						<span class="flex items-center gap-2"
+							><div class="h-1.5 w-1.5 rounded-full bg-indigo-500/60"></div>
+							Solo Devs</span
+						>
+						<span class="flex items-center gap-2"
+							><div class="h-1.5 w-1.5 rounded-full bg-amber-500/60"></div>
+							Creators</span
+						>
+					</div>
 				</div>
 			</div>
 
-			<!-- Abstract UI Mockup -->
-			<div
-				class="perspective-1000 animate-zoom-in relative mx-auto mt-20 max-w-5xl md:mt-32"
-				style="animation-delay: 500ms;"
-			>
-				<!-- Main Card -->
+			<!-- Abstract Organic UI Mockup -->
+			<div class="hero-mockup relative mx-auto mt-24 max-w-5xl">
+				<!-- Outer Glass Lens -->
 				<div
-					class="relative rotate-x-2 transform rounded-3xl border border-border/50 bg-card/50 p-1 shadow-2xl ring-1 ring-white/10 backdrop-blur-xl transition-transform duration-700 ease-out hover:rotate-x-0 dark:ring-white/5"
+					class="rounded-[3rem] border border-border/20 bg-card/10 p-2 shadow-[0_30px_100px_-20px_rgba(0,0,0,0.2)] ring-1 ring-white/10 backdrop-blur-3xl dark:shadow-[0_30px_100px_-20px_rgba(0,0,0,0.6)] dark:ring-white/5"
 				>
-					<div class="overflow-hidden rounded-[1.25rem] border border-border/30 bg-background">
-						<!-- Mockup Header -->
-						<div class="flex h-12 items-center gap-2 border-b border-border/40 bg-muted/20 px-4">
-							<div class="flex gap-1.5">
-								<div class="h-2.5 w-2.5 rounded-full bg-red-400/80"></div>
-								<div class="h-2.5 w-2.5 rounded-full bg-amber-400/80"></div>
-								<div class="h-2.5 w-2.5 rounded-full bg-emerald-400/80"></div>
+					<!-- Inner Rig -->
+					<div
+						class="relative overflow-hidden rounded-[2.5rem] border border-border/40 bg-background/95 shadow-inner backdrop-blur-xl"
+					>
+						<!-- Control Bar -->
+						<div
+							class="flex h-14 items-center justify-between border-b border-border/20 bg-muted/10 px-6 backdrop-blur-md"
+						>
+							<div class="flex gap-2">
+								<div class="h-3 w-3 rounded-full bg-border/60"></div>
+								<div class="h-3 w-3 rounded-full bg-border/60"></div>
+								<div class="h-3 w-3 rounded-full bg-border/60"></div>
 							</div>
 							<div
-								class="mx-auto flex h-6 w-48 items-center justify-center rounded-full bg-muted/40 font-mono text-[10px] text-muted-foreground"
+								class="flex items-center gap-2 rounded-full border border-border/20 bg-muted/20 px-4 py-1.5 font-mono text-[10px] text-muted-foreground"
 							>
-								tif.svelte-apps.me/invoice/new
+								<Shield class="h-3 w-3 text-emerald-500" />
+								<span>SECURE OFFLINE CONTEXT</span>
 							</div>
 						</div>
-						<!-- Mockup Content -->
-						<div class="flex min-h-[400px] flex-col gap-6 p-8 md:p-12">
-							<div class="flex items-start justify-between">
-								<div class="space-y-2">
-									<div class="h-8 w-32 animate-pulse rounded-lg bg-primary/10"></div>
-									<div class="h-4 w-48 animate-pulse rounded bg-muted"></div>
-								</div>
-								<div
-									class="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500/10"
-								>
-									<Check class="h-5 w-5 text-emerald-500" />
-								</div>
-							</div>
-							<div class="mt-4 grid grid-cols-2 gap-8">
-								<div class="space-y-2">
-									<div class="h-3 w-12 rounded bg-muted"></div>
-									<div class="h-4 w-24 rounded bg-muted/50"></div>
-								</div>
-								<div class="space-y-2 text-right">
-									<div class="ml-auto h-3 w-12 rounded bg-muted"></div>
-									<div class="ml-auto h-4 w-24 rounded bg-muted/50"></div>
-								</div>
-							</div>
-							<div class="mt-8 space-y-4">
-								<div class="flex items-center justify-between border-b border-border/40 py-4">
-									<div class="space-y-1">
-										<div class="h-4 w-48 rounded bg-muted/60"></div>
-										<div class="h-3 w-24 rounded bg-muted/30"></div>
+						<!-- Editor Core -->
+						<div class="flex min-h-100 flex-col overflow-hidden">
+							<div class="grid flex-1 grid-cols-1 md:grid-cols-[1fr_300px]">
+								<!-- Main Editor Payload -->
+								<div class="p-8 md:p-12">
+									<div class="mb-10 flex items-center justify-between">
+										<div class="space-y-4">
+											<div
+												class="h-10 w-48 rounded-2xl border border-primary/20 bg-primary/10"
+											></div>
+											<div class="h-4 w-64 rounded-full bg-muted/60"></div>
+										</div>
+										<div
+											class="flex h-16 w-16 items-center justify-center rounded-3xl border border-border/30 bg-muted/10 shadow-sm backdrop-blur-sm"
+										>
+											<User class="h-8 w-8 text-muted-foreground/30" />
+										</div>
 									</div>
-									<div class="h-4 w-16 rounded bg-muted/60"></div>
-								</div>
-								<div class="flex items-center justify-between border-b border-border/40 py-4">
-									<div class="space-y-1">
-										<div class="h-4 w-40 rounded bg-muted/60"></div>
-										<div class="h-3 w-20 rounded bg-muted/30"></div>
+									<div class="space-y-6">
+										<div class="h-4 w-full max-w-md rounded-full bg-muted/30"></div>
+										<div class="h-4 w-full max-w-sm rounded-full bg-muted/20"></div>
+										<div class="grid grid-cols-2 gap-6 pt-4">
+											<div class="h-14 rounded-2xl border border-border/30 bg-muted/5"></div>
+											<div class="h-14 rounded-2xl border border-border/30 bg-muted/5"></div>
+										</div>
 									</div>
-									<div class="h-4 w-16 rounded bg-muted/60"></div>
 								</div>
-							</div>
-							<div class="mt-auto flex justify-end">
-								<div class="space-y-1 text-right">
-									<div class="ml-auto h-3 w-12 rounded bg-muted"></div>
-									<div class="mt-2 h-8 w-32 rounded-lg bg-primary/10"></div>
+								<!-- Side Review Panel -->
+								<div class="hidden border-l border-border/20 bg-muted/5 p-6 md:block">
+									<div class="mb-6 h-6 w-24 rounded-full bg-muted/30"></div>
+									<div
+										class="flex aspect-[1/1.4] w-full flex-col gap-4 rounded-2xl border border-border/20 bg-background/50 p-4 shadow-sm backdrop-blur-sm"
+									>
+										<div class="h-4 w-full rounded-full bg-muted/20"></div>
+										<div class="h-2 w-1/2 rounded-full bg-muted/10"></div>
+										<div class="mt-auto h-10 w-full rounded-xl bg-primary/10"></div>
+									</div>
 								</div>
 							</div>
 						</div>
 					</div>
 				</div>
 
-				<!-- Floating Elements -->
+				<!-- Floating Widget 1: Persistent Profile -->
 				<div
-					class="animate-bounce-slow absolute -top-8 -right-8 hidden rounded-2xl border border-border/50 bg-card p-4 shadow-xl md:block"
+					class="mockup-float absolute -top-8 -right-8 hidden rounded-4xl border border-border/30 bg-background/70 p-5 shadow-2xl ring-1 ring-white/10 backdrop-blur-2xl md:block dark:ring-white/5"
 				>
-					<div class="flex items-center gap-3">
-						<div class="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500/10">
-							<Check class="h-5 w-5 text-emerald-500" />
+					<div class="flex items-center gap-4">
+						<div
+							class="flex h-14 w-14 items-center justify-center rounded-[1.2rem] border border-primary/20 bg-primary/10"
+						>
+							<User class="h-6 w-6 text-primary" />
 						</div>
 						<div>
-							<div class="text-sm font-semibold">Payment Received</div>
-							<div class="text-xs text-muted-foreground">Just now</div>
+							<div class="text-sm font-semibold">Profile Locked</div>
+							<div class="mt-1 font-mono text-xs text-muted-foreground">SENDER SYNCED</div>
 						</div>
 					</div>
 				</div>
+
+				<!-- Floating Widget 2: IndexedDB History -->
 				<div
-					class="animate-bounce-slow-delay absolute bottom-20 -left-8 hidden rounded-2xl border border-border/50 bg-card p-4 shadow-xl md:block"
+					class="mockup-float absolute bottom-24 -left-10 hidden rounded-4xl border border-border/30 bg-background/70 p-5 shadow-2xl ring-1 ring-white/10 backdrop-blur-2xl md:block dark:ring-white/5"
 				>
-					<div class="flex items-center gap-3">
-						<div class="flex h-10 w-10 items-center justify-center rounded-full bg-blue-500/10">
-							<Clock class="h-5 w-5 text-blue-500" />
+					<div class="flex items-center gap-4">
+						<div
+							class="flex h-14 w-14 items-center justify-center rounded-[1.2rem] border border-emerald-500/20 bg-emerald-500/10"
+						>
+							<History class="h-6 w-6 text-emerald-500" />
 						</div>
 						<div>
-							<div class="text-sm font-semibold">PDF Generated</div>
-							<div class="font-mono text-xs text-emerald-500">&lt; 100ms</div>
+							<div class="text-sm font-semibold">Auto-Saved to Vault</div>
+							<div class="mt-1 font-mono text-[10px] text-emerald-500/80">INDEXED DB</div>
 						</div>
 					</div>
 				</div>
@@ -224,280 +351,305 @@
 		</div>
 	</section>
 
-	<Separator class="opacity-30" />
-
-	<!-- Features Section (Bento Grid) -->
-	<section class="relative overflow-hidden py-24 md:py-32" id="features">
-		<div class="container mx-auto px-4">
-			<div class="mx-auto mb-16 max-w-3xl space-y-4 md:text-center">
-				<Badge variant="secondary" class="rounded-full">Why TIF?</Badge>
-				<h2 class="text-3xl font-bold tracking-tight md:text-5xl">
-					Everything you need, <br />nothing you don't.
+	<!-- Capabilities Stack -->
+	<section class="relative z-20 bg-muted/5 py-24 md:py-32" id="features">
+		<div class="container mx-auto px-6 lg:px-12">
+			<div class="glass-panel mx-auto mb-20 max-w-3xl space-y-6 md:text-center">
+				<h2 class="font-sans text-4xl font-extrabold tracking-tight md:text-5xl">
+					Engineered for autonomy.
 				</h2>
-				<p class="text-lg text-muted-foreground">
-					We stripped away the complexity of traditional accounting software to focus on what
-					matters: getting you paid.
+				<p class="text-xl leading-relaxed text-muted-foreground">
+					TIF has evolved beyond simple generation into a comprehensive invoice management system
+					confined entirely to your local device.
 				</p>
 			</div>
 
-			<div class="mx-auto grid max-w-6xl grid-cols-1 gap-6 md:grid-cols-3">
-				<!-- Privacy Card (Large) -->
-				<Card.Root
-					class="group overflow-hidden rounded-3xl border-border/50 bg-linear-to-br from-card to-card/50 transition-all duration-500 hover:shadow-xl md:col-span-2 md:row-span-2"
+			<div class="mx-auto flex max-w-4xl flex-col gap-[35vh] pb-[30vh]">
+				<!-- Persistent History (Sticky Card 1) -->
+				<div
+					class="glass-panel group sticky top-[15vh] z-10 h-112.5 w-full overflow-hidden rounded-[2.5rem] border border-border/30 bg-background p-1 shadow-2xl ring-1 ring-white/5 transition-all duration-500 hover:border-border/60"
 				>
-					<div class="relative z-10 flex h-full flex-col p-8">
-						<div
-							class="mb-6 flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 transition-transform duration-300 group-hover:scale-110"
-						>
-							<Shield class="h-6 w-6 text-primary" />
-						</div>
-						<h3 class="mb-3 text-2xl font-bold">Privacy by Design</h3>
-						<p class="mb-6 flex-1 text-lg leading-relaxed text-muted-foreground">
-							Your financial data never touches our servers. We use <strong>IndexedDB</strong> to store
-							everything locally in your browser. It's like having a vault on your device that only you
-							can open.
-						</p>
-						<div class="flex flex-wrap gap-2">
-							<Badge variant="outline" class="bg-background/50 backdrop-blur"
-								>End-to-End Local</Badge
-							>
-							<Badge variant="outline" class="bg-background/50 backdrop-blur">No Tracking</Badge>
-						</div>
-					</div>
 					<div
-						class="absolute right-[-20%] bottom-[-20%] h-64 w-64 rounded-full bg-primary/5 blur-3xl transition-colors duration-500 group-hover:bg-primary/10"
-					></div>
-				</Card.Root>
-
-				<!-- Speed Card -->
-				<Card.Root
-					class="group overflow-hidden rounded-3xl border-border/50 bg-card transition-all duration-300 hover:bg-muted/30 md:col-span-1"
-				>
-					<div class="p-8">
+						class="relative z-10 flex h-full flex-col overflow-hidden rounded-[2.3rem] bg-card/95 p-10 md:p-14"
+					>
 						<div
-							class="mb-6 flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-500/10 transition-transform duration-300 group-hover:rotate-12"
+							class="mb-8 flex h-20 w-20 items-center justify-center rounded-[1.8rem] border border-border/40 bg-primary/5 shadow-inner transition-transform duration-700 ease-out group-hover:scale-110"
 						>
-							<Zap class="h-6 w-6 text-amber-500" />
+							<History class="h-10 w-10 text-primary" />
 						</div>
-						<h3 class="mb-2 text-xl font-bold">Blazing Fast</h3>
-						<p class="text-muted-foreground">
-							Built with Svelte 5. Instant loads, zero latency interactions.
+						<h3 class="mb-4 font-sans text-3xl font-bold">Infinite Local Ledger</h3>
+						<p class="mb-4 max-w-2xl flex-1 text-xl leading-relaxed text-muted-foreground">
+							We integrated a fully operational <strong>IndexedDB</strong> instance right into your browser.
+							Drafts, sent invoices, and client lists are auto-saved in a persistent local vault. You
+							maintain absolute ledger sovereignty without external dependencies.
 						</p>
-					</div>
-				</Card.Root>
-
-				<!-- PDF Card -->
-				<Card.Root
-					class="group overflow-hidden rounded-3xl border-border/50 bg-card transition-all duration-300 hover:bg-muted/30 md:col-span-1"
-				>
-					<div class="p-8">
 						<div
-							class="mb-6 flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-500/10 transition-transform duration-300 group-hover:scale-110"
-						>
-							<FileText class="h-6 w-6 text-emerald-500" />
-						</div>
-						<h3 class="mb-2 text-xl font-bold">Vector PDFs</h3>
-						<p class="text-muted-foreground">
-							Crisp, professional PDF generation driven completely by client-side logic.
-						</p>
+							class="absolute right-[-10%] bottom-[-50%] h-140 w-140 rounded-full bg-primary/5 blur-[120px] transition-colors duration-700 group-hover:bg-primary/10"
+						></div>
 					</div>
-				</Card.Root>
+				</div>
 
-				<!-- Mobile Card -->
-				<Card.Root
-					class="group overflow-hidden rounded-3xl border-border/50 bg-linear-to-br from-card via-card/50 to-background transition-all duration-500 hover:shadow-lg md:col-span-3 lg:col-span-3"
+				<!-- Default Senders (Sticky Card 2) -->
+				<div
+					class="glass-panel group sticky top-[15vh] z-20 h-112.5 w-full overflow-hidden rounded-[2.5rem] border border-border/30 bg-background p-1 shadow-2xl ring-1 ring-white/5 transition-all duration-500 hover:border-border/60"
 				>
-					<div class="flex flex-col items-center gap-8 p-8 md:flex-row md:p-10">
-						<div class="flex-1 space-y-4">
-							<div
-								class="mb-2 flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-500/10 transition-transform duration-300 group-hover:scale-110"
-							>
-								<Smartphone class="h-6 w-6 text-indigo-500" />
-							</div>
-							<h3 class="text-2xl font-bold">Invoicing on the go</h3>
-							<p class="text-lg text-muted-foreground">
-								Fully responsive design ensures you can create, edit, and send invoices from your
-								phone or tablet. Perfect for digital nomads.
-							</p>
-							<div class="pt-2">
-								<Button variant="link" class="h-auto p-0 text-primary group-hover:underline">
-									Try mobile view <ArrowRight class="ml-2 h-4 w-4" />
-								</Button>
-							</div>
+					<div
+						class="relative z-10 flex h-full flex-col overflow-hidden rounded-[2.3rem] bg-card/95 p-10 md:p-14"
+					>
+						<div
+							class="mb-8 flex h-20 w-20 items-center justify-center rounded-[1.8rem] border border-border/40 bg-indigo-500/5 shadow-inner transition-transform duration-700 ease-out group-hover:-rotate-12"
+						>
+							<User class="h-10 w-10 text-indigo-500" />
 						</div>
-						<div class="relative w-full max-w-sm flex-1">
-							<!-- Abstract Phone Mockup -->
-							<div
-								class="rotate-3 rounded-[2.5rem] border-4 border-foreground/10 bg-foreground/5 p-3 shadow-2xl transition-transform duration-500 group-hover:rotate-0"
-							>
-								<div
-									class="relative aspect-9/16 overflow-hidden rounded-4xl border border-border/10 bg-background"
-								>
-									<div class="absolute inset-x-0 top-0 z-20 flex h-6 justify-center bg-muted/20">
-										<div class="h-4 w-20 rounded-b-xl bg-foreground/10"></div>
-									</div>
-									<div class="space-y-3 p-4 pt-10">
-										<div class="h-20 rounded-xl bg-primary/10"></div>
-										<div class="space-y-2">
-											<div class="h-4 w-3/4 rounded bg-muted/50"></div>
-											<div class="h-4 w-1/2 rounded bg-muted/30"></div>
-										</div>
-										<div class="mt-4 grid grid-cols-2 gap-2">
-											<div class="h-24 rounded-xl bg-muted/10"></div>
-											<div class="h-24 rounded-xl bg-muted/10"></div>
-										</div>
-									</div>
-								</div>
-							</div>
-						</div>
+						<h3 class="mb-4 text-3xl font-bold">Memory Synced</h3>
+						<p class="flex-1 text-xl leading-relaxed text-muted-foreground">
+							Configure your personal and banking details once. The engine automatically injects
+							your preferred profile into every new draft indefinitely.
+						</p>
+						<div
+							class="absolute right-[0%] bottom-[-50%] h-140 w-140 rounded-full bg-indigo-500/5 blur-[120px] transition-colors duration-700 group-hover:bg-indigo-500/10"
+						></div>
 					</div>
-				</Card.Root>
+				</div>
+
+				<!-- Vector PDFs (Sticky Card 3) -->
+				<div
+					class="glass-panel group sticky top-[15vh] z-30 h-112.5 w-full overflow-hidden rounded-[2.5rem] border border-border/30 bg-background p-1 shadow-2xl ring-1 ring-white/5 transition-all duration-500 hover:border-border/60"
+				>
+					<div
+						class="relative z-10 flex h-full flex-col overflow-hidden rounded-[2.3rem] bg-card/95 p-10 md:p-14"
+					>
+						<div
+							class="mb-8 flex h-20 w-20 items-center justify-center rounded-[1.8rem] border border-border/40 bg-emerald-500/5 shadow-inner transition-transform duration-700 ease-out group-hover:scale-110"
+						>
+							<Layers class="h-10 w-10 text-emerald-500" />
+						</div>
+						<h3 class="mb-4 text-3xl font-bold">Mathematical Vectors</h3>
+						<p class="flex-1 text-xl leading-relaxed text-muted-foreground">
+							Compiled natively. Pdfmake transforms your data points into mathematically perfect
+							vector documents directly inside the client execution environment, zero latency
+							included.
+						</p>
+						<div
+							class="absolute right-[-10%] bottom-[-50%] h-140 w-140 rounded-full bg-emerald-500/5 blur-[120px] transition-colors duration-700 group-hover:bg-emerald-500/10"
+						></div>
+					</div>
+				</div>
+
+				<!-- Live Preview (Sticky Card 4) -->
+				<div
+					class="glass-panel group sticky top-[15vh] z-40 h-112.5 w-full overflow-hidden rounded-[2.5rem] border border-border/30 bg-background p-1 shadow-2xl ring-1 ring-white/5 transition-all duration-500 hover:border-border/60"
+				>
+					<div
+						class="relative z-10 flex h-full flex-col overflow-hidden rounded-[2.3rem] bg-card/95 p-10 md:p-14"
+					>
+						<div
+							class="mb-8 flex h-20 w-20 items-center justify-center rounded-[1.8rem] border border-border/40 bg-amber-500/5 shadow-inner transition-transform duration-700 ease-out group-hover:rotate-12"
+						>
+							<Eye class="h-10 w-10 text-amber-500" />
+						</div>
+						<h3 class="mb-4 text-3xl font-bold">Optical Sync</h3>
+						<p class="flex-1 text-xl leading-relaxed text-muted-foreground">
+							An architectural dual-pane viewport provides real-time optical feedback. Change a
+							digit on the left workspace; watch the vector rebuild on the right instantaneously.
+						</p>
+						<div
+							class="absolute top-[-20%] right-[-20%] h-140 w-140 rounded-full bg-amber-500/5 blur-[120px] transition-colors duration-700 group-hover:bg-amber-500/10"
+						></div>
+					</div>
+				</div>
 			</div>
 		</div>
 	</section>
 
-	<!-- Steps Section -->
-	<section class="border-y border-border/40 bg-muted/30 py-24">
-		<div class="container mx-auto px-4">
-			<div class="mx-auto max-w-4xl">
-				<div class="mb-16 text-center">
-					<h2 class="mb-4 text-3xl font-bold">It's incredibly simple.</h2>
-					<p class="text-muted-foreground">Three steps. Zero headaches.</p>
+	<!-- Pricing Comparison -->
+	<section class="relative z-20 py-24 md:py-32">
+		<div class="container mx-auto px-6 lg:px-12">
+			<div
+				class="glass-panel mx-auto flex max-w-5xl flex-col overflow-hidden rounded-[3rem] border border-border/30 bg-background/50 shadow-2xl ring-1 ring-white/10 backdrop-blur-3xl md:flex-row dark:ring-white/5"
+			>
+				<!-- Typical SaaS -->
+				<div class="flex-1 border-b border-border/20 bg-muted/20 p-10 md:border-r md:border-b-0">
+					<div class="mb-6 flex items-center gap-3">
+						<div
+							class="flex h-10 w-10 items-center justify-center rounded-xl border border-destructive/20 bg-destructive/10 text-destructive"
+						>
+							<Minus class="h-5 w-5" />
+						</div>
+						<h3 class="font-mono text-sm tracking-wider text-muted-foreground uppercase">
+							Typical SaaS
+						</h3>
+					</div>
+					<div class="mb-8">
+						<span class="text-5xl font-extrabold text-foreground/80">$20</span>
+						<span class="text-lg text-muted-foreground">/ month</span>
+					</div>
+					<ul class="space-y-4 text-muted-foreground">
+						<li class="flex items-center gap-3">
+							<Minus class="h-4 w-4 opacity-50" /> Watermarks on free plan
+						</li>
+						<li class="flex items-center gap-3">
+							<Minus class="h-4 w-4 opacity-50" /> Requires user account
+						</li>
+						<li class="flex items-center gap-3">
+							<Minus class="h-4 w-4 opacity-50" /> Sells your client data
+						</li>
+						<li class="flex items-center gap-3">
+							<Minus class="h-4 w-4 opacity-50" /> Slow server processing
+						</li>
+					</ul>
 				</div>
 
-				<div class="relative grid gap-12 md:grid-cols-3">
-					<!-- Connecting Line (Desktop) -->
+				<!-- TIF Alternative -->
+				<div class="relative flex-1 overflow-hidden bg-card/60 p-10">
 					<div
-						class="absolute top-12 right-[16%] left-[16%] -z-10 hidden h-0.5 bg-linear-to-r from-transparent via-border to-transparent md:block"
+						class="absolute top-0 right-0 h-full w-1/2 bg-linear-to-l from-primary/5 to-transparent"
 					></div>
-
-					<!-- Step 1 -->
-					<div class="group relative flex flex-col items-center text-center">
-						<div
-							class="mb-6 flex h-24 w-24 items-center justify-center rounded-full border-4 border-muted bg-background shadow-sm transition-all duration-300 group-hover:border-primary/20 group-hover:bg-primary/5"
-						>
-							<PenLine
-								class="h-8 w-8 text-muted-foreground transition-colors group-hover:text-primary"
-							/>
+					<div class="relative z-10">
+						<div class="mb-6 flex items-center gap-3">
+							<div
+								class="flex h-10 w-10 items-center justify-center rounded-xl border border-primary/20 bg-primary/10 text-primary"
+							>
+								<Plus class="h-5 w-5" />
+							</div>
+							<h3 class="font-mono text-sm font-bold tracking-wider text-primary uppercase">
+								Tech Invoice Forge
+							</h3>
 						</div>
-						<h3 class="mb-2 text-xl font-bold">1. Draft</h3>
-						<p class="px-4 text-sm text-muted-foreground">
-							Fill in your client details and line items. The intuitive editor makes it a breeze.
-						</p>
-					</div>
-
-					<!-- Step 2 -->
-					<div class="group relative flex flex-col items-center text-center">
-						<div
-							class="mb-6 flex h-24 w-24 items-center justify-center rounded-full border-4 border-muted bg-background shadow-sm transition-all duration-300 group-hover:border-amber-500/20 group-hover:bg-amber-500/5"
-						>
-							<Eye
-								class="h-8 w-8 text-muted-foreground transition-colors group-hover:text-amber-500"
-							/>
+						<div class="mb-8">
+							<span class="text-5xl font-extrabold text-foreground">$0</span>
+							<span class="text-lg text-muted-foreground">/ forever</span>
 						</div>
-						<h3 class="mb-2 text-xl font-bold">2. Review</h3>
-						<p class="px-4 text-sm text-muted-foreground">
-							Check the live preview. Customize the theme to match your brand identity.
-						</p>
-					</div>
-
-					<!-- Step 3 -->
-					<div class="group relative flex flex-col items-center text-center">
-						<div
-							class="mb-6 flex h-24 w-24 items-center justify-center rounded-full border-4 border-muted bg-background shadow-sm transition-all duration-300 group-hover:border-emerald-500/20 group-hover:bg-emerald-500/5"
-						>
-							<Download
-								class="h-8 w-8 text-muted-foreground transition-colors group-hover:text-emerald-500"
-							/>
-						</div>
-						<h3 class="mb-2 text-xl font-bold">3. Ship</h3>
-						<p class="px-4 text-sm text-muted-foreground">
-							Download the PDF and send it off. No watermarks, even on the free version.
-						</p>
+						<ul class="space-y-4 text-foreground/80">
+							<li class="flex items-center gap-3">
+								<Check class="h-4 w-4 text-primary" /> Pristine Vector PDFs
+							</li>
+							<li class="flex items-center gap-3">
+								<Check class="h-4 w-4 text-primary" /> Offline By Default
+							</li>
+							<li class="flex items-center gap-3">
+								<Check class="h-4 w-4 text-primary" /> Absolute Ledger Privacy
+							</li>
+							<li class="flex items-center gap-3">
+								<Check class="h-4 w-4 text-primary" /> Instant Client-Side Generation
+							</li>
+						</ul>
 					</div>
 				</div>
+			</div>
+		</div>
+	</section>
+
+	<!-- System Capabilities -->
+	<section class="steps-section border-t border-border/40 bg-muted/5 py-24 md:py-32">
+		<div class="container mx-auto px-6 lg:px-12">
+			<div class="mx-auto max-w-4xl">
+				<div class="mb-20 text-center">
+					<h2 class="font-sans text-4xl font-extrabold tracking-tight md:text-5xl">
+						System Capabilities.
+					</h2>
+					<p class="mt-4 text-xl leading-relaxed text-muted-foreground">
+						A complete suite of financial tools running locally in your browser.
+					</p>
+				</div>
+
+				<div class="flex flex-col border-t border-border/40">
+					{#each features as feature, i}
+						<div
+							class="step-item group flex flex-col items-start justify-between border-b border-border/40 py-12 transition-colors hover:bg-muted/20 md:flex-row md:items-center"
+						>
+							<div class="flex items-center gap-8 md:w-1/2">
+								<span
+									class="font-mono text-2xl text-muted-foreground/30 transition-colors group-hover:text-primary"
+									>0{i + 1}</span
+								>
+								<h3
+									class="font-serif text-4xl font-light tracking-tight transition-transform duration-500 group-hover:translate-x-4 md:text-5xl"
+								>
+									{feature.title}
+								</h3>
+							</div>
+							<div class="mt-6 flex items-center gap-6 md:mt-0 md:w-1/3">
+								<div
+									class="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-muted text-foreground transition-colors duration-500 group-hover:bg-primary group-hover:text-primary-foreground"
+								>
+									<feature.icon class="h-6 w-6" />
+								</div>
+								<p class="text-lg leading-relaxed text-muted-foreground">
+									{feature.description}
+								</p>
+							</div>
+						</div>
+					{/each}
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<!-- FAQ -->
+	<section class="relative z-20 border-t border-border/40 bg-background py-24 md:py-32">
+		<div class="container mx-auto px-6 lg:px-12">
+			<div class="mx-auto max-w-3xl">
+				<div class="mb-16 text-center">
+					<h2 class="font-sans text-4xl font-extrabold tracking-tight md:text-5xl">
+						Engine Specifications.
+					</h2>
+					<p class="mt-4 text-xl text-muted-foreground">
+						Answers to frequent inquiries regarding the architecture.
+					</p>
+				</div>
+
+				<Accordion.Root type="single" class="w-full space-y-4">
+					{#each faqs as faq, i}
+						<Accordion.Item
+							value="item-{i}"
+							class="rounded-2xl border border-b-0 border-border/40 bg-muted/20 px-6 py-2 transition-all hover:bg-muted/40"
+						>
+							<Accordion.Trigger
+								class="text-left text-lg font-medium hover:no-underline data-[state=open]:text-primary"
+							>
+								{faq.question}
+							</Accordion.Trigger>
+							<Accordion.Content class="text-base leading-relaxed text-muted-foreground">
+								{faq.answer}
+							</Accordion.Content>
+						</Accordion.Item>
+					{/each}
+				</Accordion.Root>
 			</div>
 		</div>
 	</section>
 
 	<!-- Final CTA -->
-	<section class="relative overflow-hidden py-32">
-		<!-- Background Glow -->
-		<div class="absolute inset-0 bg-primary/5"></div>
-		<div class="absolute inset-0 bg-linear-to-t from-background to-transparent"></div>
+	<section
+		class="relative overflow-hidden border-t border-border/40 bg-zinc-950 py-36 text-zinc-50 dark:border-border/40 dark:bg-zinc-950"
+	>
+		<!-- Subtle cool ambient overlays -->
+		<div
+			class="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,var(--tw-gradient-stops))] from-zinc-900 via-transparent to-transparent opacity-40"
+		></div>
 
-		<div class="relative z-10 container mx-auto px-4 text-center">
-			<div class="mx-auto max-w-2xl space-y-8">
-				<h2 class="text-4xl font-bold tracking-tight md:text-5xl">Ready to get paid?</h2>
-				<p class="text-xl text-muted-foreground">
-					Join thousands of developers who trust TIF for their invoicing needs.
+		<div class="relative z-10 container mx-auto px-6 text-center">
+			<div class="mx-auto max-w-4xl space-y-10">
+				<h2
+					class="font-serif text-6xl leading-none font-light tracking-tight text-white italic md:text-[6.5rem]"
+				>
+					Ready for extraction?
+				</h2>
+				<p class="font-mono text-xl tracking-widest text-zinc-400 uppercase">
+					NO DATABASES. NO ACCOUNTS. JUST TOOLS.
 				</p>
-				<div class="flex flex-col justify-center gap-4 pt-4 sm:flex-row">
+				<div class="flex flex-col justify-center gap-4 pt-10 sm:flex-row">
 					<Button
 						size="lg"
 						href="/invoice/new"
-						class="h-14 rounded-full px-10 text-lg shadow-2xl transition-all duration-300 hover:-translate-y-1 hover:shadow-primary/50"
+						class="group h-16 rounded-full bg-white px-20 text-lg font-bold text-black shadow-2xl transition-all duration-300 hover:scale-[1.02] hover:bg-zinc-200 sm:h-20 sm:px-16 sm:text-xl"
 					>
-						Start Invoicing Now
+						Access Generator
+						<ArrowRight class="ml-4 h-6 w-6 transition-transform group-hover:translate-x-3" />
 					</Button>
 				</div>
-				<p class="pt-8 text-sm text-muted-foreground">
-					Open Source • Free Forever • No Account Needed
-				</p>
 			</div>
 		</div>
 	</section>
 </div>
-
-<style>
-	/* Custom animations that aren't in Tailwind by default */
-	.perspective-1000 {
-		perspective: 1000px;
-	}
-
-	@keyframes bounce-slow {
-		0%,
-		100% {
-			transform: translateY(-5%);
-		}
-		50% {
-			transform: translateY(5%);
-		}
-	}
-	.animate-bounce-slow {
-		animation: bounce-slow 3s infinite ease-in-out;
-	}
-	.animate-bounce-slow-delay {
-		animation: bounce-slow 3s infinite ease-in-out 1.5s;
-	}
-
-	@keyframes fadeInUp {
-		from {
-			opacity: 0;
-			transform: translateY(20px);
-		}
-		to {
-			opacity: 1;
-			transform: translateY(0);
-		}
-	}
-	.animate-fade-in-up {
-		animation: fadeInUp 0.7s ease-out forwards;
-		opacity: 0; /* Starte hidden */
-	}
-
-	@keyframes zoomIn {
-		from {
-			opacity: 0;
-			transform: scale(0.95);
-		}
-		to {
-			opacity: 1;
-			transform: scale(1);
-		}
-	}
-	.animate-zoom-in {
-		animation: zoomIn 1s ease-out forwards;
-		opacity: 0;
-	}
-</style>
