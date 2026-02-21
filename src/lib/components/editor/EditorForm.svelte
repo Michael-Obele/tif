@@ -194,7 +194,7 @@
 	}
 </script>
 
-<div class="space-y-4 p-4 md:p-6">
+<div class="h-full space-y-4 p-4 md:p-6">
 	<!-- Unsaved Changes Indicator -->
 	{#if invoiceStore.isDirty}
 		<Tooltip.Root>

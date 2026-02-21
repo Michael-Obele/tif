@@ -1,5 +1,6 @@
 import type { TemplateContext, TemplateDefinition } from '../types';
 import { formatCurrency, formatDate } from '../utils';
+import { parseMarkdown } from '../markdown';
 
 export const modernTemplate: TemplateDefinition = {
 	id: 'modern',
@@ -214,7 +215,12 @@ export const modernTemplate: TemplateDefinition = {
 					? {
 							stack: [
 								{ text: 'NOTES', style: 'sectionLabel' },
-								{ text: invoice.notes, color: '#666', lineHeight: 1.5, margin: [0, 8, 0, 0] }
+								{
+									stack: parseMarkdown(invoice.notes),
+									color: '#666',
+									lineHeight: 1.5,
+									margin: [0, 8, 0, 0]
+								}
 							],
 							margin: [0, 0, 0, 12]
 						}
@@ -226,7 +232,7 @@ export const modernTemplate: TemplateDefinition = {
 							stack: [
 								{ text: 'TERMS & CONDITIONS', style: 'sectionLabel' },
 								{
-									text: invoice.terms,
+									stack: parseMarkdown(invoice.terms),
 									color: '#666',
 									fontSize: 9,
 									lineHeight: 1.5,

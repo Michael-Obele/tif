@@ -1,5 +1,6 @@
 import type { TemplateContext, TemplateDefinition } from '../types';
 import { formatCurrency, formatDate } from '../utils';
+import { parseMarkdown } from '../markdown';
 
 const EMERALD_600 = '#059669';
 const EMERALD_500 = '#10b981';
@@ -268,7 +269,7 @@ export const techTemplate: TemplateDefinition = {
 							stack: [
 								{ text: '// NOTES', style: 'label', margin: [0, 0, 0, 8] },
 								{
-									text: invoice.notes,
+									stack: parseMarkdown(invoice.notes),
 									color: MUTED,
 									lineHeight: 1.5,
 									margin: [0, 8, 0, 0],
@@ -285,7 +286,7 @@ export const techTemplate: TemplateDefinition = {
 							stack: [
 								{ text: '// TERMS & CONDITIONS', style: 'label', margin: [0, 0, 0, 8] },
 								{
-									text: invoice.terms,
+									stack: parseMarkdown(invoice.terms),
 									color: MUTED,
 									fontSize: 9,
 									lineHeight: 1.5,

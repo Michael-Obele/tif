@@ -100,9 +100,11 @@
 	/>
 </svelte:head>
 
-<div class="relative flex h-[calc(100vh-3.5rem)] flex-col bg-background md:flex-row">
+<div class="relative flex h-[calc(100vh-4rem)] flex-col bg-background md:flex-row">
 	<!-- Left Panel: Editor -->
-	<div class="w-full overflow-y-auto border-r bg-background pb-20 md:w-1/2 md:pb-0 lg:w-5/12">
+	<div
+		class="h-full w-full overflow-y-auto border-r bg-background pb-20 md:w-1/2 md:pb-0 lg:w-5/12"
+	>
 		<EditorForm />
 	</div>
 

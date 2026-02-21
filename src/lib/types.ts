@@ -20,6 +20,9 @@ export interface Sender {
 	phone?: string;
 	taxId?: string;
 	logo?: string | null;
+	website?: string;
+	defaultTerms?: string;
+	bankAccounts?: BankAccount[];
 	isDefault: boolean;
 	createdAt: Date;
 	updatedAt: Date;
@@ -115,4 +118,15 @@ export interface AppSettings {
 	defaultTaxRate: number;
 	invoiceNumberConfig: InvoiceNumberConfig;
 	dateFormat: DateFormat;
+}
+
+export interface BankAccount {
+	id: string; // UUID
+	bankName: string;
+	accountName: string;
+	accountNumber: string;
+	routingNumber?: string;
+	swiftCode?: string;
+	iban?: string;
+	currency: CurrencyCode;
 }

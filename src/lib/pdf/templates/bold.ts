@@ -1,5 +1,6 @@
 import type { TemplateContext, TemplateDefinition } from '../types';
 import { formatCurrency, formatDate } from '../utils';
+import { parseMarkdown } from '../markdown';
 
 export const boldTemplate: TemplateDefinition = {
 	id: 'bold',
@@ -47,7 +48,13 @@ export const boldTemplate: TemplateDefinition = {
 		return {
 			pageMargins: [40, 0, 40, 40], // Zero top margin to allow header to bleed
 			content: [
-				// Black Header Block
+				// Black Header Background (Full Bleed)
+				{
+					canvas: [{ type: 'rect', x: 0, y: 0, w: 595, h: 160, color: '#000000' }],
+					absolutePosition: { x: 0, y: 0 }
+				},
+
+				// Header Content
 				{
 					stack: [
 						invoice.senderData?.logo
@@ -59,21 +66,20 @@ export const boldTemplate: TemplateDefinition = {
 							: {},
 						{
 							text: 'INVOICE',
-							color: '#94a3b8',
+							color: '#cccccc',
 							fontSize: 10,
 							bold: true,
-							characterSpacing: 2
+							characterSpacing: 2,
+							margin: [0, 0, 0, 4]
 						},
 						{
 							text: invoice.number || 'INV-001',
-							color: 'white',
+							color: '#ffffff',
 							fontSize: 28,
 							bold: true
 						}
 					],
-					background: '#0f172a',
-					margin: [-40, 0, -40, 30],
-					padding: [40, 40, 30, 40]
+					margin: [0, 30, 0, 80] // Push content below black header (160px)
 				},
 
 				// From / To Section (Now below header) - Better spacing
@@ -269,19 +275,33 @@ export const boldTemplate: TemplateDefinition = {
 				// Footer Notes - Better spacing
 				invoice.notes
 					? {
-							text: ['Notes: ', { text: invoice.notes, italics: true }],
-							margin: [0, 30, 0, 10],
-							color: '#64748b',
-							fontSize: 9,
-							lineHeight: 1.4
+							stack: [
+								{ text: 'Notes:', bold: true, fontSize: 9, color: '#64748b' },
+								{
+									stack: parseMarkdown(invoice.notes),
+									italics: true,
+									color: '#64748b',
+									fontSize: 9,
+									lineHeight: 1.4,
+									margin: [0, 2, 0, 0]
+								}
+							],
+							margin: [0, 30, 0, 10]
 						}
 					: {},
 				invoice.terms
 					? {
-							text: ['Terms: ', { text: invoice.terms, italics: true }],
-							fontSize: 9,
-							color: '#64748b',
-							lineHeight: 1.4,
+							stack: [
+								{ text: 'Terms:', bold: true, fontSize: 9, color: '#64748b' },
+								{
+									stack: parseMarkdown(invoice.terms),
+									italics: true,
+									fontSize: 9,
+									color: '#64748b',
+									lineHeight: 1.4,
+									margin: [0, 2, 0, 0]
+								}
+							],
 							margin: [0, 10, 0, 0]
 						}
 					: {}

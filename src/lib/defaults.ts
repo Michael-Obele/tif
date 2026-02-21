@@ -15,7 +15,10 @@ export const defaultSender: Omit<Sender, 'id' | 'createdAt' | 'updatedAt'> = {
 	phone: '',
 	taxId: '',
 	logo: null,
-	isDefault: false
+	website: '',
+	defaultTerms: '',
+	isDefault: false,
+	bankAccounts: []
 };
 
 export const defaultClient: Omit<Client, 'id' | 'createdAt' | 'updatedAt'> = {
