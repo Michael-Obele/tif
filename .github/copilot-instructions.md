@@ -54,3 +54,13 @@ You are an expert Svelte 5 developer. This project is an offline-first, client-s
 
 - **Context**: Use `mcp_svelte_get-documentation` for latest Svelte 5 logic.
 - **Validation**: Use `mcp_svelte_svelte-autofixer` to validate components before finishing.
+
+### Component Organization
+
+- **Blocks Folder**: Shared layout components (Navbar, Footer, mode-toggle, etc.) must be placed in `src/lib/components/blocks/`.
+- **Root Components**: Never place component files directly in `src/lib/components/` root. All components should be organized in subdirectories (`blocks/`, `ui/`, `editor/`, `profile/`).
+- **Imports**: When referencing blocks components, use paths like `$lib/components/blocks/Navbar.svelte`.
+
+### Build & Validation
+
+- **Type Checking**: Use `bun run check` for validation. This is sufficient for catching errors; avoid running `bun run build` during development unless specifically needed for production testing.
