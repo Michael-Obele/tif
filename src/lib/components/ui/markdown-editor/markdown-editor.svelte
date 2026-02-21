@@ -119,14 +119,7 @@
 			<span class="sr-only">Numbered List</span>
 		</Button>
 	</div>
-	<Textarea
-		bind:ref
-		bind:value
-		{placeholder}
-		{rows}
-		class="font-mono text-sm"
-		{...props}
-	/>
+	<Textarea bind:ref bind:value {placeholder} {rows} class="font-mono text-sm" {...props} />
 	<div class="text-right text-xs text-muted-foreground">
 		Supports basic markdown (Bold, Italic, Lists)
 	</div>
