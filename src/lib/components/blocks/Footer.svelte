@@ -109,7 +109,22 @@
 						</a>
 					{/each}
 				</div>
-				<p class="mt-4 text-xs text-muted-foreground">Open source and free to use</p>
+				<div class="mt-6 flex flex-col gap-3">
+					<div
+						class="flex w-max items-center gap-2 rounded-full border border-border/40 bg-background/50 px-3 py-1.5"
+					>
+						<span class="relative flex h-2 w-2">
+							<span
+								class="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"
+							></span>
+							<span class="relative inline-flex h-2 w-2 rounded-full bg-emerald-500"></span>
+						</span>
+						<span class="font-mono text-xs tracking-wider text-muted-foreground uppercase"
+							>System Operational</span
+						>
+					</div>
+					<p class="text-xs text-muted-foreground">Open source and free to use</p>
+				</div>
 			</div>
 		</div>
 
