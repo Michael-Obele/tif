@@ -67,6 +67,7 @@ You are an expert Svelte 5 developer. This project is an offline-first, client-s
 ### Build & Validation
 
 - **Type Checking**: Use `bun run check` for validation. This is sufficient for catching errors; avoid running `bun run build` during development unless specifically needed for production testing.
+- **Strict Adherence**: The AI should ALWAYS run `bun run check` and fix EVERY error identified in the output, especially errors originating from files the AI has modified. Ignoring errors from `bun run check` is not acceptable.
 
 ## 🗄️ Neon DB & Prisma v6 Setup
 
