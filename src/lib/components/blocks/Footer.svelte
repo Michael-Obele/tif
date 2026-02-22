@@ -1,8 +1,17 @@
 <script lang="ts">
+	import { page } from '$app/state';
 	import { Hammer, Github, ExternalLink, Heart } from '@lucide/svelte';
 	import { Separator } from '$lib/components/ui/separator';
+	import { cn } from '$lib/utils'; // Assumed from context, otherwise will import or just use template switch
 
 	const currentYear = new Date().getFullYear();
+
+	// Helper to check active state
+	function isActive(href: string) {
+		if (href === '/') return page.url.pathname === '/';
+		if (href.startsWith('http')) return false;
+		return page.url.pathname.startsWith(href);
+	}
 
 	const productLinks = [
 		{ href: '/', label: 'Home' },
@@ -75,7 +84,11 @@
 							<li>
 								<a
 									href={link.href}
-									class="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+									class={
+										isActive(link.href)
+											? 'text-foreground font-semibold flex items-center before:mr-2 before:h-1.5 before:w-1.5 before:rounded-full before:bg-indigo-600 before:content-[""] dark:before:bg-indigo-400'
+											: 'text-sm font-medium text-muted-foreground transition-colors hover:text-foreground'
+									}
 								>
 									{link.label}
 								</a>

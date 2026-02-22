@@ -10,6 +10,7 @@
 	import { navigationMenuTriggerStyle } from '$lib/components/ui/navigation-menu/navigation-menu-trigger.svelte';
 	import ModeToggle from './mode-toggle.svelte';
 	import { cn } from '$lib/utils';
+	import type { Snippet } from 'svelte';
 
 	let isOpen = $state(false);
 	let scrolled = $state(false);
@@ -38,12 +39,12 @@
 	}
 
 	function isActive(href: string): boolean {
-		if (href === '/') return page.url.pathname === '/';
-		return page.url.pathname.startsWith(href);
+		return href === '/' ? page.url.pathname === '/' : page.url.pathname.startsWith(href);
 	}
 
-	// ListItem component for Navigation Menu
-	import { type Snippet } from 'svelte';
+	// Active Style helper - Swiss Glassmorphic
+	const activeStyle =
+		'bg-indigo-50/80 text-indigo-700 font-semibold shadow-sm ring-1 ring-inset ring-indigo-500/10 dark:bg-indigo-500/10 dark:text-indigo-300 dark:ring-indigo-400/20';
 
 	interface ListItemProps {
 		class?: string;
@@ -173,10 +174,7 @@
 						<NavigationMenu.Item>
 							<NavigationMenu.Link
 								href="/invoice/new"
-								class={cn(
-									navigationMenuTriggerStyle(),
-									isActive('/invoice/new') && 'bg-accent text-accent-foreground'
-								)}
+								class={cn(navigationMenuTriggerStyle(), isActive('/invoice/new') && activeStyle)}
 							>
 								App
 							</NavigationMenu.Link>
@@ -185,10 +183,7 @@
 						<NavigationMenu.Item>
 							<NavigationMenu.Link
 								href="/invoices"
-								class={cn(
-									navigationMenuTriggerStyle(),
-									isActive('/invoices') && 'bg-accent text-accent-foreground'
-								)}
+								class={cn(navigationMenuTriggerStyle(), isActive('/invoices') && activeStyle)}
 							>
 								History
 							</NavigationMenu.Link>
@@ -197,17 +192,17 @@
 						<NavigationMenu.Item>
 							<NavigationMenu.Link
 								href="/profile"
-								class={cn(
-									navigationMenuTriggerStyle(),
-									isActive('/profile') && 'bg-accent text-accent-foreground'
-								)}
+								class={cn(navigationMenuTriggerStyle(), isActive('/profile') && activeStyle)}
 							>
 								Profile
 							</NavigationMenu.Link>
 						</NavigationMenu.Item>
 
 						<NavigationMenu.Item>
-							<NavigationMenu.Link href="/pricing" class={navigationMenuTriggerStyle()}>
+							<NavigationMenu.Link
+								href="/pricing"
+								class={cn(navigationMenuTriggerStyle(), isActive('/pricing') && activeStyle)}
+							>
 								Pricing
 							</NavigationMenu.Link>
 						</NavigationMenu.Item>
@@ -288,7 +283,7 @@
 										href="/invoice/new"
 										class={cn(
 											'flex items-center rounded-lg px-3 py-3 text-sm font-medium transition-colors hover:bg-muted',
-											isActive('/invoice/new') && 'bg-accent/50 text-accent-foreground'
+											isActive('/invoice/new') && activeStyle
 										)}
 										onclick={closeMenu}
 									>
@@ -299,7 +294,7 @@
 										href="/invoices"
 										class={cn(
 											'flex items-center rounded-lg px-3 py-3 text-sm font-medium transition-colors hover:bg-muted',
-											isActive('/invoices') && 'bg-accent/50 text-accent-foreground'
+											isActive('/invoices') && activeStyle
 										)}
 										onclick={closeMenu}
 									>
@@ -310,7 +305,7 @@
 										href="/profile"
 										class={cn(
 											'flex items-center rounded-lg px-3 py-3 text-sm font-medium transition-colors hover:bg-muted',
-											isActive('/profile') && 'bg-accent/50 text-accent-foreground'
+											isActive('/profile') && activeStyle
 										)}
 										onclick={closeMenu}
 									>
