@@ -547,6 +547,22 @@
 					</div>
 				</div>
 			</div>
+
+			<div class="mt-16 flex justify-center">
+				<Button
+					size="lg"
+					href="/pricing"
+					variant="secondary"
+					class="group relative h-14 overflow-hidden rounded-full border border-border/50 bg-background/50 px-8 font-medium shadow-sm backdrop-blur-xl transition-all duration-300 hover:border-border hover:bg-muted/50 hover:shadow-md"
+				>
+					<span class="relative z-10 flex items-center gap-2 text-base">
+						Explore Full Pricing & Cloud Sync
+						<ArrowRight
+							class="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1"
+						/>
+					</span>
+				</Button>
+			</div>
 		</div>
 	</section>
 
