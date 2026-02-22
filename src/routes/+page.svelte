@@ -201,6 +201,42 @@
 			stopScroll();
 		};
 	};
+
+	const animateLocalPrice: Attachment<HTMLElement> = (node) => {
+		const stopInViewPrice = inView(
+			node,
+			() => {
+				const controls = animate(100, 0, {
+					duration: 3,
+					ease: [0.16, 1, 0.3, 1],
+					onUpdate: (v) => {
+						node.textContent = `$${Math.round(v)}`;
+					}
+				});
+				return () => controls.stop();
+			},
+			{ margin: '0px 0px -15% 0px' }
+		);
+		return () => stopInViewPrice();
+	};
+
+	const animateCloudPrice: Attachment<HTMLElement> = (node) => {
+		const stopInViewPrice = inView(
+			node,
+			() => {
+				const controls = animate(0, 35, {
+					duration: 2,
+					ease: [0.16, 1, 0.3, 1],
+					onUpdate: (v) => {
+						node.textContent = `$${Math.round(v)}`;
+					}
+				});
+				return () => controls.stop();
+			},
+			{ margin: '0px 0px -15% 0px' }
+		);
+		return () => stopInViewPrice();
+	};
 </script>
 
 <svelte:head>
@@ -219,10 +255,7 @@
 	class="flex min-h-screen flex-col overflow-clip bg-background text-foreground selection:bg-zinc-200 selection:text-black"
 >
 	<!-- Hero Section -->
-	<section
-		{@attach animateHero}
-		class="hero-section relative pt-32 pb-24 md:pt-48 md:pb-32"
-	>
+	<section {@attach animateHero} class="hero-section relative pt-32 pb-24 md:pt-48 md:pb-32">
 		<!-- Minimal Ambient Light -->
 		<div class="ambient-light pointer-events-none absolute inset-0 overflow-hidden">
 			<div
@@ -443,7 +476,10 @@
 						paywalls and arbitrary limits.
 					</p>
 					<div class="mb-8 flex items-baseline gap-2">
-						<span class="text-5xl font-extrabold tracking-tight text-foreground/80">$20</span>
+						<span
+							class="text-5xl font-extrabold tracking-tight text-foreground/80"
+							{@attach animateCloudPrice}>$0</span
+						>
 						<span
 							class="font-mono text-xs font-medium tracking-widest text-muted-foreground uppercase"
 							>/ month</span
@@ -486,7 +522,10 @@
 							pay a cent for access.
 						</p>
 						<div class="mb-8 flex items-baseline gap-2">
-							<span class="text-5xl font-extrabold tracking-tight text-foreground">$0</span>
+							<span
+								class="text-5xl font-extrabold tracking-tight text-foreground"
+								{@attach animateLocalPrice}>$100</span
+							>
 							<span class="font-mono text-xs font-medium tracking-widest text-primary uppercase"
 								>/ forever</span
 							>

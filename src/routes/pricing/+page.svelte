@@ -49,6 +49,42 @@
 			stopInView();
 		};
 	};
+
+	const animateLocalPrice: Attachment<HTMLElement> = (node) => {
+		const stopInViewPrice = inView(
+			node,
+			() => {
+				const controls = animate(100, 0, {
+					duration: 3,
+					ease: [0.16, 1, 0.3, 1],
+					onUpdate: (v) => {
+						node.textContent = `$${Math.round(v)}`;
+					}
+				});
+				return () => controls.stop();
+			},
+			{ margin: '0px 0px -15% 0px' }
+		);
+		return () => stopInViewPrice();
+	};
+
+	const animateCloudPrice: Attachment<HTMLElement> = (node) => {
+		const stopInViewPrice = inView(
+			node,
+			() => {
+				const controls = animate(0, 20, {
+					duration: 3.5,
+					ease: [0.16, 1, 0.3, 1],
+					onUpdate: (v) => {
+						node.textContent = `$${Math.round(v)}`;
+					}
+				});
+				return () => controls.stop();
+			},
+			{ margin: '0px 0px -15% 0px' }
+		);
+		return () => stopInViewPrice();
+	};
 </script>
 
 <svelte:head>
@@ -128,7 +164,8 @@
 					</p>
 
 					<div class="mb-8 flex items-baseline gap-2">
-						<span class="text-7xl font-bold tracking-tighter">$0</span>
+						<span class="text-7xl font-bold tracking-tighter" {@attach animateLocalPrice}>$100</span
+						>
 						<span class="text-lg font-medium tracking-wide text-zinc-500">/ forever</span>
 					</div>
 
@@ -179,8 +216,8 @@
 					</p>
 
 					<div class="mb-8 flex items-baseline gap-2">
-						<span class="text-7xl font-bold tracking-tighter opacity-50">TBD</span>
-						<span class="text-lg font-medium tracking-wide text-zinc-500 opacity-50">/ mo</span>
+						<span class="text-7xl font-bold tracking-tighter" {@attach animateCloudPrice}>$0</span>
+						<span class="text-lg font-medium tracking-wide text-zinc-500">/ month</span>
 					</div>
 
 					<div class="mb-8 h-px w-full bg-zinc-200 opacity-50 dark:bg-white/10"></div>
