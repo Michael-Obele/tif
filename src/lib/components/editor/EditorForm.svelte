@@ -29,7 +29,7 @@
 		Zap,
 		Dot,
 		Clock,
-		Currency
+		Banknote
 	} from '@lucide/svelte';
 	import type { Unit, InvoiceStatus } from '$lib/types';
 	import type { TemplateId } from '$lib/pdf/types';
@@ -401,7 +401,7 @@
 					<div class="grid gap-4 sm:grid-cols-2">
 						<div class="space-y-2">
 							<Label for="currency" class="flex items-center gap-2">
-								<Currency class="h-4 w-4" />
+								<Banknote class="h-4 w-4" />
 								Currency
 							</Label>
 							<Select.Root
