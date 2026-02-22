@@ -107,9 +107,6 @@ bun run db:studio
 
 # Run migrations (if using migration files)
 bun run db:migrate
-
-# Seed initial data
-bun run db:seed
 ```
 
 ### Example Remote Function
