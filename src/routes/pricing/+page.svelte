@@ -1,9 +1,10 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button';
-	import { Check, X, Shield, ChevronRight } from '@lucide/svelte';
+	import { Check, X, Shield, ChevronRight, Sparkles } from '@lucide/svelte';
 	import { Badge } from '$lib/components/ui/badge';
 	import { animate, inView, stagger } from 'motion';
 	import type { Attachment } from 'svelte/attachments';
+	import WaitlistForm from '$lib/components/blocks/WaitlistForm.svelte';
 
 	const localFeatures = [
 		'Unlimited invoices',
@@ -72,7 +73,7 @@
 		const stopInViewPrice = inView(
 			node,
 			() => {
-				const controls = animate(0, 20, {
+				const controls = animate(0, 8, {
 					duration: 3.5,
 					ease: [0.16, 1, 0.3, 1],
 					onUpdate: (v) => {
@@ -99,19 +100,19 @@
 >
 	<!-- Ambient Background Orbs -->
 	<div
-		class="pointer-events-none absolute top-[-10%] left-[-10%] z-0 h-[50vh] w-[50vh] rounded-full bg-indigo-500/20 blur-[100px] dark:bg-indigo-600/30"
+		class="pointer-events-none absolute top-[-10%] left-[-10%] h-[50vh] w-[50vh] rounded-full bg-indigo-500/20 blur-[100px] dark:bg-indigo-600/30"
 	></div>
 	<div
-		class="pointer-events-none absolute right-[-10%] bottom-[-10%] z-0 h-[50vh] w-[50vh] rounded-full bg-blue-500/20 blur-[120px] dark:bg-fuchsia-600/20"
+		class="pointer-events-none absolute right-[-10%] bottom-[-10%] h-[50vh] w-[50vh] rounded-full bg-blue-500/20 blur-[120px] dark:bg-fuchsia-600/20"
 	></div>
 
 	<!-- Swiss Grid Overlay -->
 	<div
-		class="pointer-events-none absolute inset-0 z-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-size-[24px_24px] dark:bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)]"
+		class="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-size-[24px_24px] dark:bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)]"
 	></div>
 
 	<!-- Main Content -->
-	<div class="relative z-10 mx-auto max-w-7xl px-6 pt-32 pb-32">
+	<div class="relative mx-auto max-w-7xl px-6 pt-32 pb-32">
 		<!-- Hero Section -->
 		<header class="swiss-reveal mb-24 grid grid-cols-1 gap-12 lg:grid-cols-12">
 			<div class="lg:col-span-8">
@@ -150,7 +151,7 @@
 					class="pointer-events-none absolute inset-0 rounded-4xl ring-1 ring-indigo-500/20 ring-inset dark:ring-indigo-400/20"
 				></div>
 
-				<div class="relative z-10 flex flex-1 flex-col">
+				<div class="relative flex flex-1 flex-col">
 					<div class="mb-4 flex items-center justify-between">
 						<h2 class="text-3xl font-bold tracking-tight">Local Edition</h2>
 						<Badge
@@ -199,7 +200,7 @@
 			<div
 				class="glass-card flex flex-col justify-between overflow-hidden rounded-4xl border border-zinc-200/50 bg-white/30 p-10 backdrop-blur-xl dark:border-white/5 dark:bg-white/2"
 			>
-				<div class="relative z-10 flex flex-1 flex-col">
+				<div class="relative flex flex-1 flex-col">
 					<div class="mb-4 flex items-center justify-between">
 						<h2 class="text-3xl font-medium tracking-tight text-zinc-500 dark:text-zinc-400">
 							Cloud Sync
@@ -235,14 +236,22 @@
 						{/each}
 					</ul>
 
-					<Button
-						size="lg"
-						variant="outline"
-						class="mt-auto h-16 w-full rounded-2xl border-2 border-zinc-200 bg-transparent text-lg font-semibold text-zinc-600 dark:border-white/10 dark:text-zinc-400"
-						disabled
-					>
-						Join Priority Access
-					</Button>
+					<div class="mt-auto border-t border-zinc-200/50 pt-6 dark:border-white/5">
+						<div class="mb-4 flex items-center gap-2">
+							<div
+								class="flex h-6 w-6 items-center justify-center rounded-full bg-indigo-100 dark:bg-indigo-900/30"
+							>
+								<Sparkles class="h-3 w-3 text-indigo-600 dark:text-indigo-400" />
+							</div>
+							<span
+								class="text-xs font-bold tracking-wider text-zinc-500 uppercase dark:text-zinc-400"
+								>Join Priority Access</span
+							>
+						</div>
+						<div class="w-full">
+							<WaitlistForm />
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>
