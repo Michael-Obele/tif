@@ -19,8 +19,8 @@
 		Database,
 		Cpu
 	} from '@lucide/svelte';
-	import { gsap } from 'gsap';
-	import { ScrollTrigger } from 'gsap/ScrollTrigger';
+	import { animate, scroll, inView, stagger } from 'motion';
+	import type { Attachment } from 'svelte/attachments';
 
 	const saasDrawbacks = [
 		'Watermarks on free plan',
@@ -134,80 +134,73 @@
 		{ label: 'Creators', color: 'bg-amber-500/60' }
 	];
 
-	$effect(() => {
-		gsap.registerPlugin(ScrollTrigger);
-		let ctx = gsap.context(() => {
-			// Fluid Staggered Entrance
-			gsap.fromTo(
-				'.hero-element',
-				{ y: 50, opacity: 0 },
-				{ y: 0, opacity: 1, duration: 1.2, stagger: 0.1, ease: 'power3.out' }
-			);
+	const animateHero: Attachment<HTMLElement> = (node) => {
+		// Fluid Staggered Entrance
+		const heroEntrance = animate(
+			'.hero-element',
+			{ y: [50, 0], opacity: [0, 1] },
+			{ duration: 1.2, delay: stagger(0.1), ease: [0.33, 1, 0.68, 1] }
+		);
 
-			// Abstract UI Mockup Bloom
-			gsap.fromTo(
-				'.hero-mockup',
-				{ y: 80, opacity: 0, scale: 0.95 },
-				{ y: 0, opacity: 1, scale: 1, duration: 1.4, ease: 'power3.out', delay: 0.3 }
-			);
+		// Abstract UI Mockup Bloom
+		const heroMockup = animate(
+			'.hero-mockup',
+			{ y: [80, 0], opacity: [0, 1], scale: [0.95, 1] },
+			{ duration: 1.4, ease: [0.33, 1, 0.68, 1], delay: 0.3 }
+		);
 
-			// Floating Magnetic Cards
-			gsap.fromTo(
-				'.mockup-float',
-				{ y: 30, opacity: 0 },
-				{ y: 0, opacity: 1, duration: 1.2, stagger: 0.2, ease: 'back.out(1.4)', delay: 1 }
-			);
+		// Floating Magnetic Cards
+		const mockupFloat = animate(
+			'.mockup-float',
+			{ y: [30, 0], opacity: [0, 1] },
+			{
+				duration: 1.2,
+				delay: stagger(0.2, { startDelay: 1 }),
+				ease: [0.34, 1.56, 0.64, 1]
+			}
+		);
 
-			// Unified Scroll Triggered Glass Panels
-			gsap.utils.toArray('.glass-panel').forEach((panel) => {
-				gsap.fromTo(
-					panel as Element,
-					{ y: 60, opacity: 0 },
-					{
-						y: 0,
-						opacity: 1,
-						duration: 1.2,
-						ease: 'power3.out',
-						scrollTrigger: {
-							trigger: panel as Element,
-							start: 'top 85%'
-						}
-					}
+		// Unified Scroll Triggered Glass Panels
+		const stopInViewPanels = inView(
+			'.glass-panel',
+			(element) => {
+				animate(
+					element,
+					{ y: [60, 0], opacity: [0, 1] },
+					{ duration: 1.2, ease: [0.33, 1, 0.68, 1] }
 				);
-			});
+			},
+			{ margin: '0px 0px -15% 0px' }
+		);
 
-			// Protocol Steps Stagger
-			gsap.fromTo(
-				'.step-item',
-				{ y: 50, opacity: 0 },
-				{
-					y: 0,
-					opacity: 1,
-					duration: 1.2,
-					stagger: 0.2,
-					ease: 'power3.out',
-					scrollTrigger: {
-						trigger: '.steps-section',
-						start: 'top 80%'
-					}
-				}
-			);
+		// Protocol Steps Stagger
+		const stopInViewSteps = inView(
+			'.steps-section',
+			() => {
+				animate(
+					'.step-item',
+					{ y: [50, 0], opacity: [0, 1] },
+					{ duration: 1.2, delay: stagger(0.2), ease: [0.33, 1, 0.68, 1] }
+				);
+			},
+			{ margin: '0px 0px -20% 0px' }
+		);
 
-			// Parallax Ambient Light
-			gsap.to('.ambient-light', {
-				y: '30vh',
-				ease: 'none',
-				scrollTrigger: {
-					trigger: '.hero-section',
-					start: 'top top',
-					end: 'bottom top',
-					scrub: true
-				}
-			});
+		// Parallax Ambient Light
+		const stopScroll = scroll(animate('.ambient-light', { y: [0, '30vh'] }, { ease: 'linear' }), {
+			target: node,
+			offset: ['start start', 'end start']
 		});
 
-		return () => ctx.revert();
-	});
+		return () => {
+			heroEntrance.stop();
+			heroMockup.stop();
+			mockupFloat.stop();
+			stopInViewPanels();
+			stopInViewSteps();
+			stopScroll();
+		};
+	};
 </script>
 
 <svelte:head>
@@ -226,7 +219,10 @@
 	class="flex min-h-screen flex-col overflow-clip bg-background text-foreground selection:bg-zinc-200 selection:text-black"
 >
 	<!-- Hero Section -->
-	<section class="hero-section relative pt-32 pb-24 md:pt-48 md:pb-32">
+	<section
+		{@attach animateHero}
+		class="hero-section relative pt-32 pb-24 md:pt-48 md:pb-32"
+	>
 		<!-- Minimal Ambient Light -->
 		<div class="ambient-light pointer-events-none absolute inset-0 overflow-hidden">
 			<div

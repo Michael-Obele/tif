@@ -2,9 +2,8 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Check, X, Shield, ChevronRight } from '@lucide/svelte';
 	import { Badge } from '$lib/components/ui/badge';
-	import { gsap } from 'gsap';
-	import { ScrollTrigger } from 'gsap/dist/ScrollTrigger';
-	import type { Action } from 'svelte/action';
+	import { animate, inView, stagger } from 'motion';
+	import type { Attachment } from 'svelte/attachments';
 
 	const localFeatures = [
 		'Unlimited invoices',
@@ -26,40 +25,29 @@
 		'Priority support'
 	];
 
-	const initGsap: Action<HTMLElement> = (node) => {
-		if (typeof window !== 'undefined') {
-			gsap.registerPlugin(ScrollTrigger);
+	const animatePricing: Attachment<HTMLElement> = (node) => {
+		const swissReveal = animate(
+			'.swiss-reveal',
+			{ y: [50, 0], opacity: [0, 1] },
+			{ duration: 1, delay: stagger(0.15), ease: [0.16, 1, 0.3, 1] } // expo.out
+		);
 
-			const ctx = gsap.context(() => {
-				// Base staggered reveal
-				gsap.from('.swiss-reveal', {
-					y: 50,
-					opacity: 0,
-					duration: 1,
-					stagger: 0.15,
-					ease: 'expo.out'
-				});
+		const stopInView = inView(
+			'.pricing-cards-container',
+			() => {
+				animate(
+					'.glass-card',
+					{ y: [60, 0], opacity: [0, 1] },
+					{ duration: 1.2, delay: stagger(0.2), ease: [0.16, 1, 0.3, 1] }
+				);
+			},
+			{ margin: '0px 0px -15% 0px' }
+		);
 
-				// Card stagger
-				gsap.from('.glass-card', {
-					scrollTrigger: {
-						trigger: '.pricing-cards-container',
-						start: 'top 85%'
-					},
-					y: 60,
-					opacity: 0,
-					duration: 1.2,
-					stagger: 0.2,
-					ease: 'expo.out'
-				});
-			}, node);
-
-			return {
-				destroy() {
-					ctx.revert();
-				}
-			};
-		}
+		return () => {
+			swissReveal.stop();
+			stopInView();
+		};
 	};
 </script>
 
@@ -70,7 +58,7 @@
 
 <!-- Outer Container: Gradient / Mesh background for Glassmorphism pop -->
 <div
-	use:initGsap
+	{@attach animatePricing}
 	class="relative min-h-screen w-full overflow-hidden bg-white text-slate-900 selection:bg-indigo-500/30 dark:bg-[#07070A] dark:text-zinc-50"
 >
 	<!-- Ambient Background Orbs -->
