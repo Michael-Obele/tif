@@ -28,27 +28,17 @@
 		Terminal,
 		Zap,
 		Dot,
-		Clock
+		Clock,
+		Currency
 	} from '@lucide/svelte';
 	import type { Unit, InvoiceStatus } from '$lib/types';
-	import { templates } from '$lib/pdf/templates';
 	import type { TemplateId } from '$lib/pdf/types';
+	import { CURRENCIES } from '$lib/constants';
 
-	// Currency options
-	const currencies = [
-		{ value: 'USD', label: 'USD ($)' },
-		{ value: 'EUR', label: 'EUR (€)' },
-		{ value: 'GBP', label: 'GBP (£)' },
-		{ value: 'CAD', label: 'CAD ($)' },
-		{ value: 'AUD', label: 'AUD ($)' },
-		{ value: 'JPY', label: 'JPY (¥)' },
-		{ value: 'INR', label: 'INR (₹)' },
-		{ value: 'NGN', label: 'NGN (₦)' },
-		{ value: 'CHF', label: 'CHF' },
-		{ value: 'CNY', label: 'CNY (¥)' },
-		{ value: 'BRL', label: 'BRL (R$)' },
-		{ value: 'MXN', label: 'MXN ($)' }
-	];
+	const selectedCurrency = $derived(
+		CURRENCIES.find((c) => c.code === invoiceStore.invoice.currency)
+	);
+	const currencySymbol = $derived(selectedCurrency?.symbol ?? invoiceStore.invoice.currency);
 
 	// Unit options
 	const units: { value: Unit; label: string }[] = [
@@ -70,22 +60,6 @@
 		{ value: 'overdue', label: 'Overdue' },
 		{ value: 'cancelled', label: 'Cancelled' }
 	];
-
-	// Payment terms options
-	const paymentTermsOptions = [
-		{ value: 'due_on_receipt', label: 'Due on Receipt' },
-		{ value: 'net_7', label: 'Net 7' },
-		{ value: 'net_15', label: 'Net 15' },
-		{ value: 'net_30', label: 'Net 30' },
-		{ value: 'net_45', label: 'Net 45' },
-		{ value: 'net_60', label: 'Net 60' }
-	];
-
-	// Template options
-	const templateOptions = Object.values(templates).map((t) => ({
-		value: t.id,
-		label: t.name
-	}));
 
 	// Collapsible states
 	let senderOpen = $state(true);
@@ -426,7 +400,10 @@
 					</div>
 					<div class="grid gap-4 sm:grid-cols-2">
 						<div class="space-y-2">
-							<Label for="currency">Currency</Label>
+							<Label for="currency" class="flex items-center gap-2">
+								<Currency class="h-4 w-4" />
+								Currency
+							</Label>
 							<Select.Root
 								type="single"
 								value={invoiceStore.invoice.currency}
@@ -435,13 +412,25 @@
 								}}
 							>
 								<Select.Trigger id="currency" class="w-full">
-									{currencies.find((c) => c.value === invoiceStore.invoice.currency)?.label ||
-										'Select currency'}
+									{selectedCurrency
+										? `${selectedCurrency.name} (${selectedCurrency.symbol})`
+										: 'Select currency'}
 								</Select.Trigger>
 								<Select.Content>
-									{#each currencies as currency}
-										<Select.Item value={currency.value}>{currency.label}</Select.Item>
-									{/each}
+									<Select.Group>
+										<Select.Label>Currencies</Select.Label>
+										{#each CURRENCIES as currency}
+											<Select.Item value={currency.code} label={currency.name}>
+												<div class="flex items-center gap-2">
+													<span class="w-8 font-mono text-xs text-muted-foreground"
+														>{currency.code}</span
+													>
+													<span>{currency.name}</span>
+													<span class="ml-auto font-mono">{currency.symbol}</span>
+												</div>
+											</Select.Item>
+										{/each}
+									</Select.Group>
 								</Select.Content>
 							</Select.Root>
 						</div>
@@ -605,7 +594,7 @@
 					</div>
 					<div class="mt-3 flex justify-end border-t border-border/50 pt-2">
 						<span class="font-mono text-sm font-medium">
-							{invoiceStore.invoice.currency}
+							{currencySymbol}
 							{getLineAmount(item.quantity, item.rate).toFixed(2)}
 						</span>
 					</div>
@@ -659,31 +648,34 @@
 		<Card.Content class="space-y-2 py-4">
 			<div class="flex justify-between text-sm">
 				<span class="text-muted-foreground">Subtotal</span>
-				<span class="font-mono"
-					>{invoiceStore.invoice.currency} {invoiceStore.subtotal.toFixed(2)}</span
-				>
+				<span class="font-mono">
+					{currencySymbol}
+					{invoiceStore.subtotal.toFixed(2)}
+				</span>
 			</div>
 			{#if invoiceStore.taxTotal > 0}
 				<div class="flex justify-between text-sm">
 					<span class="text-muted-foreground">Tax</span>
-					<span class="font-mono"
-						>{invoiceStore.invoice.currency} {invoiceStore.taxTotal.toFixed(2)}</span
-					>
+					<span class="font-mono">
+						{currencySymbol}
+						{invoiceStore.taxTotal.toFixed(2)}
+					</span>
 				</div>
 			{/if}
 			{#if invoiceStore.discountAmount > 0}
 				<div class="flex justify-between text-sm text-emerald-600 dark:text-emerald-400">
 					<span>Discount</span>
-					<span class="font-mono"
-						>-{invoiceStore.invoice.currency} {invoiceStore.discountAmount.toFixed(2)}</span
-					>
+					<span class="font-mono">
+						-{currencySymbol}
+						{invoiceStore.discountAmount.toFixed(2)}
+					</span>
 				</div>
 			{/if}
 			<Separator />
 			<div class="flex justify-between">
 				<span class="font-semibold">Total</span>
 				<span class="font-mono text-xl font-bold text-primary">
-					{invoiceStore.invoice.currency}
+					{currencySymbol}
 					{invoiceStore.total.toFixed(2)}
 				</span>
 			</div>

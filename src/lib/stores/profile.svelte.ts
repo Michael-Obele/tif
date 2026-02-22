@@ -10,6 +10,7 @@ export class ProfileStore {
 		phone: '',
 		taxId: '',
 		logo: null,
+		defaultCurrency: 'USD',
 		isDefault: true,
 		bankAccounts: [],
 		createdAt: new Date(),

@@ -4,10 +4,12 @@
 	import { Textarea } from '$lib/components/ui/textarea';
 	import { Button } from '$lib/components/ui/button';
 	import * as Card from '$lib/components/ui/card';
+	import * as Select from '$lib/components/ui/select/index';
 	import { profileStore } from '$lib/stores/profile.svelte';
-	import { Plus, Trash2, Save, Building2, Landmark } from '@lucide/svelte';
+	import { Plus, Trash2, Save, Building2, Landmark, Currency } from '@lucide/svelte';
 	import type { Sender } from '$lib/types';
 	import { toast } from 'svelte-sonner';
+	import { CURRENCIES } from '$lib/constants';
 
 	let { sender = $bindable() }: { sender: Sender } = $props();
 
@@ -77,6 +79,33 @@
 						placeholder="https://acme.com"
 					/>
 				</div>
+				<div class="space-y-2">
+					<Label class="flex items-center gap-2">
+						<Currency class="h-4 w-4" />
+						Default Currency
+					</Label>
+					<Select.Root type="single" bind:value={sender.defaultCurrency}>
+						<Select.Trigger class="w-full">
+							{@const selected = CURRENCIES.find((c) => c.code === sender.defaultCurrency)}
+							{selected ? `${selected.name} (${selected.symbol})` : 'Select currency'}
+						</Select.Trigger>
+						<Select.Content>
+							<Select.Group>
+								<Select.Label>Currencies</Select.Label>
+								{#each CURRENCIES as currency}
+									<Select.Item value={currency.code} label={currency.name}>
+										<div class="flex items-center gap-2">
+											<span class="w-8 text-xs font-mono text-muted-foreground">{currency.code}</span
+											>
+											<span>{currency.name}</span>
+											<span class="ml-auto font-mono">{currency.symbol}</span>
+										</div>
+									</Select.Item>
+								{/each}
+							</Select.Group>
+						</Select.Content>
+					</Select.Root>
+				</div>
 			</div>
 			<div class="space-y-2">
 				<Label for="address">Address</Label>
@@ -143,8 +172,32 @@
 							<Input bind:value={account.routingNumber} placeholder="123456789" />
 						</div>
 						<div class="space-y-2">
-							<Label>Currency</Label>
-							<Input bind:value={account.currency} placeholder="USD" class="w-full" />
+							<Label class="flex items-center gap-2">
+								<Currency class="h-3 w-3 text-muted-foreground" />
+								Currency
+							</Label>
+							<Select.Root type="single" bind:value={account.currency}>
+								<Select.Trigger class="w-full">
+									{@const selected = CURRENCIES.find((c) => c.code === account.currency)}
+									{selected ? `${selected.name} (${selected.symbol})` : 'Select currency'}
+								</Select.Trigger>
+								<Select.Content>
+									<Select.Group>
+										<Select.Label>Currencies</Select.Label>
+										{#each CURRENCIES as currency}
+											<Select.Item value={currency.code} label={currency.name}>
+												<div class="flex items-center gap-2">
+													<span class="w-8 text-xs font-mono text-muted-foreground"
+														>{currency.code}</span
+													>
+													<span>{currency.name}</span>
+													<span class="ml-auto font-mono">{currency.symbol}</span>
+												</div>
+											</Select.Item>
+										{/each}
+									</Select.Group>
+								</Select.Content>
+							</Select.Root>
 						</div>
 					</div>
 				{/each}

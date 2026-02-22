@@ -2,6 +2,7 @@ import { defaultInvoice, defaultLineItem } from '$lib/defaults';
 import type { Invoice, LineItem } from '$lib/types';
 import { db } from '$lib/db/db';
 import { browser } from '$app/environment';
+import { profileStore } from '$lib/stores/profile.svelte';
 
 // Debounce helper
 function debounce<T extends (...args: unknown[]) => void>(fn: T, delay: number): T {
@@ -58,6 +59,7 @@ function serializeInvoiceForStorage(invoice: Invoice): Invoice {
 					email: snapshot.senderData.email || '',
 					phone: snapshot.senderData.phone,
 					taxId: snapshot.senderData.taxId,
+					defaultCurrency: snapshot.senderData.defaultCurrency,
 					isDefault: snapshot.senderData.isDefault || false,
 					createdAt:
 						snapshot.senderData.createdAt instanceof Date
@@ -372,6 +374,9 @@ export class InvoiceStore {
 			// Create fresh draft for new invoice (THIS CLEARS THE FORM)
 			this.invoice = {
 				...defaultInvoice,
+				senderId: profileStore.sender?.id || null,
+				senderData: $state.snapshot(profileStore.sender),
+				currency: profileStore.sender.defaultCurrency || defaultInvoice.currency,
 				isDraft: true,
 				createdAt: new Date(),
 				updatedAt: new Date()
@@ -455,6 +460,9 @@ export class InvoiceStore {
 				console.log('[InvoiceStore] No draft found, using defaults');
 				this.invoice = {
 					...defaultInvoice,
+					senderId: profileStore.sender?.id || null,
+					senderData: $state.snapshot(profileStore.sender),
+					currency: profileStore.sender?.defaultCurrency || defaultInvoice.currency,
 					isDraft: true,
 					createdAt: new Date(),
 					updatedAt: new Date()
@@ -465,6 +473,9 @@ export class InvoiceStore {
 			// Fall back to defaults on load error
 			this.invoice = {
 				...defaultInvoice,
+				senderId: profileStore.sender?.id || null,
+				senderData: $state.snapshot(profileStore.sender),
+				currency: profileStore.sender?.defaultCurrency || defaultInvoice.currency,
 				isDraft: true,
 				createdAt: new Date(),
 				updatedAt: new Date()
@@ -593,6 +604,9 @@ export class InvoiceStore {
 
 		this.invoice = {
 			...defaultInvoice,
+			senderId: profileStore.sender?.id || null,
+			senderData: $state.snapshot(profileStore.sender),
+			currency: profileStore.sender?.defaultCurrency || defaultInvoice.currency,
 			isDraft: true,
 			createdAt: new Date(),
 			updatedAt: new Date()

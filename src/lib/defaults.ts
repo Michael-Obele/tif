@@ -16,6 +16,7 @@ export const defaultSender: Omit<Sender, 'id' | 'createdAt' | 'updatedAt'> = {
 	taxId: '',
 	logo: null,
 	website: '',
+	defaultCurrency: 'USD',
 	defaultTerms: '',
 	isDefault: false,
 	bankAccounts: []

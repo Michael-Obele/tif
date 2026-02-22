@@ -21,6 +21,7 @@ export interface Sender {
 	taxId?: string;
 	logo?: string | null;
 	website?: string;
+	defaultCurrency?: CurrencyCode;
 	defaultTerms?: string;
 	bankAccounts?: BankAccount[];
 	isDefault: boolean;
