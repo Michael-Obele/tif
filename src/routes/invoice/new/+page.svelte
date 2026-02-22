@@ -100,7 +100,9 @@
 	/>
 </svelte:head>
 
-<div class="relative flex h-[calc(100vh-4rem)] flex-col bg-background md:flex-row">
+<div
+	class="relative flex h-[calc(100vh-6rem)] min-h-0 flex-col overflow-hidden bg-background md:h-[calc(100vh-7rem)] md:flex-row"
+>
 	<!-- Left Panel: Editor -->
 	<div
 		class="h-full w-full overflow-y-auto border-r bg-background pb-20 md:w-1/2 md:pb-0 lg:w-5/12"
