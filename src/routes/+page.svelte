@@ -1,10 +1,6 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button';
-	import { Badge } from '$lib/components/ui/badge';
-	import * as Card from '$lib/components/ui/card';
 	import * as Accordion from '$lib/components/ui/accordion';
-	import { Separator } from '$lib/components/ui/separator';
-	import { slide } from 'svelte/transition';
 	import FeatureCard from '$lib/components/blocks/FeatureCard.svelte';
 	import {
 		Zap,
@@ -14,22 +10,14 @@
 		Check,
 		User,
 		Eye,
-		Download,
 		History,
 		Layers,
-		MoveRight,
-		CreditCard,
 		Plus,
 		Minus,
-		MessageSquare,
-		Star,
 		LayoutTemplate,
 		FileText,
 		Database,
-		Lock,
-		Cpu,
-		Infinity,
-		Sparkles
+		Cpu
 	} from '@lucide/svelte';
 	import { gsap } from 'gsap';
 	import { ScrollTrigger } from 'gsap/ScrollTrigger';
