@@ -2,6 +2,7 @@
 	import * as Tabs from '$lib/components/ui/tabs';
 	import SenderForm from '$lib/components/profile/sender-form.svelte';
 	import ClientList from '$lib/components/profile/client-list.svelte';
+	import ProfileTransferPanel from '$lib/components/profile/profile-transfer-panel.svelte';
 	import { profileStore } from '$lib/stores/profile.svelte';
 </script>
 
@@ -15,6 +16,7 @@
 		<Tabs.List>
 			<Tabs.Trigger value="profile">My Profile</Tabs.Trigger>
 			<Tabs.Trigger value="clients">Clients</Tabs.Trigger>
+			<Tabs.Trigger value="transfer">Import & Export</Tabs.Trigger>
 		</Tabs.List>
 
 		<Tabs.Content value="profile" class="space-y-6 outline-none">
@@ -23,6 +25,10 @@
 
 		<Tabs.Content value="clients" class="space-y-6 outline-none">
 			<ClientList />
+		</Tabs.Content>
+
+		<Tabs.Content value="transfer" class="space-y-6 outline-none">
+			<ProfileTransferPanel />
 		</Tabs.Content>
 	</Tabs.Root>
 </div>

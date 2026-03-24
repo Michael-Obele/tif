@@ -1,6 +1,14 @@
 import { db } from '$lib/db/db';
 import type { Sender, Client, BankAccount } from '$lib/types';
 import { browser } from '$app/environment';
+import { createProfileTransferText, parseProfileTransferText } from '$lib/utils/profile-transfer';
+
+export interface ProfileImportResult {
+	createdClients: number;
+	updatedClients: number;
+	totalClients: number;
+	replacedSender: boolean;
+}
 
 export class ProfileStore {
 	sender = $state<Sender>({
@@ -129,6 +137,86 @@ export class ProfileStore {
 		} catch (error) {
 			console.error('Error deleting client:', error);
 		}
+	}
+
+	exportProfileText() {
+		const sender = $state.snapshot(this.sender);
+		const clients = $state.snapshot(this.clients);
+
+		return createProfileTransferText(sender, clients);
+	}
+
+	async importProfileText(rawText: string): Promise<ProfileImportResult> {
+		if (!browser) {
+			throw new Error('Profile import is only available in the browser.');
+		}
+
+		const parsed = parseProfileTransferText(rawText);
+		let createdClients = 0;
+		let updatedClients = 0;
+
+		await this.saveSender({
+			...parsed.sender,
+			id: this.sender.id,
+			isDefault: true
+		});
+
+		const existingClients = await db.clients.getAll();
+		const mergedClients = [...existingClients];
+
+		for (const importedClient of parsed.clients) {
+			const match = mergedClients.find((client) => this.isMatchingClient(client, importedClient));
+
+			if (match?.id !== undefined) {
+				const updatedClient: Client = {
+					...match,
+					...importedClient,
+					id: match.id,
+					createdAt: match.createdAt,
+					updatedAt: new Date()
+				};
+
+				await db.clients.put(updatedClient);
+				Object.assign(match, updatedClient);
+				updatedClients += 1;
+				continue;
+			}
+
+			const newClient: Client = {
+				...importedClient,
+				createdAt: importedClient.createdAt ?? new Date(),
+				updatedAt: new Date()
+			};
+
+			const id = await db.clients.add(newClient);
+			mergedClients.push({ ...newClient, id: Number(id) });
+			createdClients += 1;
+		}
+
+		await Promise.all([this.loadSender(), this.loadClients()]);
+
+		return {
+			createdClients,
+			updatedClients,
+			totalClients: parsed.clients.length,
+			replacedSender: true
+		};
+	}
+
+	private isMatchingClient(existingClient: Client, importedClient: Client) {
+		const existingEmail = existingClient.email.trim().toLowerCase();
+		const importedEmail = importedClient.email.trim().toLowerCase();
+
+		if (existingEmail && importedEmail && existingEmail === importedEmail) {
+			return true;
+		}
+
+		const existingName = existingClient.name.trim().toLowerCase();
+		const importedName = importedClient.name.trim().toLowerCase();
+		const existingCompany = (existingClient.company ?? '').trim().toLowerCase();
+		const importedCompany = (importedClient.company ?? '').trim().toLowerCase();
+
+		return existingName === importedName && existingCompany === importedCompany;
 	}
 
 	// Bank Account Helpers
