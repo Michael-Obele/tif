@@ -1,7 +1,13 @@
 import { db } from '$lib/db/db';
 import type { Sender, Client, BankAccount } from '$lib/types';
 import { browser } from '$app/environment';
-import { createProfileTransferText, parseProfileTransferText } from '$lib/utils/profile-transfer';
+import {
+	areMatchingClients,
+	buildProfileImportPreview,
+	createProfileTransferText,
+	parseProfileTransferText,
+	type ProfileImportPreview
+} from '$lib/utils/profile-transfer';
 
 export interface ProfileImportResult {
 	createdClients: number;
@@ -146,6 +152,14 @@ export class ProfileStore {
 		return createProfileTransferText(sender, clients);
 	}
 
+	previewProfileImportText(rawText: string): ProfileImportPreview {
+		const parsed = parseProfileTransferText(rawText);
+		const sender = $state.snapshot(this.sender);
+		const clients = $state.snapshot(this.clients);
+
+		return buildProfileImportPreview(parsed, sender, clients);
+	}
+
 	async importProfileText(rawText: string): Promise<ProfileImportResult> {
 		if (!browser) {
 			throw new Error('Profile import is only available in the browser.');
@@ -165,7 +179,7 @@ export class ProfileStore {
 		const mergedClients = [...existingClients];
 
 		for (const importedClient of parsed.clients) {
-			const match = mergedClients.find((client) => this.isMatchingClient(client, importedClient));
+			const match = mergedClients.find((client) => areMatchingClients(client, importedClient));
 
 			if (match?.id !== undefined) {
 				const updatedClient: Client = {
@@ -201,22 +215,6 @@ export class ProfileStore {
 			totalClients: parsed.clients.length,
 			replacedSender: true
 		};
-	}
-
-	private isMatchingClient(existingClient: Client, importedClient: Client) {
-		const existingEmail = existingClient.email.trim().toLowerCase();
-		const importedEmail = importedClient.email.trim().toLowerCase();
-
-		if (existingEmail && importedEmail && existingEmail === importedEmail) {
-			return true;
-		}
-
-		const existingName = existingClient.name.trim().toLowerCase();
-		const importedName = importedClient.name.trim().toLowerCase();
-		const existingCompany = (existingClient.company ?? '').trim().toLowerCase();
-		const importedCompany = (importedClient.company ?? '').trim().toLowerCase();
-
-		return existingName === importedName && existingCompany === importedCompany;
 	}
 
 	// Bank Account Helpers

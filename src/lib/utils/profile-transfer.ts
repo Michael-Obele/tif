@@ -78,6 +78,26 @@ export interface ParsedProfileTransfer {
 	exportedAt: Date;
 }
 
+export type ProfileImportClientAction = 'merge' | 'new';
+
+export interface ProfileImportClientPreview {
+	action: ProfileImportClientAction;
+	name: string;
+	company?: string;
+	email: string;
+}
+
+export interface ProfileImportPreview {
+	exportedAt: Date;
+	senderWillChange: boolean;
+	currentSenderName: string;
+	importedSenderName: string;
+	totalClients: number;
+	matchedClients: number;
+	newClients: number;
+	clientPreview: ProfileImportClientPreview[];
+}
+
 function toIsoString(value: Date | string | undefined): string {
 	if (!value) return new Date().toISOString();
 	const date = value instanceof Date ? value : new Date(value);
@@ -101,6 +121,21 @@ function normalizeBankAccounts(accounts: BankAccount[] | undefined): BankAccount
 		iban: account.iban ?? '',
 		currency: account.currency ?? 'USD'
 	}));
+}
+
+function normalizeSenderForComparison(sender: Sender) {
+	return {
+		businessName: sender.businessName ?? '',
+		address: sender.address ?? '',
+		email: sender.email ?? '',
+		phone: sender.phone ?? '',
+		taxId: sender.taxId ?? '',
+		logo: sender.logo ?? null,
+		website: sender.website ?? '',
+		defaultCurrency: sender.defaultCurrency ?? 'USD',
+		defaultTerms: sender.defaultTerms ?? '',
+		bankAccounts: normalizeBankAccounts(sender.bankAccounts)
+	};
 }
 
 function serializeSender(sender: Sender): SenderTransfer {
@@ -195,5 +230,58 @@ export function parseProfileTransferText(rawText: string): ParsedProfileTransfer
 				updatedAt
 			};
 		})
+	};
+}
+
+export function areMatchingClients(existingClient: Client, importedClient: Client) {
+	const existingEmail = existingClient.email.trim().toLowerCase();
+	const importedEmail = importedClient.email.trim().toLowerCase();
+
+	if (existingEmail && importedEmail && existingEmail === importedEmail) {
+		return true;
+	}
+
+	const existingName = existingClient.name.trim().toLowerCase();
+	const importedName = importedClient.name.trim().toLowerCase();
+	const existingCompany = (existingClient.company ?? '').trim().toLowerCase();
+	const importedCompany = (importedClient.company ?? '').trim().toLowerCase();
+
+	return existingName === importedName && existingCompany === importedCompany;
+}
+
+export function buildProfileImportPreview(
+	parsed: ParsedProfileTransfer,
+	existingSender: Sender,
+	existingClients: Client[]
+): ProfileImportPreview {
+	const clientPreview: ProfileImportClientPreview[] = parsed.clients.map((client) => {
+		const action: ProfileImportClientAction = existingClients.some((existingClient) =>
+			areMatchingClients(existingClient, client)
+		)
+			? 'merge'
+			: 'new';
+
+		return {
+			action,
+			name: client.name,
+			company: client.company ?? '',
+			email: client.email
+		};
+	});
+
+	const matchedClients = clientPreview.filter((client) => client.action === 'merge').length;
+	const newClients = clientPreview.length - matchedClients;
+
+	return {
+		exportedAt: parsed.exportedAt,
+		senderWillChange:
+			JSON.stringify(normalizeSenderForComparison(existingSender)) !==
+			JSON.stringify(normalizeSenderForComparison(parsed.sender)),
+		currentSenderName: existingSender.businessName || 'Current profile',
+		importedSenderName: parsed.sender.businessName || 'Imported profile',
+		totalClients: parsed.clients.length,
+		matchedClients,
+		newClients,
+		clientPreview
 	};
 }

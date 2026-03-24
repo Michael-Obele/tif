@@ -1,17 +1,25 @@
 <script lang="ts">
+	import { Dialog as DialogPrimitive } from 'bits-ui';
 	import { Button } from '$lib/components/ui/button';
 	import * as Card from '$lib/components/ui/card';
 	import * as Tooltip from '$lib/components/ui/tooltip';
 	import { profileStore } from '$lib/stores/profile.svelte';
+	import type { ProfileImportPreview } from '$lib/utils/profile-transfer';
 	import { toast } from 'svelte-sonner';
-	import { Download, FileText, RefreshCcw, ShieldCheck, Upload } from '@lucide/svelte';
+	import { cn } from '$lib/utils';
+	import { Download, Eye, FileText, RefreshCcw, ShieldCheck, Upload, X } from '@lucide/svelte';
 
 	let fileInput = $state<HTMLInputElement | null>(null);
-	let isImporting = $state(false);
+	let isPreparingPreview = $state(false);
+	let isApplyingImport = $state(false);
 	let isExporting = $state(false);
+	let isPreviewOpen = $state(false);
 	let importSummary = $state('');
+	let pendingImportText = $state('');
+	let importPreview = $state<ProfileImportPreview | null>(null);
 
 	const backupFileName = `tech-invoice-forge-profile-${new Date().toISOString().slice(0, 10)}.txt`;
+	const previewLimit = 6;
 
 	async function exportProfile() {
 		isExporting = true;
@@ -42,26 +50,51 @@
 		fileInput?.click();
 	}
 
-	async function importProfile(event: Event) {
+	function resetPreviewState() {
+		pendingImportText = '';
+		importPreview = null;
+		isPreviewOpen = false;
+	}
+
+	async function prepareImportPreview(event: Event) {
 		const input = event.currentTarget as HTMLInputElement;
 		const file = input.files?.[0];
 
 		if (!file) return;
 
-		isImporting = true;
+		isPreparingPreview = true;
 
 		try {
 			const rawText = await file.text();
-			const result = await profileStore.importProfileText(rawText);
-
-			importSummary = `Sender updated. ${result.updatedClients} client${result.updatedClients === 1 ? '' : 's'} merged and ${result.createdClients} added.`;
-			toast.success('Profile backup imported');
+			importPreview = profileStore.previewProfileImportText(rawText);
+			pendingImportText = rawText;
+			isPreviewOpen = true;
 		} catch (error) {
 			console.error('Error importing profile backup:', error);
-			toast.error(error instanceof Error ? error.message : 'Unable to import profile backup');
+			resetPreviewState();
+			toast.error(error instanceof Error ? error.message : 'Unable to preview profile backup');
 		} finally {
 			input.value = '';
-			isImporting = false;
+			isPreparingPreview = false;
+		}
+	}
+
+	async function applyImport() {
+		if (!pendingImportText || !importPreview) return;
+
+		isApplyingImport = true;
+
+		try {
+			const result = await profileStore.importProfileText(pendingImportText);
+
+			importSummary = `Sender updated. ${result.updatedClients} client${result.updatedClients === 1 ? '' : 's'} merged and ${result.createdClients} added.`;
+			resetPreviewState();
+			toast.success('Profile backup imported');
+		} catch (error) {
+			console.error('Error applying profile backup import:', error);
+			toast.error(error instanceof Error ? error.message : 'Unable to import profile backup');
+		} finally {
+			isApplyingImport = false;
 		}
 	}
 </script>
@@ -147,18 +180,18 @@
 					type="file"
 					accept=".txt,text/plain"
 					class="sr-only"
-					onchange={importProfile}
+					onchange={prepareImportPreview}
 				/>
 
 				<Button
 					variant="outline"
 					class="mt-6 w-full gap-2 border-dashed"
 					onclick={openFilePicker}
-					disabled={isImporting}
+					disabled={isPreparingPreview || isApplyingImport}
 				>
-					{#if isImporting}
+					{#if isPreparingPreview}
 						<RefreshCcw class="h-4 w-4 animate-spin" />
-						Importing backup...
+						Analyzing backup...
 					{:else}
 						<Upload class="h-4 w-4" />
 						Choose backup file
@@ -208,3 +241,150 @@
 		</Card.Content>
 	</Card.Root>
 </div>
+
+<DialogPrimitive.Root bind:open={isPreviewOpen}>
+	<DialogPrimitive.Portal>
+		<DialogPrimitive.Overlay
+			class="fixed inset-0 z-50 bg-black/55 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0"
+		/>
+		<DialogPrimitive.Content
+			class={cn(
+				'fixed top-1/2 left-1/2 z-50 grid w-[calc(100%-2rem)] max-w-2xl -translate-x-1/2 -translate-y-1/2 gap-5 rounded-2xl border bg-background p-6 shadow-2xl duration-200 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95'
+			)}
+		>
+			<Button
+				variant="ghost"
+				size="icon"
+				class="absolute top-4 right-4 text-muted-foreground"
+				onclick={resetPreviewState}
+			>
+				<X class="h-4 w-4" />
+			</Button>
+
+			<div class="space-y-2 pr-10">
+				<div class="flex items-center gap-2 text-sm font-medium text-primary">
+					<Eye class="h-4 w-4" />
+					Import preview
+				</div>
+				<DialogPrimitive.Title class="text-2xl font-semibold tracking-tight">
+					Review backup changes before import
+				</DialogPrimitive.Title>
+				<DialogPrimitive.Description class="text-sm leading-relaxed text-muted-foreground">
+					This preview is read-only. Your local profile will only change after you confirm the
+					import.
+				</DialogPrimitive.Description>
+			</div>
+
+			{#if importPreview}
+				<div class="grid gap-4 md:grid-cols-[1.1fr_0.9fr]">
+					<section class="space-y-4 rounded-2xl border bg-muted/10 p-4">
+						<div>
+							<p class="text-sm font-medium text-foreground">Sender profile</p>
+							<p class="mt-1 text-sm text-muted-foreground">
+								Backup from {importPreview.exportedAt.toLocaleString()}.
+							</p>
+						</div>
+						<div class="rounded-xl border bg-background/80 p-4">
+							<p class="text-xs font-medium tracking-wide text-muted-foreground uppercase">
+								Current
+							</p>
+							<p class="mt-1 font-medium text-foreground">{importPreview.currentSenderName}</p>
+						</div>
+						<div class="rounded-xl border bg-background/80 p-4">
+							<p class="text-xs font-medium tracking-wide text-muted-foreground uppercase">
+								Importing
+							</p>
+							<p class="mt-1 font-medium text-foreground">{importPreview.importedSenderName}</p>
+						</div>
+						<div
+							class={cn(
+								'rounded-xl border p-4 text-sm',
+								importPreview.senderWillChange
+									? 'border-primary/20 bg-primary/8 text-primary'
+									: 'border-border bg-background/80 text-muted-foreground'
+							)}
+						>
+							{#if importPreview.senderWillChange}
+								The active sender profile will be replaced by the imported profile.
+							{:else}
+								The imported sender matches the current profile. No sender changes detected.
+							{/if}
+						</div>
+					</section>
+
+					<section class="space-y-4 rounded-2xl border bg-muted/10 p-4">
+						<div>
+							<p class="text-sm font-medium text-foreground">Client merge summary</p>
+							<p class="mt-1 text-sm text-muted-foreground">
+								{importPreview.totalClients} client{importPreview.totalClients === 1 ? '' : 's'} found
+								in the backup.
+							</p>
+						</div>
+						<div class="grid grid-cols-3 gap-3">
+							<div class="rounded-xl border bg-background/80 p-3">
+								<p class="text-xs text-muted-foreground">Total</p>
+								<p class="mt-1 text-xl font-semibold">{importPreview.totalClients}</p>
+							</div>
+							<div class="rounded-xl border bg-background/80 p-3">
+								<p class="text-xs text-muted-foreground">Merge</p>
+								<p class="mt-1 text-xl font-semibold">{importPreview.matchedClients}</p>
+							</div>
+							<div class="rounded-xl border bg-background/80 p-3">
+								<p class="text-xs text-muted-foreground">New</p>
+								<p class="mt-1 text-xl font-semibold">{importPreview.newClients}</p>
+							</div>
+						</div>
+
+						<div class="rounded-xl border bg-background/80 p-4">
+							<p class="text-sm font-medium text-foreground">Preview</p>
+							<div class="mt-3 space-y-2">
+								{#each importPreview.clientPreview.slice(0, previewLimit) as client}
+									<div
+										class="flex items-start justify-between gap-3 rounded-lg border bg-muted/10 px-3 py-2"
+									>
+										<div class="min-w-0">
+											<p class="truncate text-sm font-medium text-foreground">{client.name}</p>
+											<p class="truncate text-xs text-muted-foreground">
+												{client.company || client.email || 'No company or email'}
+											</p>
+										</div>
+										<span
+											class={cn(
+												'rounded-full px-2.5 py-1 text-[11px] font-medium tracking-wide uppercase',
+												client.action === 'merge'
+													? 'bg-primary/10 text-primary'
+													: 'bg-muted text-muted-foreground'
+											)}
+										>
+											{client.action}
+										</span>
+									</div>
+								{/each}
+							</div>
+							{#if importPreview.clientPreview.length > previewLimit}
+								<p class="mt-3 text-xs text-muted-foreground">
+									Showing {previewLimit} of {importPreview.clientPreview.length} clients in this preview.
+								</p>
+							{/if}
+						</div>
+					</section>
+				</div>
+			{/if}
+
+			<div class="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+				<Button variant="outline" onclick={resetPreviewState} disabled={isApplyingImport}>
+					Cancel
+				</Button>
+				<Button class="gap-2" onclick={applyImport} disabled={isApplyingImport || !importPreview}>
+					{#if isApplyingImport}
+						<RefreshCcw class="h-4 w-4 animate-spin" />
+						Applying import...
+					{:else}
+						<Upload class="h-4 w-4" />
+						Apply import
+					{/if}
+				</Button>
+			</div>
+		</DialogPrimitive.Content>
+	</DialogPrimitive.Portal>
+</DialogPrimitive.Root>
