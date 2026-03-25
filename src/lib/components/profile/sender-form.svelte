@@ -5,28 +5,63 @@
 	import { Button } from '$lib/components/ui/button';
 	import * as Card from '$lib/components/ui/card';
 	import * as Select from '$lib/components/ui/select/index';
+	import * as Accordion from '$lib/components/ui/accordion';
+	import { Badge } from '$lib/components/ui/badge';
 	import { profileStore } from '$lib/stores/profile.svelte';
-	import { Plus, Trash2, Save, Building2, Landmark, Banknote } from '@lucide/svelte';
-	import type { Sender } from '$lib/types';
+	import { Plus, Minus, Trash2, Save, Building2, Landmark, Banknote } from '@lucide/svelte';
+	import type { BankAccount, Sender } from '$lib/types';
 	import { toast } from 'svelte-sonner';
 	import { CURRENCIES } from '$lib/constants';
 
 	let { sender = $bindable() }: { sender: Sender } = $props();
 
+	const FIELD_PRESETS = [
+		{ label: 'Routing Number', hint: 'US domestic' },
+		{ label: 'SWIFT / BIC', hint: 'International wire' },
+		{ label: 'IBAN', hint: 'European transfers' },
+		{ label: 'Sort Code', hint: 'UK' },
+		{ label: 'BSB Number', hint: 'Australia' },
+		{ label: 'Branch Code', hint: 'Various' },
+		{ label: 'Wire Instructions', hint: '' }
+	] as const;
+
+	// Tracks which accordion items are open. New accounts expand automatically.
+	let openAccounts = $state<string[]>([]);
+
 	function addBankAccount() {
 		if (!sender.bankAccounts) sender.bankAccounts = [];
+		const id = crypto.randomUUID();
 		sender.bankAccounts.push({
-			id: crypto.randomUUID(),
+			id,
 			bankName: '',
 			accountName: '',
 			accountNumber: '',
-			currency: 'USD'
+			currency: 'USD',
+			fields: []
 		});
+		openAccounts = [...openAccounts, id];
 	}
 
 	function removeBankAccount(index: number) {
 		if (!sender.bankAccounts) return;
+		const removed = sender.bankAccounts[index];
 		sender.bankAccounts = sender.bankAccounts.filter((_, i) => i !== index);
+		if (removed) openAccounts = openAccounts.filter((id) => id !== removed.id);
+	}
+
+	function addPresetField(account: BankAccount, label: string) {
+		if (!account.fields) account.fields = [];
+		account.fields.push({ id: crypto.randomUUID(), label, value: '' });
+	}
+
+	function addCustomField(account: BankAccount) {
+		if (!account.fields) account.fields = [];
+		account.fields.push({ id: crypto.randomUUID(), label: '', value: '' });
+	}
+
+	function removeField(account: BankAccount, fieldId: string) {
+		if (!account.fields) return;
+		account.fields = account.fields.filter((f) => f.id !== fieldId);
 	}
 
 	async function save() {
@@ -137,71 +172,184 @@
 				</div>
 				<div>
 					<Card.Title>Bank Accounts</Card.Title>
-					<Card.Description>Manage your bank accounts for receiving payments.</Card.Description>
+					<Card.Description
+						>Add payment details for invoices. Use <strong>Quick Add</strong> to insert common fields
+						(routing numbers, SWIFT codes, IBANs) or add fully custom label / value fields per
+						account.</Card.Description
+					>
 				</div>
 			</div>
 		</Card.Header>
-		<Card.Content class="space-y-6">
+		<Card.Content class="space-y-4">
 			{#if sender.bankAccounts && sender.bankAccounts.length > 0}
-				{#each sender.bankAccounts as account, i}
-					<div
-						class="relative grid grid-cols-1 gap-4 rounded-lg border bg-muted/20 p-4 md:grid-cols-2"
-					>
-						<Button
-							variant="ghost"
-							size="icon"
-							class="absolute top-2 right-2 text-destructive hover:bg-destructive/10 hover:text-destructive"
-							onclick={() => removeBankAccount(i)}
+				<Accordion.Root type="multiple" bind:value={openAccounts} class="space-y-2">
+					{#each sender.bankAccounts as account, i (account.id)}
+						<Accordion.Item
+							value={account.id}
+							class="rounded-lg border bg-muted/20 border-b-0"
 						>
-							<Trash2 class="h-4 w-4" />
-						</Button>
+							<Accordion.Trigger class="px-4 hover:no-underline">
+								<div class="flex min-w-0 flex-1 items-center gap-2 text-left">
+									<div class="min-w-0 flex-1">
+										<span class="block truncate font-medium">
+											{account.bankName || 'Unnamed Account'}
+										</span>
+										{#if account.accountName}
+											<span class="block truncate text-xs text-muted-foreground"
+												>{account.accountName}</span
+											>
+										{/if}
+									</div>
+									<Badge variant="outline" class="shrink-0 font-mono text-xs"
+										>{account.currency}</Badge
+									>
+									{#if account.fields && account.fields.length > 0}
+										<Badge variant="secondary" class="shrink-0 text-xs">
+											{account.fields.length}
+											{account.fields.length === 1 ? 'field' : 'fields'}
+										</Badge>
+									{/if}
+								</div>
+							</Accordion.Trigger>
+							<Accordion.Content class="px-4 pb-4 pt-0">
+								<!-- Core identity fields -->
+								<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+									<div class="space-y-2">
+										<Label>Bank Name</Label>
+										<Input bind:value={account.bankName} placeholder="Bank of America" />
+									</div>
+									<div class="space-y-2">
+										<Label>Account Name</Label>
+										<Input bind:value={account.accountName} placeholder="Acme Inc." />
+									</div>
+									<div class="space-y-2">
+										<Label>Account Number</Label>
+										<Input
+											bind:value={account.accountNumber}
+											placeholder="1234567890"
+										/>
+									</div>
+									<div class="space-y-2">
+										<Label class="flex items-center gap-1.5">
+											<Banknote class="h-3 w-3 text-muted-foreground" />
+											Currency
+										</Label>
+										<Select.Root type="single" bind:value={account.currency}>
+											<Select.Trigger class="w-full">
+												{@const selected = CURRENCIES.find(
+													(c) => c.code === account.currency
+												)}
+												{selected
+													? `${selected.name} (${selected.symbol})`
+													: 'Select currency'}
+											</Select.Trigger>
+											<Select.Content>
+												<Select.Group>
+													<Select.Label>Currencies</Select.Label>
+													{#each CURRENCIES as currency}
+														<Select.Item value={currency.code} label={currency.name}>
+															<div class="flex items-center gap-2">
+																<span
+																	class="w-8 font-mono text-xs text-muted-foreground"
+																	>{currency.code}</span
+																>
+																<span>{currency.name}</span>
+																<span class="ml-auto font-mono"
+																	>{currency.symbol}</span
+																>
+															</div>
+														</Select.Item>
+													{/each}
+												</Select.Group>
+											</Select.Content>
+										</Select.Root>
+									</div>
+								</div>
 
-						<div class="space-y-2">
-							<Label>Bank Name</Label>
-							<Input bind:value={account.bankName} placeholder="Bank of America" />
-						</div>
-						<div class="space-y-2">
-							<Label>Account Name</Label>
-							<Input bind:value={account.accountName} placeholder="Acme Inc." />
-						</div>
-						<div class="space-y-2">
-							<Label>Account Number / IBAN</Label>
-							<Input bind:value={account.accountNumber} placeholder="1234567890" />
-						</div>
-						<div class="space-y-2">
-							<Label>Routing / SWIFT</Label>
-							<Input bind:value={account.routingNumber} placeholder="123456789" />
-						</div>
-						<div class="space-y-2">
-							<Label class="flex items-center gap-2">
-								<Banknote class="h-3 w-3 text-muted-foreground" />
-								Currency
-							</Label>
-							<Select.Root type="single" bind:value={account.currency}>
-								<Select.Trigger class="w-full">
-									{@const selected = CURRENCIES.find((c) => c.code === account.currency)}
-									{selected ? `${selected.name} (${selected.symbol})` : 'Select currency'}
-								</Select.Trigger>
-								<Select.Content>
-									<Select.Group>
-										<Select.Label>Currencies</Select.Label>
-										{#each CURRENCIES as currency}
-											<Select.Item value={currency.code} label={currency.name}>
+								<!-- Additional dynamic fields -->
+								{#if account.fields && account.fields.length > 0}
+									<div class="mt-4 space-y-2">
+										<p
+											class="text-xs font-semibold uppercase tracking-wider text-muted-foreground"
+										>
+											Additional Fields
+										</p>
+										<div class="space-y-2">
+											{#each account.fields as field (field.id)}
 												<div class="flex items-center gap-2">
-													<span class="w-8 font-mono text-xs text-muted-foreground"
-														>{currency.code}</span
+													<Input
+														bind:value={field.label}
+														placeholder="Label"
+														class="w-40 shrink-0 text-sm"
+														aria-label="Field label"
+													/>
+													<span class="text-muted-foreground" aria-hidden="true">:</span>
+													<Input
+														bind:value={field.value}
+														placeholder="Value"
+														class="flex-1 text-sm"
+														aria-label="Field value for {field.label || 'custom field'}"
+													/>
+													<Button
+														variant="ghost"
+														size="icon"
+														class="size-8 shrink-0 text-muted-foreground hover:text-destructive"
+														onclick={() => removeField(account, field.id)}
+														aria-label="Remove {field.label || 'field'}"
 													>
-													<span>{currency.name}</span>
-													<span class="ml-auto font-mono">{currency.symbol}</span>
+														<Minus class="h-3.5 w-3.5" />
+													</Button>
 												</div>
-											</Select.Item>
+											{/each}
+										</div>
+									</div>
+								{/if}
+
+								<!-- Quick-add preset fields -->
+								<div class="mt-4 space-y-2">
+									<p
+										class="text-xs font-semibold uppercase tracking-wider text-muted-foreground"
+									>
+										Quick Add Field
+									</p>
+									<div class="flex flex-wrap gap-1.5">
+										{#each FIELD_PRESETS as preset (preset.label)}
+											<Button
+												variant="outline"
+												size="sm"
+												class="h-7 gap-1 border-dashed text-xs"
+												onclick={() => addPresetField(account, preset.label)}
+												title={preset.hint}
+											>
+												<Plus class="h-3 w-3" />{preset.label}
+											</Button>
 										{/each}
-									</Select.Group>
-								</Select.Content>
-							</Select.Root>
-						</div>
-					</div>
-				{/each}
+									</div>
+									<Button
+										variant="ghost"
+										size="sm"
+										class="mt-0.5 h-7 gap-1.5 text-xs text-muted-foreground"
+										onclick={() => addCustomField(account)}
+									>
+										<Plus class="h-3 w-3" /> Custom field
+									</Button>
+								</div>
+
+								<!-- Remove account -->
+								<div class="mt-4 border-t pt-3">
+									<Button
+										variant="ghost"
+										size="sm"
+										class="gap-2 text-destructive hover:bg-destructive/10 hover:text-destructive"
+										onclick={() => removeBankAccount(i)}
+									>
+										<Trash2 class="h-3.5 w-3.5" /> Remove Account
+									</Button>
+								</div>
+							</Accordion.Content>
+						</Accordion.Item>
+					{/each}
+				</Accordion.Root>
 			{:else}
 				<div
 					class="flex flex-col items-center justify-center rounded-lg border-2 border-dashed p-8 text-center text-muted-foreground"

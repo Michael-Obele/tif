@@ -51,6 +51,7 @@
 		"motion": "^12.34.3",
 		"pdfmake": "^0.3.3",
 		"runed": "^0.37.1",
+		"svelte-idb": "^0.1.5",
 		"svelte-sonner": "^1.0.7",
 		"valibot": "^1.2.0"
 	}

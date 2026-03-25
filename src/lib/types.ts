@@ -121,13 +121,17 @@ export interface AppSettings {
 	dateFormat: DateFormat;
 }
 
+export interface BankAccountField {
+	id: string;
+	label: string;
+	value: string;
+}
+
 export interface BankAccount {
 	id: string; // UUID
 	bankName: string;
 	accountName: string;
 	accountNumber: string;
-	routingNumber?: string;
-	swiftCode?: string;
-	iban?: string;
 	currency: CurrencyCode;
+	fields?: BankAccountField[];
 }

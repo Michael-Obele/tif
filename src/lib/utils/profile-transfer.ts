@@ -1,5 +1,5 @@
 import { defaultSender } from '$lib/defaults';
-import type { BankAccount, Client, Sender } from '$lib/types';
+import type { BankAccount, BankAccountField, Client, Sender } from '$lib/types';
 import {
 	array,
 	boolean,
@@ -15,15 +15,23 @@ import {
 const PROFILE_TRANSFER_FORMAT = 'tech-invoice-forge-profile';
 const PROFILE_TRANSFER_VERSION = 1;
 
+const bankAccountFieldSchema = object({
+	id: string(),
+	label: string(),
+	value: string()
+});
+
 const bankAccountSchema = object({
 	id: string(),
 	bankName: string(),
 	accountName: string(),
 	accountNumber: string(),
+	// Legacy fields – still accepted during import for backwards compatibility
 	routingNumber: optional(string()),
 	swiftCode: optional(string()),
 	iban: optional(string()),
-	currency: string()
+	currency: string(),
+	fields: optional(array(bankAccountFieldSchema))
 });
 
 const senderTransferSchema = object({
@@ -110,17 +118,39 @@ function fromOptionalDate(value: string | undefined, fallback: Date): Date {
 	return Number.isNaN(date.getTime()) ? fallback : date;
 }
 
-function normalizeBankAccounts(accounts: BankAccount[] | undefined): BankAccount[] {
-	return (accounts ?? []).map((account) => ({
-		id: account.id,
-		bankName: account.bankName ?? '',
-		accountName: account.accountName ?? '',
-		accountNumber: account.accountNumber ?? '',
-		routingNumber: account.routingNumber ?? '',
-		swiftCode: account.swiftCode ?? '',
-		iban: account.iban ?? '',
-		currency: account.currency ?? 'USD'
-	}));
+type LegacyBankAccount = BankAccount & {
+	routingNumber?: string;
+	swiftCode?: string;
+	iban?: string;
+};
+
+function normalizeBankAccounts(accounts: LegacyBankAccount[] | undefined): BankAccount[] {
+	return (accounts ?? []).map((account) => {
+		const existingFields = account.fields ?? [];
+		const legacyFields: BankAccountField[] = [];
+		if (account.routingNumber) {
+			legacyFields.push({ id: crypto.randomUUID(), label: 'Routing Number', value: account.routingNumber });
+		}
+		if (account.swiftCode) {
+			legacyFields.push({ id: crypto.randomUUID(), label: 'SWIFT / BIC', value: account.swiftCode });
+		}
+		if (account.iban) {
+			legacyFields.push({ id: crypto.randomUUID(), label: 'IBAN', value: account.iban });
+		}
+		return {
+			id: account.id,
+			bankName: account.bankName ?? '',
+			accountName: account.accountName ?? '',
+			accountNumber: account.accountNumber ?? '',
+			currency: account.currency ?? 'USD',
+			fields: [...legacyFields, ...existingFields]
+		};
+	});
+}
+
+/** Migrates bank accounts loaded from local storage that may still use the legacy flat-field format. */
+export function migrateLegacyBankAccounts(accounts: BankAccount[] | undefined): BankAccount[] {
+	return normalizeBankAccounts(accounts as LegacyBankAccount[]);
 }
 
 function normalizeSenderForComparison(sender: Sender) {

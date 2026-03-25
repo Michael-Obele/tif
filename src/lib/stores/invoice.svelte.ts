@@ -3,6 +3,7 @@ import type { Invoice, LineItem } from '$lib/types';
 import { db } from '$lib/db/db';
 import { browser } from '$app/environment';
 import { profileStore } from '$lib/stores/profile.svelte';
+import type { ILiveQuery } from 'svelte-idb';
 
 // Debounce helper
 function debounce<T extends (...args: unknown[]) => void>(fn: T, delay: number): T {
@@ -105,13 +106,26 @@ function serializeInvoiceForStorage(invoice: Invoice): Invoice {
 	};
 }
 
+function sortInvoicesByCreatedAtDescending(invoices: Invoice[]): Invoice[] {
+	return [...invoices].sort((a, b) => {
+		const dateA = a.createdAt instanceof Date ? a.createdAt.getTime() : new Date(a.createdAt).getTime();
+		const dateB = b.createdAt instanceof Date ? b.createdAt.getTime() : new Date(b.createdAt).getTime();
+		return dateB - dateA;
+	});
+}
+
 export class InvoiceStore {
 	invoice = $state<Invoice>({ ...defaultInvoice });
 	isSaving = $state(false);
 	lastSaved = $state<Date | null>(null);
 	isInitialized = $state(false);
-	invoiceHistory = $state<Invoice[]>([]);
 	lastSavedSnapshot = $state<string | null>(null); // JSON snapshot of invoice when last saved to history
+	private invoiceHistoryQuery: ILiveQuery<Invoice[]> = db.invoices.liveAll();
+	invoiceHistory = $derived(
+		sortInvoicesByCreatedAtDescending(
+			(this.invoiceHistoryQuery.current ?? []).filter((invoice) => Number(invoice.isDraft ?? 0) === 0)
+		)
+	);
 
 	subtotal = $derived(
 		this.invoice.lineItems.reduce((sum, item) => sum + item.quantity * item.rate, 0)
@@ -490,46 +504,9 @@ export class InvoiceStore {
 		if (!browser) return [];
 
 		try {
-			console.log('[InvoiceStore] === LOADING HISTORY ===');
-
-			// First, let's see ALL invoices for debugging
-			const allInvoices = await db.invoices.getAll();
-			console.log('[InvoiceStore] Total invoices in DB:', allInvoices.length);
-			console.log(
-				'[InvoiceStore] All invoices (isDraft values):',
-				allInvoices.map((i) => ({
-					id: i.id,
-					isDraft: i.isDraft,
-					number: i.number,
-					status: i.status
-				}))
-			);
-
-			// Query for non-draft invoices (isDraft = 0)
-			const rawHistory = await db.invoices.getAllFromIndex('isDraft', 0);
-			const history = rawHistory.sort((a, b) => {
-				const dateA =
-					a.createdAt instanceof Date ? a.createdAt.getTime() : new Date(a.createdAt).getTime();
-				const dateB =
-					b.createdAt instanceof Date ? b.createdAt.getTime() : new Date(b.createdAt).getTime();
-				return dateB - dateA;
-			});
-
-			this.invoiceHistory = history;
-			console.log('[InvoiceStore] History loaded:', history.length, 'invoices');
-			if (history.length > 0) {
-				console.log(
-					'[InvoiceStore] History items:',
-					history.map((i: Invoice) => ({
-						id: i.id,
-						number: i.number,
-						status: i.status,
-						createdAt: i.createdAt
-					}))
-				);
-			}
-			console.log('[InvoiceStore] === HISTORY LOAD COMPLETE ===');
-			return history;
+			await this.invoiceHistoryQuery.refresh();
+			console.log('[InvoiceStore] History loaded:', this.invoiceHistory.length, 'invoices');
+			return this.invoiceHistory;
 		} catch (error) {
 			console.error('[InvoiceStore] === HISTORY LOAD FAILED ===');
 			console.error('[InvoiceStore] Error loading history:', error);

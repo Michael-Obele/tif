@@ -1,145 +1,78 @@
-# Native IndexedDB Implementation
+# Local Database Layer
 
-This document explains the native IndexedDB implementation used in Tech Invoice Forge.
+This document explains the current IndexedDB layer used in Tech Invoice Forge.
 
 ## Overview
 
-Instead of using wrapper libraries like `idb` or `Dexie.js`, this project uses a clean, custom wrapper around the browser's native IndexedDB API. This provides:
+The app now uses `svelte-idb` as the IndexedDB engine, wrapped in a compatibility adapter so the rest of the codebase can keep using the existing `db.<store>.add/put/get/getAll/getAllFromIndex/delete/clear/count` API.
 
-- **Zero dependencies** - No external libraries to manage
-- **Full control** - Customize exactly what we need
-- **Easy debugging** - Direct IndexedDB calls are easier to trace
-- **Small footprint** - ~170 lines of typed TypeScript
+This keeps the migration low-risk while enabling Svelte 5 live queries.
 
-## Architecture
+## Files
 
-### Files
+| File | Purpose |
+| --- | --- |
+| `db.svelte.ts` | Defines the reactive database with `createReactiveDB()` and wraps stores in a compatibility adapter |
+| `db.native.ts` | Compatibility re-export kept to avoid breaking existing imports |
+| `db.ts` | Stable public entry point for the local database singleton |
+| `prisma.ts` | Separate remote Prisma client for Neon/PostgreSQL work |
 
-| File           | Purpose                                    |
-| -------------- | ------------------------------------------ |
-| `db.native.ts` | Native IndexedDB wrapper implementation    |
-| `db.ts`        | Re-exports `db` from native implementation |
+## Public API
 
-### Classes
-
-#### `NativeStore<T>`
-
-A generic class that wraps IndexedDB object store operations:
-
-```typescript
-class NativeStore<T> {
-	async add(value: T): Promise<IDBValidKey>;
-	async put(value: T): Promise<IDBValidKey>;
-	async get(key: number | string): Promise<T | undefined>;
-	async getAll(): Promise<T[]>;
-	async getAllFromIndex(indexName: string, query?: IDBValidKey): Promise<T[]>;
-	async delete(key: number | string): Promise<void>;
-	async clear(): Promise<void>;
-	async count(): Promise<number>;
-}
-```
-
-#### `TechInvoiceForgeNativeDB`
-
-The main database class with typed store accessors:
-
-```typescript
-class TechInvoiceForgeNativeDB {
-	senders: NativeStore<Sender>;
-	clients: NativeStore<Client>;
-	serviceItems: NativeStore<ServiceItem>;
-	invoices: NativeStore<Invoice>;
-	settings: NativeStore<AppSettings>;
-}
-```
-
-## Usage
-
-### Import
+Import the singleton from the stable entry point:
 
 ```typescript
 import { db } from '$lib/db/db';
 ```
 
-### Basic Operations
+Supported CRUD methods remain unchanged:
 
 ```typescript
-// Add a new record
 const id = await db.invoices.add(invoice);
-
-// Update a record (upsert)
 await db.invoices.put(invoice);
-
-// Get a single record
 const invoice = await db.invoices.get(123);
-
-// Get all records
-const allInvoices = await db.invoices.getAll();
-
-// Query by index
+const invoices = await db.invoices.getAll();
 const drafts = await db.invoices.getAllFromIndex('isDraft', 1);
-
-// Delete a record
 await db.invoices.delete(123);
-
-// Clear all records
 await db.invoices.clear();
-
-// Count records
 const count = await db.invoices.count();
+```
+
+Reactive helpers are also available for incremental adoption:
+
+```typescript
+const allInvoices = db.invoices.liveAll();
+const singleInvoice = db.invoices.liveGet(123);
+const invoiceCount = db.invoices.liveCount();
 ```
 
 ## Schema
 
-| Store          | Key Path | Auto Increment | Indexes                                                  |
-| -------------- | -------- | -------------- | -------------------------------------------------------- |
-| `senders`      | `id`     | ✓              | `isDefault`                                              |
-| `clients`      | `id`     | ✓              | `email`                                                  |
-| `serviceItems` | `id`     | ✓              | -                                                        |
-| `invoices`     | `id`     | ✓              | `isDraft`, `status`, `createdAt`, `[isDraft, createdAt]` |
-| `settings`     | `id`     | ✗              | -                                                        |
+| Store | Key Path | Auto Increment | Indexes |
+| --- | --- | --- | --- |
+| `senders` | `id` | ✓ | `isDefault` |
+| `clients` | `id` | ✓ | `email` |
+| `serviceItems` | `id` | ✓ | - |
+| `invoices` | `id` | ✓ | `isDraft`, `status`, `createdAt`, `[isDraft, createdAt]` |
+| `settings` | `id` | ✗ | - |
 
-## SSR Safety
+The database identity stays the same:
 
-The implementation is SSR-safe. On the server, `dbPromise` is set to a never-resolving Promise, preventing any IndexedDB operations from executing:
+- Name: `TechInvoiceForgeDB`
+- Version: `3`
 
-```typescript
-if (!browser) {
-	this.dbPromise = new Promise(() => {}); // Never resolves on server
-} else {
-	this.dbPromise = this.openDatabase();
-}
-```
+## SSR Behavior
 
-## Version Migrations
+`db.svelte.ts` uses `svelte-idb` with `ssr: 'noop'`, so server-side rendering returns safe defaults instead of crashing on IndexedDB access.
 
-The database uses version 3. When upgrading from older versions:
+## Migration Hook
 
-- **v2 → v3**: Clears the `invoices` table to remove corrupted data from a previous serialization issue
+The current upgrade hook preserves the previous v3 cleanup behavior:
 
-## Debugging
+- `v2 -> v3`: clear the `invoices` store to remove corrupted legacy records
 
-All database operations log to the console with the `[NativeDB]` prefix:
+## Notes
 
-```
-[NativeDB] Database opened successfully
-[NativeDB] Created store: invoices
-[NativeDB] Created index: invoices.isDraft
-```
-
-## Comparison with Alternatives
-
-| Feature        | Native (this) | idb    | Dexie  |
-| -------------- | ------------- | ------ | ------ |
-| Bundle size    | ~3KB          | ~8KB   | ~25KB  |
-| Complexity     | Low           | Medium | High   |
-| Type safety    | ✓             | ✓      | ✓      |
-| SSR safe       | ✓             | ✓      | Custom |
-| Debugging      | Easy          | Medium | Hard   |
-| Learning curve | Low           | Low    | Medium |
-
-## Future Improvements
-
-- Add transaction support for atomic operations
-- Implement cursor-based iteration for large datasets
-- Add optional encryption for sensitive data
+- The adapter still strips `id: undefined` before `add()` and `put()` so auto-increment behavior stays consistent.
+- Existing code can continue importing from `$lib/db/db` without knowing the backing implementation changed.
+- New code can adopt `liveAll()`, `liveGet()`, `liveCount()`, or `db.liveQuery()` selectively.

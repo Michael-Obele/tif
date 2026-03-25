@@ -735,7 +735,11 @@
 											{#each profileStore.sender.bankAccounts as account}
 												<DropdownMenu.Item
 													onclick={() => {
-														const details = `**Bank Details:**\n- Bank: ${account.bankName}\n- Account Name: ${account.accountName}\n- Account Number: ${account.accountNumber}${account.routingNumber ? `\n- Routing/SWIFT: ${account.routingNumber}` : ''}${account.iban ? `\n- IBAN: ${account.iban}` : ''}`;
+														const extra = (account.fields ?? [])
+															.filter((f) => f.label && f.value)
+															.map((f) => `\n- ${f.label}: ${f.value}`)
+															.join('');
+														const details = `**Bank Details:**\n- Bank: ${account.bankName}\n- Account Name: ${account.accountName}\n- Account Number: ${account.accountNumber}${extra}`;
 														insertText('notes', details);
 													}}
 												>

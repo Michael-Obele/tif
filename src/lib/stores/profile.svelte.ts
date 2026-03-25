@@ -5,6 +5,7 @@ import {
 	areMatchingClients,
 	buildProfileImportPreview,
 	createProfileTransferText,
+	migrateLegacyBankAccounts,
 	parseProfileTransferText,
 	type ProfileImportPreview
 } from '$lib/utils/profile-transfer';
@@ -59,7 +60,10 @@ export class ProfileStore {
 			const defaultSender = senders.find((s) => s.isDefault);
 
 			if (defaultSender) {
-				this.sender = defaultSender;
+				this.sender = {
+					...defaultSender,
+					bankAccounts: migrateLegacyBankAccounts(defaultSender.bankAccounts)
+				};
 			} else if (senders.length > 0) {
 				// Use first one if no default
 				this.sender = senders[0];
@@ -225,7 +229,8 @@ export class ProfileStore {
 			bankName: '',
 			accountName: '',
 			accountNumber: '',
-			currency: 'USD'
+			currency: 'USD',
+			fields: []
 		});
 	}
 
