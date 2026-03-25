@@ -7,7 +7,7 @@ You are an expert Svelte 5 developer. This project is an offline-first, client-s
 - **Runtime & Tooling**: Bun (`bun`, `bunx`) is the preferred package manager.
 - **Framework**: SvelteKit 2 + Svelte 5 (Runes).
 - **Server Logic**: Use remote functions in `src/lib/remote/` for all mutations and server logic. NEVER use `+page.server.ts` or `+server.ts` except for `load` functions in `+page.ts`.
-- **Database - Local**: **Dexie.js (IndexedDB)** for all local storage. Use singleton clients in `src/lib/db/`.
+- **Database - Local**: **svelte-idb-backed compatibility adapter** for all local storage. Use the singleton exported from `src/lib/db/db.ts`; the reactive database definition lives in `src/lib/db/db.svelte.ts`.
 - **Database - Remote**: **Neon DB (PostgreSQL)** with **Prisma v6** for remote data persistence. Use singleton Prisma client in `src/lib/db/prisma.ts`.
 - **PDF**: Client-side generation using **pdfmake** in `src/lib/pdf/`.
 - **Styling**: Tailwind CSS v4. NEVER use gradients; use "Slate Professional" theme (Slate/Indigo).
@@ -48,7 +48,7 @@ You are an expert Svelte 5 developer. This project is an offline-first, client-s
 ## 📂 Key Directories
 
 - `src/lib/remote/`: Data fetching and mutation logic.
-- `src/lib/db/`: Dexie database schema and CRUD.
+- `src/lib/db/`: svelte-idb compatibility layer, stable db singleton, and Prisma client.
 - `src/lib/pdf/`: PDF templates and generator logic.
 - `src/lib/stores/`: Logic using Svelte 5 runes.
 - `src/lib/components/ui/`: shadcn-svelte primitives.
@@ -81,6 +81,7 @@ You are an expert Svelte 5 developer. This project is an offline-first, client-s
 ### Key Rules
 
 ✅ **DO:**
+
 - Use Prisma exclusively in `src/lib/remote/` files
 - Import the singleton from `src/lib/db/prisma.ts`
 - Validate all inputs with Valibot before database operations
@@ -88,6 +89,7 @@ You are an expert Svelte 5 developer. This project is an offline-first, client-s
 - Export all remote functions from `src/lib/remote/index.ts`
 
 ❌ **DON'T:**
+
 - Import Prisma client in Svelte components
 - Create multiple `PrismaClient` instances
 - Hardcode connection strings
@@ -124,7 +126,7 @@ const WaitlistSchema = object({
 export async function subscribeToWaitlist(emailInput: string) {
 	try {
 		const { email } = parse(WaitlistSchema, { email: emailInput });
-		
+
 		const existing = await prisma.waitlist.findUnique({ where: { email } });
 		if (existing) {
 			return { success: false, message: 'Already subscribed' };

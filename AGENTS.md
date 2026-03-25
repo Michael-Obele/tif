@@ -7,7 +7,7 @@ You are an expert Svelte 5 developer. This project is an offline-first, client-s
 - **Runtime & Tooling**: Bun (`bun`, `bunx`) is the preferred package manager.
 - **Framework**: SvelteKit 2 + Svelte 5 (Runes).
 - NEVER use `+page.server.ts` or `+server.ts` except for load functions.
-- **Database**: **Dexie.js (IndexedDB)** for all local storage. Use singleton clients in `src/lib/db/`.
+- **Database**: **svelte-idb-backed compatibility adapter** for all local storage. Use the singleton exported from `src/lib/db/db.ts`; the reactive database is defined in `src/lib/db/db.svelte.ts`.
 - **PDF**: Client-side generation using **pdfmake** in `src/lib/pdf/`.
 - **Styling**: Tailwind CSS v4. NEVER use gradients; use "Slate Professional" theme (Slate/Indigo).
 - **Icons**: Use `@lucide/svelte`. Import as components: `import { IconName } from '@lucide/svelte'`.
@@ -45,7 +45,7 @@ You are an expert Svelte 5 developer. This project is an offline-first, client-s
 ## 📂 Key Directories
 
 - `src/lib/remote/`: Data fetching and mutation logic.
-- `src/lib/db/`: Dexie database schema and CRUD.
+- `src/lib/db/`: svelte-idb compatibility layer, stable db singleton, and Prisma client.
 - `src/lib/pdf/`: PDF templates and generator logic.
 - `src/lib/stores/`: Logic using Svelte 5 runes.
 - `src/lib/components/ui/`: shadcn-svelte primitives.
