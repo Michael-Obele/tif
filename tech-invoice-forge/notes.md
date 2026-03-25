@@ -100,7 +100,7 @@ export const prerender = true; // Still prerender the HTML shell
 This is the **cleanest approach** for an offline-first, no-backend app. It allows us to import the `db` instance anywhere without worrying about server-side errors.
 
 **Implementation Note:**
-The project uses a custom, promise-based wrapper around the native IndexedDB API. This provides a clean interface similar to `idb` but with zero dependencies and specific optimizations for the invoice generation workflow.
+The project uses a `svelte-idb`-backed compatibility adapter over IndexedDB. This preserves the existing `db` singleton API while adding live-query support for selective reactive reads.
 
 **Svelte 5 Runes + Database Compatibility:**
 
@@ -376,7 +376,7 @@ Allow users to optionally add their business logo to invoices. This enhances pro
 
 ### Implementation
 
-**Storage:** Logo stored as base64 in IndexedDB (via Dexie.js)  
+**Storage:** Logo stored as base64 in IndexedDB via the `db` compatibility adapter  
 **Format:** Accept PNG, JPG, SVG (recommend PNG for best PDF results)  
 **Size Limit:** Max 500KB, auto-compress if larger  
 **Dimensions:** Recommend 200x200px, auto-resize for PDF
@@ -456,7 +456,7 @@ async function compressLogo(file: File, maxSize = 500 * 1024): Promise<string> {
 ### Potential Gotchas
 
 1. **pdfmake VFS fonts** - Must be loaded before generating PDF
-2. **Dexie.js on SSR** - Only works in browser, guard with `browser` check
+2. **IndexedDB on SSR** - Browser storage still hydrates client-side; use `browser` guards or client-only effects where the app depends on real local data immediately
 3. **Date handling** - Use @internationalized/date consistently
 4. **Tailwind v4** - New config syntax, no tailwind.config.js
 5. **Svelte 5 reactivity** - Remember $state for mutations

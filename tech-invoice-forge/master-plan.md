@@ -120,7 +120,7 @@ Tech Invoice Forge is a professional-grade, offline-first invoice and receipt ge
 
 #### Data Persistence
 
-- [ ] Save invoices to IndexedDB via Dexie.js
+- [ ] Save invoices to IndexedDB via the `db` compatibility adapter
 - [ ] Invoice history list with search/filter
 - [ ] Draft auto-save
 - [ ] Client address book
@@ -616,5 +616,5 @@ export async function generateInvoiceNumber(config = defaultConfig): Promise<str
 - [Zoho Invoice - Feature Analysis](https://www.zoho.com/us/invoice/features/)
 - [Easy Invoicer - Svelte + pdfmake Example](https://madewithsvelte.com/easy-invoicer)
 - [pdfmake Documentation](https://pdfmake.github.io/docs/)
-- [Dexie.js + SvelteKit Guide](https://medium.com/codex/efficient-in-browser-storage-with-dexie-js-and-sveltekit-ec8bd37c6ead)
+- [MDN IndexedDB Guide](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API)
 - [Intl.NumberFormat for Currency](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/NumberFormat)

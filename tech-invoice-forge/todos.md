@@ -23,7 +23,7 @@ This document tracks all implementation tasks for Tech Invoice Forge. Tasks are 
 
 ### Configure Tailwind
 
-- [ ] Create custom color palette in `tailwind.config.js`
+- [ ] Create custom color palette in `src/routes/layout.css`
 - [ ] Add brand colors (indigo, emerald, amber)
 - [ ] Add surface colors (slate-800, slate-900)
 - [ ] Configure dark mode as default
@@ -31,7 +31,7 @@ This document tracks all implementation tasks for Tech Invoice Forge. Tasks are 
 
 ### Install Core Dependencies
 
-- [x] Configure Native IndexedDB wrapper
+- [x] Configure svelte-idb compatibility adapter
 - [ ] Install pdfmake for PDF generation
 - [ ] Install valibot for validation
 - [ ] Install @internationalized/date
@@ -330,7 +330,7 @@ This document tracks all implementation tasks for Tech Invoice Forge. Tasks are 
 - [ ] Add logo upload input in SenderForm component
 - [ ] Implement drag-and-drop for logo
 - [ ] Add logo preview with remove button
-- [ ] Save logo as base64 in Dexie.js senders table
+- [ ] Save logo as base64 in the local `senders` store via the db adapter
 - [ ] Integrate logo into all PDF templates
 
 ### Keyboard Shortcuts

@@ -55,7 +55,7 @@ prototype: false
 | **Framework** | SvelteKit 2 + Svelte 5 (Runes)  | Web application             |
 | **Styling**   | Tailwind CSS v4 + shadcn-svelte | UI components               |
 | **PDF**       | pdfmake                         | Client-side PDF generation  |
-| **Storage**   | Native IndexedDB API            | Local data persistence      |
+| **Storage**   | svelte-idb + IndexedDB          | Local data persistence      |
 | **Forms**     | HTML forms + Valibot            | Remote functions validation |
 | **Auth**      | Better Auth (optional)          | Future cloud sync           |
 | **Date**      | @internationalized/date         | Date handling               |

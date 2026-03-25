@@ -346,12 +346,12 @@ export const CURRENCIES: Currency[] = [
 
 ---
 
-## Native IndexedDB Database Schema
+## IndexedDB Database Schema
 
-The project uses a custom, promise-based wrapper around the native IndexedDB API.
+The project uses a `svelte-idb`-backed compatibility adapter with the same local database name and store layout as the previous custom wrapper.
 
 ```typescript
-// $lib/db/db.native.ts
+// $lib/db/db.svelte.ts
 // Database configuration
 const DB_NAME = 'TechInvoiceForgeDB';
 const DB_VERSION = 3;

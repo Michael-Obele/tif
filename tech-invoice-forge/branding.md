@@ -311,41 +311,28 @@ Anvil shape with invoice lines inside
 
 ---
 
-## Color Implementation (Tailwind CSS)
+## Color Implementation (Tailwind CSS v4)
 
-```javascript
-// tailwind.config.js
-module.exports = {
-	theme: {
-		extend: {
-			colors: {
-				// Brand colors
-				brand: {
-					primary: '#4F46E5', // Indigo-600
-					secondary: '#10B981', // Emerald-500
-					accent: '#F59E0B' // Amber-500
-				},
-				// Surface colors
-				surface: {
-					base: '#0F172A', // Slate-900
-					elevated: '#1E293B', // Slate-800
-					overlay: '#334155' // Slate-700
-				},
-				// Text colors
-				content: {
-					primary: '#F8FAFC', // Slate-50
-					secondary: '#94A3B8', // Slate-400
-					muted: '#64748B' // Slate-500
-				},
-				// Semantic colors
-				success: '#10B981', // Emerald-500
-				warning: '#F59E0B', // Amber-500
-				error: '#EF4444', // Red-500
-				info: '#3B82F6' // Blue-500
-			}
-		}
-	}
-};
+```css
+/* src/routes/layout.css */
+@theme inline {
+	--color-brand-primary: #4f46e5;
+	--color-brand-secondary: #10b981;
+	--color-brand-accent: #f59e0b;
+
+	--color-surface-base: #0f172a;
+	--color-surface-elevated: #1e293b;
+	--color-surface-overlay: #334155;
+
+	--color-content-primary: #f8fafc;
+	--color-content-secondary: #94a3b8;
+	--color-content-muted: #64748b;
+
+	--color-success: #10b981;
+	--color-warning: #f59e0b;
+	--color-error: #ef4444;
+	--color-info: #3b82f6;
+}
 ```
 
 ---
